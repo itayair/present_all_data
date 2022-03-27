@@ -46,9 +46,9 @@ nbconvert==6.4.4
 nbformat==5.2.0
 nest-asyncio==1.5.4
 notebook==6.4.10
-numpy (>=1.8)
+numpy==1.22.2
 packaging==21.3
-pandas (>=1.2)
+pandas==1.4.1
 pandocfilters==1.5.0
 parso==0.8.3
 pathy==0.6.1
