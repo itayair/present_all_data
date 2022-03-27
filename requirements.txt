@@ -19,7 +19,6 @@ cymem==2.0.6
 debugpy==1.6.0
 decorator==5.1.1
 defusedxml==0.7.1
-en-ud-model-sm==2.0.0
 entrypoints==0.4
 executing==0.8.3
 gitdb==4.0.9
