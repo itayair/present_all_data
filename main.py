@@ -16,8 +16,8 @@ import pip
 # # Example
 # if __name__ == '__main__':
 #     install("https://storage.googleapis.com/en_ud_model/en_ud_model_sm-2.0.0.tar.gz")
-# DEFAULT_TEXT = "Used in select mask models , this new material improves upon silicone used for three decades in mask skirts with improved light transmission and much greater resistance to discoloration."
-# nlp = spacy.load("en_ud_model_sm")
+DEFAULT_TEXT = "Used in select mask models , this new material improves upon silicone used for three decades in mask skirts with improved light transmission and much greater resistance to discoloration."
+nlp = spacy.load("en_ud_model_sm")
 
 
 class obj_to_json:
