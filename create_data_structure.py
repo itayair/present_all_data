@@ -29,7 +29,7 @@ def get_head_noun_in_sentence(sentence_dep_graph):
     return noun_lst
 
 
-def fill_all_head_phrase_in_tree(root, sentence):
+def fill_all_head_phrase_in_tree(root, sentence, dict_noun_to_object):
     head_phrase = dict_noun_to_object.get(root.basic_span, None)
     if head_phrase is None:
         head_phrase = sentence_representation.head_phrase(root.basic_span)
@@ -39,14 +39,14 @@ def fill_all_head_phrase_in_tree(root, sentence):
     head_phrase.add_new_node(root, sentence)
     dict_noun_to_counter[root.basic_span] = dict_noun_to_counter.get(root.basic_span, 0) + 1
     for child in root.children_to_the_right:
-        fill_all_head_phrase_in_tree(child, sentence)
+        fill_all_head_phrase_in_tree(child, sentence, dict_noun_to_object)
 
 
-dict_noun_to_object = {}
 dict_noun_to_counter = {}
 
 
 def create_data_structure(sentences, nlp):
+    dict_noun_to_object = {}
     counter = 0
     for sent in sentences:
         # if counter > 200:
@@ -63,8 +63,9 @@ def create_data_structure(sentences, nlp):
                 continue
             all_valid_sub_np = valid_deps.get_all_valid_sub_np(head_noun, head_noun.i)
             sub_np_final_lst, root = ut.from_lst_to_sequence(all_valid_sub_np, [], None)
-            fill_all_head_phrase_in_tree(root, sent)
+            fill_all_head_phrase_in_tree(root, sent, dict_noun_to_object)
         counter += 1
         if counter % 1000 == 0:
             print(counter)
+    return dict_noun_to_object
 

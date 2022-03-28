@@ -1,3 +1,4 @@
+from nltk import tokenize
 import streamlit as st
 import create_data_structure
 import json
@@ -14,6 +15,9 @@ import pip
 # # Example
 # if __name__ == '__main__':
 #     install("https://storage.googleapis.com/en_ud_model/en_ud_model_sm-2.0.0.tar.gz")
+DEFAULT_TEXT = "Used in select mask models , this new material improves upon silicone used for three decades in mask skirts with improved light transmission and much greater resistance to discoloration."
+nlp = spacy.load("en_ud_model_sm")
+
 
 class obj_to_json:
     def __init__(self, label, value):
@@ -25,6 +29,32 @@ class obj_to_json:
                           sort_keys=True, indent=4)
 
         # self.kind = kind
+
+
+kind_of_data = st.radio(
+    "Which data do you want to use:",
+    ('application data', 'add some sentences'))
+
+
+def initialize_data_by_mode(sentences, data, dict_noun_to_object):
+    st.session_state.dict_noun_to_object = dict_noun_to_object
+    st.session_state.all_data = data
+    st.session_state.data = data
+    st.session_state.all_sentences = sentences
+    st.session_state.sentences = sentences
+
+
+def initialize_data(sentences):
+    st.session_state.sentences = sentences
+    dict_noun_to_object = create_data_structure.create_data_structure(sentences, nlp)
+    item_lst_manual = []
+    for key, value in dict_noun_to_object.items():
+        item_lst_manual.append(key)
+    st.session_state.data = item_lst_manual
+    st.session_state.all_data = st.session_state.data
+    st.session_state.dict_noun_to_object = dict_noun_to_object
+    st.session_state.all_sentences = st.session_state.sentences
+    return st.session_state.sentences, st.session_state.dict_noun_to_object, st.session_state.data
 
 
 def initialize_head_phrase():
@@ -70,17 +100,18 @@ if "id" not in st.session_state:
     st.session_state.new = True
     st.session_state.span = ""
     st.session_state.is_head_state = True
+    st.session_state.text_in_manual_mode = ""
+    st.session_state.is_application_data = True
 else:
     st.session_state.id += 1
 item_lst = []
 if st.button("restart"):
-    st.session_state.new = True
     st.session_state.span = ""
     st.session_state.is_head_state = True
+    st.session_state.data = st.session_state.all_data
     st.session_state.sentences = st.session_state.all_sentences
 
 if st.session_state.id == 0:
-    nlp = spacy.load("en_ud_model_sm")
     used_for_examples = open('./csv/examples_used_for.csv', encoding="utf8")
     csv_reader_used_for_examples = csv.reader(used_for_examples)
     header = next(csv_reader_used_for_examples)
@@ -88,17 +119,26 @@ if st.session_state.id == 0:
     st.session_state.all_sentences = []
     for row in csv_reader_used_for_examples:
         sent_to_collect.append(row[13])
-        st.session_state.all_sentences.append(row[13])
-    st.session_state.sentences = st.session_state.all_sentences
-    create_data_structure.create_data_structure(sent_to_collect, nlp)
-    for key, value in create_data_structure.dict_noun_to_object.items():
-        item_lst.append(key)
-    st.session_state.all_data = item_lst
-    st.session_state.data = st.session_state.all_data
-    st.session_state.dict_noun_to_object = create_data_structure.dict_noun_to_object
-if st.session_state.new:
-    st.session_state.data = st.session_state.all_data
-    st.session_state.new = False
+    st.session_state.all_sentences_application_data, st.session_state.dict_noun_to_object_application_data, st.session_state.all_data_application_data = initialize_data(
+        sent_to_collect)
+    # nltk.download('punkt')
+
+if kind_of_data == 'application data' and not st.session_state.is_application_data:
+    st.session_state.is_application_data = True
+    initialize_data_by_mode(st.session_state.all_sentences_application_data, st.session_state.all_data_application_data, st.session_state.dict_noun_to_object_application_data)
+    st.session_state.span = ""
+    st.session_state.is_head_state = True
+if kind_of_data == 'add some sentences':
+    st.header("Enter a sentence:")
+    text = st.text_area("", DEFAULT_TEXT)
+    if st.session_state.text_in_manual_mode != text or st.session_state.is_application_data:
+        st.session_state.text_in_manual_mode = text
+        text = tokenize.sent_tokenize(text)
+        st.session_state.all_sentences_manual_data, st.session_state.dict_noun_to_object_application_manual_data, st.session_state.all_data_manual_data = initialize_data(
+            text)
+        st.session_state.span = ""
+        st.session_state.is_head_state = True
+    st.session_state.is_application_data = False
 if st.session_state.is_head_state:
     option = st.selectbox(
         'Choose Head Phrase to expand',
@@ -113,7 +153,7 @@ else:
         span_to_add = bridge_option
 if (st.session_state.is_head_state and st.button("add to sentence")) or (
         not st.session_state.is_head_state and st.session_state.bridge_to_head_phrase_child_dict and st.button(
-        "add to sentence")):
+    "add to sentence")):
     if not st.session_state.is_head_state:
         item_lst = []
         for child_span in st.session_state.bridge_to_head_phrase_child_dict[bridge_option]:
