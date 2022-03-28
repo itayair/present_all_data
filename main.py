@@ -122,7 +122,7 @@ if st.session_state.id == 0:
         sent_to_collect.append(row[13])
     st.session_state.all_sentences_application_data, st.session_state.dict_noun_to_object_application_data, st.session_state.all_data_application_data = initialize_data(
         sent_to_collect)
-    # nltk.download('punkt')
+    nltk.download('punkt')
 
 if kind_of_data == 'application data' and not st.session_state.is_application_data:
     st.session_state.is_application_data = True
