@@ -4,11 +4,21 @@ import sentence_representation as sent_rep
 noun_tags_lst = ['NN', 'NNS', 'WP', 'PRP', 'NNP', 'NNPS']
 pro_noun_tags_lst = ['WP', 'PRP', 'DET', 'NN', 'NNS']
 noun_tags_lst_to_expand = ['NNP', 'NNPS']
+
+
 def from_children_to_list(children):
     lst_children = []
     for token in children:
         lst_children.append(token)
     return lst_children
+
+
+def get_head_of_span(span):
+    head = None
+    for child in span:
+        if child.head not in span:
+            head = child
+    return head
 
 
 def get_token_by_dep(lst_children, dep_type):
@@ -22,6 +32,7 @@ def get_token_by_dep(lst_children, dep_type):
 def powerset(iterable):
     # s = list(iterable)
     return itertools.chain.from_iterable(itertools.combinations(iterable, r) for r in range(len(iterable) + 1))
+
 
 def get_all_combination(sub_np_of_child_lst, sub_np_of_child_lst_final):
     result_list = list(powerset(sub_np_of_child_lst))
@@ -42,6 +53,7 @@ def get_all_children_recursively(sub_np_lst, current_lst, root):
         sub_np_of_child, _ = from_lst_to_sequence(child, new_lst_for_child, root)
         sub_np_of_child_lst.append(sub_np_of_child)
     return sub_np_of_child_lst
+
 
 def from_lst_to_sequence(sub_np_lst, current_lst, root):
     sub_np_of_child_lst_final = []
@@ -66,7 +78,8 @@ def from_lst_to_sequence(sub_np_lst, current_lst, root):
             root.add_children(node_in_sentence_representation)
         if len(sub_np_lst) == 1:
             return [current_lst], root
-        sub_np_of_child_lst = get_all_children_recursively(sub_np_lst[slice_index:], current_lst, node_in_sentence_representation)
+        sub_np_of_child_lst = get_all_children_recursively(sub_np_lst[slice_index:], current_lst,
+                                                           node_in_sentence_representation)
     get_all_combination(sub_np_of_child_lst, sub_np_of_child_lst_final)
     return sub_np_of_child_lst_final, root
 
@@ -175,10 +188,10 @@ def list_of_nodes_to_span(list_of_nodes, head_noun):
     valid_span = []
     expand_format = []
     for node in list_of_nodes:
-        valid_span.extend(node.span)
-        if head_noun not in node.span:
+        valid_span.extend(node.basic_span_as_tokens)
+        if head_noun not in node.basic_span_as_tokens:
             head_noun_token = None
-            for token in node.span:
+            for token in node.basic_span_as_tokens:
                 if token != head_noun and token.tag_ in noun_tags_lst_to_expand and (
                         node.children_to_the_left or node.children_to_the_right):
                     head_noun_token = token
@@ -190,7 +203,7 @@ def list_of_nodes_to_span(list_of_nodes, head_noun):
     return get_tokens_as_span_special(valid_span, expand_format)
 
 
-def get_all_options(node):
+def get_all_options(node, is_the_first_node=False):
     sub_tree = []
     for child in node.children_to_the_left:
         has_noun_token = False
@@ -202,16 +215,17 @@ def get_all_options(node):
         else:
             sub_tree_child = get_all_options(child)
             sub_tree.append(sub_tree_child)
-    for child in node.children_to_the_right:
-        has_noun_token = False
-        for token in child.span:
-            if token.tag_ in noun_tags_lst:
-                has_noun_token = True
-        if has_noun_token:
-            sub_tree.append([child])
-        else:
-            sub_tree_child = get_all_options(child)
-            sub_tree.append(sub_tree_child)
+    if is_the_first_node:
+        for child in node.children_to_the_right:
+            has_noun_token = False
+            for token in child.span:
+                if token.tag_ in noun_tags_lst:
+                    has_noun_token = True
+            if has_noun_token:
+                sub_tree.append([child])
+            else:
+                sub_tree_child = get_all_options(child)
+                sub_tree.append(sub_tree_child)
     sub_tree = [node] + sub_tree
     return sub_tree
 

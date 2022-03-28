@@ -66,6 +66,7 @@ def initialize_head_phrase(nodes_for_lst):
     # new_sentences_lst = []
     # nodes_for_lst = []
     relation_counter = {}
+    nodes_for_lst = list(set(nodes_for_lst) & set(st.session_state.expanded_nodes))
     # for sentence, nodes in st.session_state.selected_node.sent_to_head_node_dict.items():
     #     if sentence in st.session_state.sentences:
     #         new_sentences_lst.append(sentence)
@@ -158,12 +159,36 @@ if kind_of_data == 'add some sentences':
         st.session_state.is_head_state = True
     st.session_state.is_application_data = False
 if st.session_state.is_head_state:
+    st.session_state.expanded_nodes = []
     option = st.selectbox(
         'Choose Head Phrase to expand',
         st.session_state.data)
     option = st.session_state.data[option]
     st.session_state.selected_node = st.session_state.dict_noun_to_object[option]
     span_to_add = option
+    agree = st.checkbox(
+        "press here to get all the optional expansions of " + span_to_add)
+    if agree:
+        if st.session_state.span == "":
+            nodes_to_get_all_expansions = st.session_state.selected_node.head_node_lst
+        else:
+            nodes_to_get_all_expansions = st.session_state.dict_basic_span_to_nodes[option]
+        from_node_to_all_his_expansion_to_the_left = st.session_state.selected_node.from_node_to_all_his_expansion_to_the_left
+        counter_of_expansion_occurrences = {}
+        expansion_to_node = {}
+        for node in nodes_to_get_all_expansions:
+            all_his_expansion_to_the_left = from_node_to_all_his_expansion_to_the_left[node]
+            for expansion in all_his_expansion_to_the_left:
+                expansion_to_node[expansion] = expansion_to_node.get(expansion, [])
+                expansion_to_node[expansion].append(node)
+                counter_of_expansion_occurrences[expansion] = counter_of_expansion_occurrences.get(expansion, 0) + 1
+        counter_of_expansion_occurrences = {k + " (" + str(v) + ")": k for k, v in sorted(counter_of_expansion_occurrences.items(), key=lambda item: item[1], reverse=True)}
+        expanded_option = st.selectbox(
+            'Choose the expansion',
+            counter_of_expansion_occurrences)
+        expanded_option = counter_of_expansion_occurrences[expanded_option]
+        st.session_state.expanded_nodes = expansion_to_node[expanded_option]
+        span_to_add = expanded_option
 else:
     if st.session_state.bridge_to_head_phrase_child_dict:
         relation_dep_option = st.selectbox(

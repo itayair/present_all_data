@@ -1,5 +1,5 @@
 import json
-
+import utils as ut
 attr_of_node = ['det', 'neg', 'auxpass', 'aux', 'auxpass']
 
 counter_error_example = 0
@@ -24,6 +24,7 @@ class Node:
         self.bridge_to_head = ""
         self.basic_span = ""
         self.is_amod_type = False
+        self.basic_span_as_tokens = []
         self.initialize_attr_and_basic_span(span)
         ########
         self.children_to_the_left = []
@@ -44,6 +45,7 @@ class Node:
                     self.is_amod_type = True
                 basic_lst.append(token[0])
         self.basic_span = from_token_lst_to_span(basic_lst)
+        self.basic_span_as_tokens = basic_lst
         self.bridge_to_head = from_token_lst_to_span(bridge_to_head_lst)
         if self.basic_span == "":
             counter_error_example += 1
@@ -71,11 +73,18 @@ class head_phrase:
         self.bridge_to_head_phrase_child_dict = {}
         self.sent_to_head_node_dict = {}
         self.nodes_lst = []
+        self.from_node_to_all_his_expansion_to_the_left = {}
 
     def add_new_node(self, node, sentence):
         self.head_node_lst.append(node)
         self.sent_to_head_node_dict[sentence] = self.sent_to_head_node_dict.get(sentence, [])
         self.sent_to_head_node_dict[sentence].append(node)
+        new_format_all_valid_sub_np = ut.get_all_options(node, True)
+        sub_np_final_lst_special = ut.from_lst_to_sequence_special(new_format_all_valid_sub_np, [])
+        valid_expansion_results = set()
+        for sub_np in sub_np_final_lst_special:
+            valid_expansion_results.add(ut.list_of_nodes_to_span(sub_np, ut.get_head_of_span(node.basic_span_as_tokens)))
+        self.from_node_to_all_his_expansion_to_the_left[node] = valid_expansion_results
         for child in node.children_to_the_right:
             if child.basic_span == "":
                 print("error")

@@ -96,7 +96,8 @@ def remove_conj_if_cc_exist(lst_children):
 
 def set_couple_deps(couple_lst, sub_np_lst, head):
     for couple in couple_lst:
-        sub_np_lst_couple, lst_children_first = combine_tied_deps_recursively_and_combine_their_children(couple[0], -1, 2)
+        sub_np_lst_couple, lst_children_first = combine_tied_deps_recursively_and_combine_their_children(couple[0], -1,
+                                                                                                         2)
         sub_np_lst_couple_second, lst_children_second = combine_tied_deps_recursively_and_combine_their_children(
             couple[1], -1, 5)
         sub_np_lst_couple.extend(sub_np_lst_couple_second)
@@ -143,12 +144,14 @@ def get_all_valid_sub_special(token):
         return []
     return sub_np
 
-def get_all_children(head, head_token_type = 4):
+
+def get_all_children(head, head_token_type=4):
     combined_tied_tokens = [(head, head_token_type)]
     for child in head.children:
         temp_tokens = get_all_children(child, 2)
         combined_tied_tokens.extend(temp_tokens)
     return combined_tied_tokens
+
 
 def get_children_expansion(sub_np_lst, lst_children, head):
     others = []
