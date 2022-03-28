@@ -117,7 +117,7 @@ if "id" not in st.session_state:
 else:
     st.session_state.id += 1
 item_lst = []
-if st.button("restart"):
+if st.sidebar.button("restart"):
     st.session_state.id = 0
     st.session_state.span = ""
     st.session_state.is_head_state = True
