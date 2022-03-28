@@ -114,8 +114,8 @@ if "id" not in st.session_state:
 else:
     st.session_state.id += 1
 item_lst = []
-st.sidebar.write("The restart button is used for the development(load the data and do all the preprocessing from the beginning)")
-if st.sidebar.button("restart"):
+st.sidebar.write("The restart button is used for the development(loading the data and do all the preprocessing from the beginning)")
+if st.sidebar.button("Restart"):
     st.session_state.id = 0
     st.session_state.span = ""
     st.session_state.is_head_state = True
@@ -124,7 +124,7 @@ if st.sidebar.button("restart"):
 
 kind_of_data = st.sidebar.radio(
     "Which data do you want to use:",
-    ('application data', 'add some sentences'))
+    ('Application data', 'Your own sentences'))
 
 if st.button("start from the beginning"):
     st.session_state.span = ""
@@ -151,14 +151,14 @@ if st.session_state.id == 0:
         sent_to_collect)
     nltk.download('punkt')
 
-if kind_of_data == 'application data' and not st.session_state.is_application_data:
+if kind_of_data == 'Application data' and not st.session_state.is_application_data:
     st.session_state.is_application_data = True
     initialize_data_by_mode(st.session_state.all_sentences_application_data, st.session_state.all_data_application_data,
                             st.session_state.dict_noun_to_object_application_data)
     st.session_state.span = ""
     st.session_state.is_head_state = True
-if kind_of_data == 'add some sentences':
-    st.header("Enter a sentence:")
+if kind_of_data == 'Your own sentences':
+    st.header("Please enter here some sentences:")
     text = st.text_area("", DEFAULT_TEXT)
     if st.session_state.text_in_manual_mode != text or st.session_state.is_application_data:
         st.session_state.text_in_manual_mode = text
@@ -171,13 +171,13 @@ if kind_of_data == 'add some sentences':
 if st.session_state.is_head_state:
     st.session_state.expanded_nodes = []
     option = st.selectbox(
-        'Choose Head Phrase to expand',
+        'Choose span to expand',
         st.session_state.data)
     option = st.session_state.data[option]
     st.session_state.selected_node = st.session_state.dict_noun_to_object[option]
     span_to_add = option
     agree = st.checkbox(
-        "press here to get all the optional expansions of " + span_to_add)
+        "Press here to get all the optional expansions of " + span_to_add)
     if agree:
         if st.session_state.span == "":
             nodes_to_get_all_expansions = st.session_state.selected_node.head_node_lst
@@ -194,7 +194,7 @@ if st.session_state.is_head_state:
                 counter_of_expansion_occurrences[expansion] = counter_of_expansion_occurrences.get(expansion, 0) + 1
         counter_of_expansion_occurrences = {k + " (" + str(v) + ")": k for k, v in sorted(counter_of_expansion_occurrences.items(), key=lambda item: item[1], reverse=True)}
         expanded_option = st.selectbox(
-            'Choose the expansion',
+            'Choose the expanded span',
             counter_of_expansion_occurrences)
         expanded_option = counter_of_expansion_occurrences[expanded_option]
         st.session_state.expanded_nodes = expansion_to_node[expanded_option]
@@ -202,7 +202,7 @@ if st.session_state.is_head_state:
 else:
     if st.session_state.bridge_to_head_phrase_child_dict:
         relation_dep_option = st.selectbox(
-            'Choose relation to another Head Phrase',
+            'Choose the relation to another span',
             st.session_state.relation_counter)
         relation_dep_option = st.session_state.relation_counter[relation_dep_option]
         span_to_add = relation_dep_option
