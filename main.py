@@ -5,6 +5,7 @@ import create_data_structure
 import json
 import csv
 import spacy
+import pandas as pd
 import pip
 
 # def install(package):
@@ -198,6 +199,13 @@ if st.session_state.is_head_state:
             counter_of_expansion_occurrences)
         expanded_option = counter_of_expansion_occurrences[expanded_option]
         st.session_state.expanded_nodes = expansion_to_node[expanded_option]
+        sent_lst = []
+        for node in st.session_state.expanded_nodes:
+            sent_lst.append(st.session_state.selected_node.from_node_to_sentence[node])
+        df = pd.DataFrame(sent_lst, columns=["sentences"])
+        dfStyler = df.style.set_properties(**{'text-align': 'left'})
+        dfStyler.set_table_styles([dict(selector='th', props=[('text-align', 'left')])])
+        st.dataframe(df)
         span_to_add = expanded_option
 else:
     if st.session_state.bridge_to_head_phrase_child_dict:

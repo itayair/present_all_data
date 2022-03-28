@@ -74,6 +74,7 @@ class head_phrase:
         self.sent_to_head_node_dict = {}
         self.nodes_lst = []
         self.from_node_to_all_his_expansion_to_the_left = {}
+        self.from_node_to_sentence = {}
 
     def add_new_node(self, node, sentence):
         self.head_node_lst.append(node)
@@ -81,9 +82,11 @@ class head_phrase:
         self.sent_to_head_node_dict[sentence].append(node)
         new_format_all_valid_sub_np = ut.get_all_options_without_shortcut(node, True)
         sub_np_final_lst_special = ut.from_lst_to_sequence_special(new_format_all_valid_sub_np, [])
+        self.from_node_to_sentence[node] = sentence
         valid_expansion_results = set()
         for sub_np in sub_np_final_lst_special:
-            valid_expansion_results.add(ut.list_of_nodes_to_span_without_shortcut(sub_np))
+            valid_span = ut.list_of_nodes_to_span_without_shortcut(sub_np)
+            valid_expansion_results.add(valid_span)
         self.from_node_to_all_his_expansion_to_the_left[node] = valid_expansion_results
         for child in node.children_to_the_right:
             if child.basic_span == "":

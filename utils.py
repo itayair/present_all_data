@@ -235,7 +235,7 @@ def get_all_options_without_shortcut(node, is_the_first_node=False):
     for child in node.children_to_the_left:
         sub_tree_child = get_all_options_without_shortcut(child)
         sub_tree.append(sub_tree_child)
-    if is_the_first_node:
+    if not is_the_first_node:
         for child in node.children_to_the_right:
             sub_tree_child = get_all_options_without_shortcut(child)
             sub_tree.append(sub_tree_child)
