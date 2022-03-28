@@ -79,7 +79,7 @@ class head_phrase:
         self.head_node_lst.append(node)
         self.sent_to_head_node_dict[sentence] = self.sent_to_head_node_dict.get(sentence, [])
         self.sent_to_head_node_dict[sentence].append(node)
-        new_format_all_valid_sub_np = ut.get_all_options(node, True)
+        new_format_all_valid_sub_np = ut.get_all_options_without_shortcut(node, True)
         sub_np_final_lst_special = ut.from_lst_to_sequence_special(new_format_all_valid_sub_np, [])
         valid_expansion_results = set()
         for sub_np in sub_np_final_lst_special:

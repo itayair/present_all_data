@@ -230,6 +230,18 @@ def get_all_options(node, is_the_first_node=False):
     return sub_tree
 
 
+def get_all_options_without_shortcut(node, is_the_first_node=False):
+    sub_tree = []
+    for child in node.children_to_the_left:
+        sub_tree_child = get_all_options_without_shortcut(child)
+        sub_tree.append(sub_tree_child)
+    if is_the_first_node:
+        for child in node.children_to_the_right:
+            sub_tree_child = get_all_options_without_shortcut(child)
+            sub_tree.append(sub_tree_child)
+    sub_tree = [node] + sub_tree
+    return sub_tree
+
 def from_lst_to_sequence_special(sub_np_lst, current_lst):
     sub_np_of_child_lst_final = []
     if isinstance(sub_np_lst[0], list):
