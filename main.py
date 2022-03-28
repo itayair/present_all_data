@@ -6,15 +6,15 @@ import csv
 import spacy
 import pip
 
-# def install(package):
-#     if hasattr(pip, 'main'):
-#         pip.main(['install', package])
-#     else:
-#         pip._internal.main(['install', package])
-#
-# # Example
-# if __name__ == '__main__':
-#     install("https://storage.googleapis.com/en_ud_model/en_ud_model_sm-2.0.0.tar.gz")
+def install(package):
+    if hasattr(pip, 'main'):
+        pip.main(['install', package])
+    else:
+        pip._internal.main(['install', package])
+
+# Example
+if __name__ == '__main__':
+    install("https://storage.googleapis.com/en_ud_model/en_ud_model_sm-2.0.0.tar.gz")
 DEFAULT_TEXT = "Used in select mask models , this new material improves upon silicone used for three decades in mask skirts with improved light transmission and much greater resistance to discoloration."
 nlp = spacy.load("en_ud_model_sm")
 
