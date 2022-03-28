@@ -101,9 +101,6 @@ def update_when_relation_was_chose(relation_dep_option):
     st.session_state.dict_basic_span_to_nodes = dict_basic_span_to_nodes
 
 
-kind_of_data = st.sidebar.radio(
-    "Which data do you want to use:",
-    ('application data', 'add some sentences'))
 
 st.title("Aggregated Data")
 
@@ -117,12 +114,17 @@ if "id" not in st.session_state:
 else:
     st.session_state.id += 1
 item_lst = []
+st.sidebar.write("The restart button is used for the development(load the data and do all the preprocessing from the beginning)")
 if st.sidebar.button("restart"):
     st.session_state.id = 0
     st.session_state.span = ""
     st.session_state.is_head_state = True
     st.session_state.data = st.session_state.all_data
     st.session_state.sentences = st.session_state.all_sentences
+
+kind_of_data = st.sidebar.radio(
+    "Which data do you want to use:",
+    ('application data', 'add some sentences'))
 
 if st.button("start from the beginning"):
     st.session_state.span = ""
