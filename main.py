@@ -1,3 +1,4 @@
+import nltk
 from nltk import tokenize
 import streamlit as st
 import create_data_structure
