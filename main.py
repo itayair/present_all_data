@@ -118,6 +118,13 @@ else:
     st.session_state.id += 1
 item_lst = []
 if st.button("restart"):
+    st.session_state.id = 0
+    st.session_state.span = ""
+    st.session_state.is_head_state = True
+    st.session_state.data = st.session_state.all_data
+    st.session_state.sentences = st.session_state.all_sentences
+
+if st.button("start from the beginning"):
     st.session_state.span = ""
     st.session_state.is_head_state = True
     st.session_state.data = st.session_state.all_data
