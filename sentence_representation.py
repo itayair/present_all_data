@@ -70,10 +70,10 @@ class head_phrase:
         self.head_node_lst = []
         self.bridge_to_head_phrase_child_dict = {}
         self.sent_to_head_node_dict = {}
-
+        self.nodes_lst = []
 
     def add_new_node(self, node, sentence):
-        self.head_node_lst.append((node.basic_span, hash(sentence)))
+        self.head_node_lst.append(node)
         self.sent_to_head_node_dict[sentence] = self.sent_to_head_node_dict.get(sentence, [])
         self.sent_to_head_node_dict[sentence].append(node)
         for child in node.children_to_the_right:
@@ -84,9 +84,10 @@ class head_phrase:
             if child.bridge_to_head:
                 self.bridge_to_head_phrase_child_dict[child.bridge_to_head] = self.bridge_to_head_phrase_child_dict.get(
                     child.bridge_to_head, [])
-                self.bridge_to_head_phrase_child_dict[child.bridge_to_head].append(child.basic_span)
+                self.bridge_to_head_phrase_child_dict[child.bridge_to_head].append(child)
             self.sentence_and_node_to_head_phrase_child_dict[
-                (hash(sentence), node.basic_span)] = self.sentence_and_node_to_head_phrase_child_dict.get((hash(sentence), node.basic_span), [])
+                (hash(sentence), node.basic_span)] = self.sentence_and_node_to_head_phrase_child_dict.get(
+                (hash(sentence), node.basic_span), [])
             self.sentence_and_node_to_head_phrase_child_dict[(hash(sentence), node.basic_span)].append(child.basic_span)
 
     # def toJSON(self):
