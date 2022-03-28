@@ -144,6 +144,7 @@ if st.session_state.id == 0:
     st.session_state.all_sentences = []
     for row in csv_reader_used_for_examples:
         sent_to_collect.append(row[13])
+        sent_to_collect = list(set(sent_to_collect))
     st.session_state.all_sentences_application_data, st.session_state.dict_noun_to_object_application_data, st.session_state.all_data_application_data = initialize_data(
         sent_to_collect)
     nltk.download('punkt')
