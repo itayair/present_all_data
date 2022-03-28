@@ -242,6 +242,17 @@ def get_all_options_without_shortcut(node, is_the_first_node=False):
     sub_tree = [node] + sub_tree
     return sub_tree
 
+
+def list_of_nodes_to_span_without_shortcut(list_of_nodes):
+    valid_span = []
+    for node in list_of_nodes:
+        valid_span.extend(node.basic_span_as_tokens)
+    valid_span = set(valid_span)
+    valid_span = list(valid_span)
+    valid_span.sort(key=lambda x: x.i)
+    return get_tokens_as_span_simple(valid_span)
+
+
 def from_lst_to_sequence_special(sub_np_lst, current_lst):
     sub_np_of_child_lst_final = []
     if isinstance(sub_np_lst[0], list):

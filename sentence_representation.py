@@ -83,7 +83,7 @@ class head_phrase:
         sub_np_final_lst_special = ut.from_lst_to_sequence_special(new_format_all_valid_sub_np, [])
         valid_expansion_results = set()
         for sub_np in sub_np_final_lst_special:
-            valid_expansion_results.add(ut.list_of_nodes_to_span(sub_np, ut.get_head_of_span(node.basic_span_as_tokens)))
+            valid_expansion_results.add(ut.list_of_nodes_to_span_without_shortcut(sub_np))
         self.from_node_to_all_his_expansion_to_the_left[node] = valid_expansion_results
         for child in node.children_to_the_right:
             if child.basic_span == "":
