@@ -1,16 +1,25 @@
 import utils as ut
 
+pro_noun_tags_lst = ['WP', 'PRP', 'DET', 'NN', 'NNS']
+
+# Classify deps for rule based
+######################################################################################################################
+# always a part of the noun
 tied_deps = ['det', 'neg', 'nmod:poss', 'compound', 'mwe', 'case', 'mark', 'auxpass', 'name', 'aux']
 tied_couples = [['auxpass', 'nsubjpass']]
 
+# Optional to describe the noun
 dep_type_optional = ['advmod', 'dobj', 'npadvmod', 'nmod', 'nummod', 'conj', 'poss', 'nmod:poss',
-                     'xcomp']  # , 'conj', 'nsubj', 'appos'
+                     'xcomp']
 
-acl_to_seq = ['acomp', 'dobj', 'nmod']  # acl and relcl + [[['xcomp'], ['aux']], 'dobj']
-others_to_seq = ['quantmod', 'cop']  # 'cc',
-combined_with = ['acl', 'relcl', 'acl:relcl', 'ccomp', 'advcl']  # +, 'cc'
-couple_to_seq = {'quantmod': ['amod'], 'cop': ['nsubjpass', 'nsubj']}  # 'nsubjpass': ['amod'] ,'cc': ['conj', 'nmod']
-pro_noun_tags_lst = ['WP', 'PRP', 'DET', 'NN', 'NNS']
+# strict sequence for valid expansion
+others_to_seq = ['quantmod', 'cop']
+couple_to_seq = {'quantmod': ['amod'], 'cop': ['nsubjpass', 'nsubj']}
+
+# Dependency that create relation to another phrase
+combined_with = ['acl', 'relcl', 'acl:relcl', 'ccomp', 'advcl']
+
+######################################################################################################################
 
 
 def get_tied_couple_by_deps(first_dep, second_dep, children):
@@ -120,8 +129,6 @@ def get_all_valid_sub_special(token):
     for child in lst_children:
         if child in lst_to_skip or child.text in ['-', '(', ')', '"']:
             continue
-        if child.dep_ == 'poss':
-            print(child.text)
         if child.dep_ in ['dobj', 'advcl', 'nmod']:
             dep_type_in_sequential.add(child.dep_)
             all_sub_of_sub = get_all_valid_sub_np(child)
@@ -157,30 +164,22 @@ def get_children_expansion(sub_np_lst, lst_children, head):
     others = []
     lst_to_skip, tokens_to_add = remove_conj_if_cc_exist(lst_children)
     for child in lst_children:
-        if child in lst_to_skip or child.text in ['-', '(', ')']:
+        if child in lst_to_skip or child.text in ['-', '(', ')', '"']:
             continue
         sub_np = []
-        if child.dep_ in dep_type_optional:
-            all_sub_of_sub = get_all_valid_sub_np(child)
-            sub_np.append(all_sub_of_sub)
-            if sub_np:
-                sub_np_lst.extend(sub_np)
-        elif child.dep_ in combined_with:
-            all_sub_of_sub = get_all_valid_sub_special(child)
+        all_sub_of_sub = []
+        if child.dep_ in others_to_seq:
+            others.append(child)
+        else:
+            if child.dep_ in dep_type_optional:
+                all_sub_of_sub = get_all_valid_sub_np(child)
+            elif child.dep_ in combined_with:
+                all_sub_of_sub = get_all_valid_sub_special(child)
+            elif child.dep_ == 'amod':
+                all_sub_of_sub = get_all_children(child, 4)
             if all_sub_of_sub:
                 sub_np.append(all_sub_of_sub)
-            if sub_np:
-                sub_np_lst.extend(sub_np)
-        elif child.dep_ in others_to_seq:
-            others.append(child)
-        elif child.dep_ == 'amod':
-            all_sub_of_sub = get_all_children(child, 4)
-            sub_np.append(all_sub_of_sub)
-            if sub_np:
-                sub_np_lst.extend(sub_np)
-        # else:
-        #     if child.dep_ not in ['nsubj']:
-        #         print(child.dep_)
+            sub_np_lst.extend(sub_np)
     couple_lst = []
     if others:
         initialize_couple_lst(others, couple_lst, lst_children)

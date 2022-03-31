@@ -87,8 +87,8 @@ def initialize_head_phrase(nodes_for_lst):
     st.session_state.valid_nodes = nodes_for_lst
 
 
-def update_when_relation_was_chose(relation_dep_option):
-    children = st.session_state.bridge_to_head_phrase_child_dict[relation_dep_option]
+def update_when_relation_was_chose(chosen_relation_dep_option):
+    children = st.session_state.bridge_to_head_phrase_child_dict[chosen_relation_dep_option]
     span_for_head_lst = set()
     dict_noun_to_counter = {}
     dict_basic_span_to_nodes = {}
@@ -179,11 +179,13 @@ if st.session_state.is_head_state:
     span_to_add = option
     agree = st.checkbox(
         "Press here to get all the optional expansions of " + span_to_add)
+    if st.session_state.span == "":
+        st.session_state.expanded_nodes = st.session_state.selected_node.head_node_lst
+        nodes_to_get_all_expansions = st.session_state.selected_node.head_node_lst
+    else:
+        nodes_to_get_all_expansions = st.session_state.dict_basic_span_to_nodes[option]
+        st.session_state.expanded_nodes = st.session_state.dict_basic_span_to_nodes[option]
     if agree:
-        if st.session_state.span == "":
-            nodes_to_get_all_expansions = st.session_state.selected_node.head_node_lst
-        else:
-            nodes_to_get_all_expansions = st.session_state.dict_basic_span_to_nodes[option]
         from_node_to_all_his_expansion_to_the_left = st.session_state.selected_node.from_node_to_all_his_expansion_to_the_left
         counter_of_expansion_occurrences = {}
         expansion_to_node = {}
