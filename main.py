@@ -32,9 +32,10 @@ def load_model(name):
 nlp = load_model("en_ud_model_sm")
 
 
-@st.cache(hash_funcs={spacy.lang.en.English: lambda _: initialize_data, spacy.tokens.token.Token: lambda _: initialize_data}, allow_output_mutation=True)
+@st.cache(
+    hash_funcs={spacy.lang.en.English: lambda _: initialize_data, spacy.tokens.token.Token: lambda _: initialize_data},
+    allow_output_mutation=True)
 def initialize_data(sentences):
-    st.session_state.sentences = sentences
     dict_noun_to_object, dict_noun_to_counter = create_data_structure.create_data_structure(sentences, nlp)
     data = {k + " (" + str(v) + ")": k for k, v in
             sorted(dict_noun_to_counter.items(), key=lambda item: item[1], reverse=True)}
@@ -42,7 +43,8 @@ def initialize_data(sentences):
 
 
 @st.cache(
-    hash_funcs={spacy.lang.en.English: lambda _: initialize_data, spacy.tokens.token.Token: lambda _: initialize_data}, allow_output_mutation=True)
+    hash_funcs={spacy.lang.en.English: lambda _: initialize_data, spacy.tokens.token.Token: lambda _: initialize_data},
+    allow_output_mutation=True)
 def initialize_data_from_csv():
     used_for_examples = open('./csv/examples_used_for.csv', encoding="utf8")
     csv_reader_used_for_examples = csv.reader(used_for_examples)
@@ -51,9 +53,14 @@ def initialize_data_from_csv():
     for row in csv_reader_used_for_examples:
         sent_to_collect.append(row[13])
         sent_to_collect = list(set(sent_to_collect))
-    a, b, c = initialize_data(
-        sent_to_collect)
-    return a, b, c, sent_to_collect
+    return initialize_data(sent_to_collect)
+
+
+def initialize_manual_data(sentences):
+    dict_noun_to_object, dict_noun_to_counter = create_data_structure.create_data_structure(sentences, nlp)
+    data = {k + " (" + str(v) + ")": k for k, v in
+            sorted(dict_noun_to_counter.items(), key=lambda item: item[1], reverse=True)}
+    return data, dict_noun_to_object, dict_noun_to_counter
 
 
 class obj_to_json:
@@ -68,23 +75,15 @@ class obj_to_json:
         # self.kind = kind
 
 
-def initialize_data_by_mode(sentences, data, dict_noun_to_object):
+def initialize_data_by_mode(data, dict_noun_to_object):
     st.session_state.dict_noun_to_object = dict_noun_to_object
     st.session_state.all_data = data
     st.session_state.data = data
-    st.session_state.all_sentences = sentences
-    st.session_state.sentences = sentences
 
 
 def initialize_head_phrase(nodes_for_lst):
-    # new_sentences_lst = []
-    # nodes_for_lst = []
     relation_counter = {}
     nodes_for_lst = list(set(nodes_for_lst) & set(st.session_state.expanded_nodes))
-    # for sentence, nodes in st.session_state.selected_node.sent_to_head_node_dict.items():
-    #     if sentence in st.session_state.sentences:
-    #         new_sentences_lst.append(sentence)
-    #         nodes_for_lst.extend(nodes)
     bridge_to_head_phrase_child_dict = {}
     for node in nodes_for_lst:
         for child in node.children_to_the_right:
@@ -96,7 +95,6 @@ def initialize_head_phrase(nodes_for_lst):
     st.session_state.bridge_to_head_phrase_child_dict = bridge_to_head_phrase_child_dict
     st.session_state.relation_counter = {k + " (" + str(v) + ")": k for k, v in
                                          sorted(relation_counter.items(), key=lambda item: item[1], reverse=True)}
-    # st.session_state.sentences = new_sentences_lst
     st.session_state.valid_nodes = nodes_for_lst
 
 
@@ -134,7 +132,6 @@ if st.sidebar.button("Restart"):
     st.session_state.span = ""
     st.session_state.is_head_state = True
     st.session_state.data = st.session_state.all_data
-    st.session_state.sentences = st.session_state.all_sentences
 
 kind_of_data = st.sidebar.radio(
     "Which data do you want to use:",
@@ -144,7 +141,6 @@ if st.button("start from the beginning"):
     st.session_state.span = ""
     st.session_state.is_head_state = True
     st.session_state.data = st.session_state.all_data
-    st.session_state.sentences = st.session_state.all_sentences
 
 if st.session_state.span != "":
     word_to_complete = ""
@@ -153,14 +149,15 @@ if st.session_state.span != "":
     st.write(st.session_state.span + word_to_complete)
 
 if "id" not in st.session_state or st.session_state.id == 0:
-    st.session_state.data, st.session_state.dict_noun_to_object, dict_noun_to_counter, st.session_state.sentences = initialize_data_from_csv()
+    st.session_state.data, st.session_state.dict_noun_to_object, dict_noun_to_counter = initialize_data_from_csv()
     st.session_state.all_data = st.session_state.data
+    st.session_state.all_data_application_data = st.session_state.data
     st.session_state.dict_noun_to_counter = dict_noun_to_counter
-    st.session_state.all_sentences = st.session_state.sentences
+    st.session_state.dict_noun_to_object_application_data = st.session_state.dict_noun_to_object
 
 if kind_of_data == 'Application data' and not st.session_state.is_application_data:
     st.session_state.is_application_data = True
-    initialize_data_by_mode(st.session_state.all_sentences_application_data, st.session_state.all_data_application_data,
+    initialize_data_by_mode(st.session_state.all_data_application_data,
                             st.session_state.dict_noun_to_object_application_data)
     st.session_state.span = ""
     st.session_state.is_head_state = True
@@ -170,8 +167,11 @@ if kind_of_data == 'Your own sentences':
     if st.session_state.text_in_manual_mode != text or st.session_state.is_application_data:
         st.session_state.text_in_manual_mode = text
         text = tokenize.sent_tokenize(text)
-        st.session_state.all_sentences_manual_data, st.session_state.dict_noun_to_object_application_manual_data, st.session_state.all_data_manual_data = initialize_data(
+        st.session_state.dict_noun_to_object_application_manual_data, st.session_state.all_data_manual_data, dict_noun_to_counter = initialize_manual_data(
             text)
+        st.session_state.dict_noun_to_counter = dict_noun_to_counter
+        st.session_state.data = st.session_state.dict_noun_to_object_application_manual_data
+        st.session_state.all_data = st.session_state.data
         st.session_state.span = ""
         st.session_state.is_head_state = True
     st.session_state.is_application_data = False
