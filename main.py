@@ -32,6 +32,30 @@ def load_model(name):
 nlp = load_model("en_ud_model_sm")
 
 
+@st.cache(hash_funcs={spacy.lang.en.English: lambda _: initialize_data, spacy.tokens.token.Token: lambda _: initialize_data}, allow_output_mutation=True)
+def initialize_data(sentences):
+    st.session_state.sentences = sentences
+    dict_noun_to_object, dict_noun_to_counter = create_data_structure.create_data_structure(sentences, nlp)
+    data = {k + " (" + str(v) + ")": k for k, v in
+            sorted(dict_noun_to_counter.items(), key=lambda item: item[1], reverse=True)}
+    return data, dict_noun_to_object, dict_noun_to_counter
+
+
+@st.cache(
+    hash_funcs={spacy.lang.en.English: lambda _: initialize_data, spacy.tokens.token.Token: lambda _: initialize_data}, allow_output_mutation=True)
+def initialize_data_from_csv():
+    used_for_examples = open('./csv/examples_used_for.csv', encoding="utf8")
+    csv_reader_used_for_examples = csv.reader(used_for_examples)
+    next(csv_reader_used_for_examples)
+    sent_to_collect = []
+    for row in csv_reader_used_for_examples:
+        sent_to_collect.append(row[13])
+        sent_to_collect = list(set(sent_to_collect))
+    a, b, c = initialize_data(
+        sent_to_collect)
+    return a, b, c, sent_to_collect
+
+
 class obj_to_json:
     def __init__(self, label, value):
         self.label = label
@@ -50,17 +74,6 @@ def initialize_data_by_mode(sentences, data, dict_noun_to_object):
     st.session_state.data = data
     st.session_state.all_sentences = sentences
     st.session_state.sentences = sentences
-
-
-def initialize_data(sentences):
-    st.session_state.sentences = sentences
-    dict_noun_to_object, dict_noun_to_counter = create_data_structure.create_data_structure(sentences, nlp)
-    st.session_state.data = {k + " (" + str(v) + ")": k for k, v in
-                             sorted(dict_noun_to_counter.items(), key=lambda item: item[1], reverse=True)}
-    st.session_state.all_data = st.session_state.data
-    st.session_state.dict_noun_to_object = dict_noun_to_object
-    st.session_state.all_sentences = st.session_state.sentences
-    return st.session_state.sentences, st.session_state.dict_noun_to_object, st.session_state.data
 
 
 def initialize_head_phrase(nodes_for_lst):
@@ -102,7 +115,6 @@ def update_when_relation_was_chose(chosen_relation_dep_option):
     st.session_state.dict_basic_span_to_nodes = dict_basic_span_to_nodes
 
 
-
 st.title("Aggregated Data")
 
 if "id" not in st.session_state:
@@ -115,7 +127,8 @@ if "id" not in st.session_state:
 else:
     st.session_state.id += 1
 item_lst = []
-st.sidebar.write("The restart button is used for the development(loading the data and do all the preprocessing from the beginning)")
+st.sidebar.write(
+    "The restart button is used for the development(loading the data and do all the preprocessing from the beginning)")
 if st.sidebar.button("Restart"):
     st.session_state.id = 0
     st.session_state.span = ""
@@ -139,18 +152,11 @@ if st.session_state.span != "":
         word_to_complete = " {{something}}"
     st.write(st.session_state.span + word_to_complete)
 
-if st.session_state.id == 0:
-    used_for_examples = open('./csv/examples_used_for.csv', encoding="utf8")
-    csv_reader_used_for_examples = csv.reader(used_for_examples)
-    header = next(csv_reader_used_for_examples)
-    sent_to_collect = []
-    st.session_state.all_sentences = []
-    for row in csv_reader_used_for_examples:
-        sent_to_collect.append(row[13])
-        sent_to_collect = list(set(sent_to_collect))
-    st.session_state.all_sentences_application_data, st.session_state.dict_noun_to_object_application_data, st.session_state.all_data_application_data = initialize_data(
-        sent_to_collect)
-    nltk.download('punkt')
+if "id" not in st.session_state or st.session_state.id == 0:
+    st.session_state.data, st.session_state.dict_noun_to_object, dict_noun_to_counter, st.session_state.sentences = initialize_data_from_csv()
+    st.session_state.all_data = st.session_state.data
+    st.session_state.dict_noun_to_counter = dict_noun_to_counter
+    st.session_state.all_sentences = st.session_state.sentences
 
 if kind_of_data == 'Application data' and not st.session_state.is_application_data:
     st.session_state.is_application_data = True
@@ -195,20 +201,23 @@ if st.session_state.is_head_state:
                 expansion_to_node[expansion] = expansion_to_node.get(expansion, [])
                 expansion_to_node[expansion].append(node)
                 counter_of_expansion_occurrences[expansion] = counter_of_expansion_occurrences.get(expansion, 0) + 1
-        counter_of_expansion_occurrences = {k + " (" + str(v) + ")": k for k, v in sorted(counter_of_expansion_occurrences.items(), key=lambda item: item[1], reverse=True)}
+        counter_of_expansion_occurrences = {k + " (" + str(v) + ")": k for k, v in
+                                            sorted(counter_of_expansion_occurrences.items(), key=lambda item: item[1],
+                                                   reverse=True)}
         expanded_option = st.selectbox(
             'Choose the expanded span',
             counter_of_expansion_occurrences)
         expanded_option = counter_of_expansion_occurrences[expanded_option]
         st.session_state.expanded_nodes = expansion_to_node[expanded_option]
-        sent_lst = []
-        for node in st.session_state.expanded_nodes:
-            sent_lst.append(st.session_state.selected_node.from_node_to_sentence[node])
-        df = pd.DataFrame(sent_lst, columns=["sentences"])
-        dfStyler = df.style.set_properties(**{'text-align': 'left'})
-        dfStyler.set_table_styles([dict(selector='th', props=[('text-align', 'left')])])
-        st.dataframe(df)
         span_to_add = expanded_option
+    placeholder = st.empty()
+    sent_lst = []
+    for node in st.session_state.expanded_nodes:
+        sent_lst.append(st.session_state.selected_node.from_node_to_sentence[node])
+    df = pd.DataFrame(sent_lst, columns=["sentences"])
+    dfStyler = df.style.set_properties(**{'text-align': 'left'})
+    dfStyler.set_table_styles([dict(selector='th', props=[('text-align', 'left')])])
+    st.dataframe(df)
 else:
     if st.session_state.bridge_to_head_phrase_child_dict:
         relation_dep_option = st.selectbox(
@@ -216,7 +225,7 @@ else:
             st.session_state.relation_counter)
         relation_dep_option = st.session_state.relation_counter[relation_dep_option]
         span_to_add = relation_dep_option
-if (st.session_state.is_head_state and st.button("add to sentence")) or (
+if (st.session_state.is_head_state and placeholder.button("add to sentence")) or (
         not st.session_state.is_head_state and st.session_state.bridge_to_head_phrase_child_dict and st.button(
     "add to sentence")):
     if st.session_state.is_head_state:
