@@ -72,14 +72,18 @@ def from_lst_to_sequence(sub_np_lst, current_lst, root):
         current_lst.extend(collect_to_lst)
         sub_np_of_child_lst_final.append(current_lst)
         node_in_sentence_representation = sent_rep.Node(collect_to_lst)
+        if len(sub_np_lst) == 1:
+            if root is None:
+                root = node_in_sentence_representation
+            else:
+                root.add_children(node_in_sentence_representation)
+            return [current_lst], root
+        sub_np_of_child_lst = get_all_children_recursively(sub_np_lst[slice_index:], current_lst,
+                                                           node_in_sentence_representation)
         if root is None:
             root = node_in_sentence_representation
         else:
             root.add_children(node_in_sentence_representation)
-        if len(sub_np_lst) == 1:
-            return [current_lst], root
-        sub_np_of_child_lst = get_all_children_recursively(sub_np_lst[slice_index:], current_lst,
-                                                           node_in_sentence_representation)
     get_all_combination(sub_np_of_child_lst, sub_np_of_child_lst_final)
     return sub_np_of_child_lst_final, root
 

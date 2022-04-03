@@ -167,7 +167,7 @@ if kind_of_data == 'Your own sentences':
     if st.session_state.text_in_manual_mode != text or st.session_state.is_application_data:
         st.session_state.text_in_manual_mode = text
         text = tokenize.sent_tokenize(text)
-        st.session_state.dict_noun_to_object_application_manual_data, st.session_state.all_data_manual_data, dict_noun_to_counter = initialize_manual_data(
+        st.session_state.dict_noun_to_object_application_manual_data, st.session_state.dict_noun_to_object, dict_noun_to_counter = initialize_manual_data(
             text)
         st.session_state.dict_noun_to_counter = dict_noun_to_counter
         st.session_state.data = st.session_state.dict_noun_to_object_application_manual_data
