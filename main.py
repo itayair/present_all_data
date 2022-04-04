@@ -63,18 +63,6 @@ def initialize_manual_data(sentences):
     return data, dict_noun_to_object, dict_noun_to_counter
 
 
-class obj_to_json:
-    def __init__(self, label, value):
-        self.label = label
-        self.value = value
-
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__,
-                          sort_keys=True, indent=4)
-
-        # self.kind = kind
-
-
 def initialize_data_by_mode(data, dict_noun_to_object):
     st.session_state.dict_noun_to_object = dict_noun_to_object
     st.session_state.all_data = data
@@ -84,18 +72,16 @@ def initialize_data_by_mode(data, dict_noun_to_object):
 def initialize_head_phrase(nodes_for_lst):
     relation_counter = {}
     nodes_for_lst = list(set(nodes_for_lst) & set(st.session_state.expanded_nodes))
-    bridge_to_head_phrase_child_dict = {}
+    dict_basic_span_to_nodes = {}
     for node in nodes_for_lst:
         for child in node.children_to_the_right:
-            if child.bridge_to_head:
-                relation_counter[child.bridge_to_head] = relation_counter.get(child.bridge_to_head, 0) + 1
-                bridge_to_head_phrase_child_dict[child.bridge_to_head] = bridge_to_head_phrase_child_dict.get(
-                    child.bridge_to_head, [])
-                bridge_to_head_phrase_child_dict[child.bridge_to_head].append(child)
-    st.session_state.bridge_to_head_phrase_child_dict = bridge_to_head_phrase_child_dict
-    st.session_state.relation_counter = {k + " (" + str(v) + ")": k for k, v in
+            relation_counter[child.basic_span] = relation_counter.get(child.basic_span, 0) + 1
+            dict_basic_span_to_nodes[child.basic_span] = dict_basic_span_to_nodes.get(
+                child.basic_span, [])
+            dict_basic_span_to_nodes[child.basic_span].append(child)
+    st.session_state.dict_basic_span_to_nodes = dict_basic_span_to_nodes
+    st.session_state.data = {k + " (" + str(v) + ")": k for k, v in
                                          sorted(relation_counter.items(), key=lambda item: item[1], reverse=True)}
-    st.session_state.valid_nodes = nodes_for_lst
 
 
 def update_when_relation_was_chose(chosen_relation_dep_option):
@@ -103,11 +89,12 @@ def update_when_relation_was_chose(chosen_relation_dep_option):
     span_for_head_lst = set()
     dict_noun_to_counter = {}
     dict_basic_span_to_nodes = {}
-    for child in children:
-        dict_noun_to_counter[child.basic_span] = dict_noun_to_counter.get(child.basic_span, 0) + 1
-        span_for_head_lst.add(child.basic_span)
-        dict_basic_span_to_nodes[child.basic_span] = dict_basic_span_to_nodes.get(child.basic_span, [])
-        dict_basic_span_to_nodes[child.basic_span].append(child)
+    for node in children:
+        for child in node.children_to_the_right:
+            dict_noun_to_counter[child.basic_span] = dict_noun_to_counter.get(child.basic_span, 0) + 1
+            span_for_head_lst.add(child.basic_span)
+            dict_basic_span_to_nodes[child.basic_span] = dict_basic_span_to_nodes.get(child.basic_span, [])
+            dict_basic_span_to_nodes[child.basic_span].append(child)
     st.session_state.data = {k + " (" + str(v) + ")": k for k, v in
                              sorted(dict_noun_to_counter.items(), key=lambda item: item[1], reverse=True)}
     st.session_state.dict_basic_span_to_nodes = dict_basic_span_to_nodes
@@ -119,7 +106,6 @@ if "id" not in st.session_state:
     st.session_state.id = 0
     st.session_state.new = True
     st.session_state.span = ""
-    st.session_state.is_head_state = True
     st.session_state.text_in_manual_mode = ""
     st.session_state.is_application_data = True
 else:
@@ -130,7 +116,6 @@ st.sidebar.write(
 if st.sidebar.button("Restart"):
     st.session_state.id = 0
     st.session_state.span = ""
-    st.session_state.is_head_state = True
     st.session_state.data = st.session_state.all_data
 
 kind_of_data = st.sidebar.radio(
@@ -139,13 +124,10 @@ kind_of_data = st.sidebar.radio(
 
 if st.button("start from the beginning"):
     st.session_state.span = ""
-    st.session_state.is_head_state = True
     st.session_state.data = st.session_state.all_data
 
 if st.session_state.span != "":
     word_to_complete = ""
-    if st.session_state.is_head_state:
-        word_to_complete = " {{something}}"
     st.write(st.session_state.span + word_to_complete)
 
 if "id" not in st.session_state or st.session_state.id == 0:
@@ -160,7 +142,6 @@ if kind_of_data == 'Application data' and not st.session_state.is_application_da
     initialize_data_by_mode(st.session_state.all_data_application_data,
                             st.session_state.dict_noun_to_object_application_data)
     st.session_state.span = ""
-    st.session_state.is_head_state = True
 if kind_of_data == 'Your own sentences':
     st.header("Please enter here some sentences:")
     text = st.text_area("", DEFAULT_TEXT)
@@ -173,10 +154,8 @@ if kind_of_data == 'Your own sentences':
         st.session_state.data = st.session_state.dict_noun_to_object_application_manual_data
         st.session_state.all_data = st.session_state.data
         st.session_state.span = ""
-        st.session_state.is_head_state = True
     st.session_state.is_application_data = False
-if st.session_state.is_head_state:
-    st.session_state.expanded_nodes = []
+if st.session_state.data:
     option = st.selectbox(
         'Choose span to expand',
         st.session_state.data)
@@ -185,6 +164,7 @@ if st.session_state.is_head_state:
     span_to_add = option
     agree = st.checkbox(
         "Press here to get all the optional expansions of " + span_to_add)
+    st.session_state.expanded_nodes = []
     if st.session_state.span == "":
         st.session_state.expanded_nodes = st.session_state.selected_node.head_node_lst
         nodes_to_get_all_expansions = st.session_state.selected_node.head_node_lst
@@ -218,28 +198,12 @@ if st.session_state.is_head_state:
     dfStyler = df.style.set_properties(**{'text-align': 'left'})
     dfStyler.set_table_styles([dict(selector='th', props=[('text-align', 'left')])])
     st.dataframe(df)
-else:
-    if st.session_state.bridge_to_head_phrase_child_dict:
-        relation_dep_option = st.selectbox(
-            'Choose the relation to another span',
-            st.session_state.relation_counter)
-        relation_dep_option = st.session_state.relation_counter[relation_dep_option]
-        span_to_add = relation_dep_option
-if (st.session_state.is_head_state and placeholder.button("add to sentence")) or (
-        not st.session_state.is_head_state and st.session_state.bridge_to_head_phrase_child_dict and st.button(
-    "add to sentence")):
-    if st.session_state.is_head_state:
-        st.session_state.is_head_state = False
+    if placeholder.button("add to sentence"):
         if st.session_state.span == "":
             initialize_head_phrase(st.session_state.selected_node.head_node_lst)
         else:
             initialize_head_phrase(st.session_state.dict_basic_span_to_nodes[option])
-    else:
-        update_when_relation_was_chose(relation_dep_option)
-        st.session_state.is_head_state = True
-    if st.session_state.span != "":
-        st.session_state.span += " "
-    st.session_state.span += span_to_add
-    st.experimental_rerun()
-#
-# print(result)
+        if st.session_state.span != "":
+            st.session_state.span += " "
+        st.session_state.span += span_to_add
+        st.experimental_rerun()

@@ -5,12 +5,14 @@ pro_noun_tags_lst = ['WP', 'PRP', 'DET', 'NN', 'NNS']
 # Classify deps for rule based
 ######################################################################################################################
 # always a part of the noun
-tied_deps = ['det', 'neg', 'nmod:poss', 'compound', 'mwe', 'case', 'mark', 'auxpass', 'name', 'aux']
+tied_deps = ['det', 'neg', 'nmod:poss', 'compound', 'mwe', 'case', 'mark', 'auxpass', 'name', 'aux', 'nummod']
 tied_couples = [['auxpass', 'nsubjpass']]
 
 # Optional to describe the noun
-dep_type_optional = ['advmod', 'dobj', 'npadvmod', 'nmod', 'nummod', 'conj', 'poss', 'nmod:poss',
-                     'xcomp']
+dep_type_optional = ['advmod', 'npadvmod', 'conj', 'poss', 'nmod:poss',
+                     'xcomp', 'nmod:npmod']
+
+dep_type_complement = ['dobj', 'nmod']
 
 # strict sequence for valid expansion
 others_to_seq = ['quantmod', 'cop']
@@ -18,6 +20,7 @@ couple_to_seq = {'quantmod': ['amod'], 'cop': ['nsubjpass', 'nsubj']}
 
 # Dependency that create relation to another phrase
 combined_with = ['acl', 'relcl', 'acl:relcl', 'ccomp', 'advcl']
+
 
 ######################################################################################################################
 
@@ -44,26 +47,53 @@ def get_tied_couples(children):
     return tied_couples_to_add
 
 
-def combine_tied_deps_recursively_and_combine_their_children(head, head_word_index=-1, head_token_type=1):
+def get_all_offspring(token):
+    children_lst = []
+    for child in token.children:
+        children_lst.append(child)
+        children_lst.extend(get_all_offspring(child))
+    return children_lst
+
+
+def get_preposition_if_exist(head):
+    prep_lst = []
+    for child in head.children:
+        if child.dep_ in ['case', 'mark'] and child.i < head.i:
+            prep_lst.append(child)
+    children_lst = []
+    for child in prep_lst:
+        children_lst.extend(get_all_offspring(child))
+    prep_lst.extend(children_lst)
+    return prep_lst
+
+
+def combine_tied_deps_recursively_and_combine_their_children(head, is_head=False, head_word_index=-1,
+                                                             optional_deps_type_lst=[]):
     combined_children_lst = []
-    combined_tied_tokens = [(head, head_token_type)]
+    prep_lst = []
+    if head_word_index == -1:
+        if is_head:
+            prep_lst = get_preposition_if_exist(head)
+    combined_tied_tokens = [head]
     tied_couples_to_add = get_tied_couples(head.children)
     for child in head.children:
+        if child in prep_lst:
+            continue
         if head_word_index != -1:
             if head.dep_ == 'nmod':
                 if child.dep_ in ['case', 'mark']:
                     continue
-        if child.dep_ in tied_deps or child in tied_couples_to_add:
-            if child.dep_ in ['case', 'mark']:
-                temp_tokens, temp_children = combine_tied_deps_recursively_and_combine_their_children(child, -1, 2)
-                temp_tokens = [(token_couple[0], 2) for token_couple in temp_tokens]
-            else:
-                temp_tokens, temp_children = combine_tied_deps_recursively_and_combine_their_children(child)
+        if child.dep_ in tied_deps or child.dep_ in optional_deps_type_lst or child in tied_couples_to_add:
+            # if (child.dep_ in ['case', 'mark']) or child.dep_ in optional_deps_type_lst:
+            #     temp_tokens, temp_children, _ = combine_tied_deps_recursively_and_combine_their_children(child, -1, 2)
+            #     temp_tokens = [(token_couple[0], 2) for token_couple in temp_tokens]
+            # else:
+            temp_tokens, temp_children, _ = combine_tied_deps_recursively_and_combine_their_children(child)
             combined_tied_tokens.extend(temp_tokens)
             combined_children_lst.extend(temp_children)
         else:
             combined_children_lst.append(child)
-    return combined_tied_tokens, combined_children_lst
+    return combined_tied_tokens, combined_children_lst, prep_lst
 
 
 def initialize_couple_lst(others, couple_lst, lst_children):
@@ -105,11 +135,12 @@ def remove_conj_if_cc_exist(lst_children):
 
 def set_couple_deps(couple_lst, sub_np_lst, head):
     for couple in couple_lst:
-        sub_np_lst_couple, lst_children_first = combine_tied_deps_recursively_and_combine_their_children(couple[0], -1,
-                                                                                                         2)
-        sub_np_lst_couple_second, lst_children_second = combine_tied_deps_recursively_and_combine_their_children(
-            couple[1], -1, 5)
+        sub_np_lst_couple, lst_children_first, _ = combine_tied_deps_recursively_and_combine_their_children(couple[0],
+                                                                                                         False, -1)
+        sub_np_lst_couple_second, lst_children_second, _ = combine_tied_deps_recursively_and_combine_their_children(
+            couple[1], False, -1)
         sub_np_lst_couple.extend(sub_np_lst_couple_second)
+        sub_np_lst_couple = [(sub_np_lst_couple, 3)]
         all_sub_of_sub = []
         get_children_expansion(all_sub_of_sub, lst_children_first, head)
         get_children_expansion(all_sub_of_sub, lst_children_second, head)
@@ -122,38 +153,44 @@ dep_type_in_sequential = set()
 
 
 def get_all_valid_sub_special(token):
-    sub_np_lst, lst_children = combine_tied_deps_recursively_and_combine_their_children(token, -1, 2)
+    # try:
+    #     if token.text == '%':
+    #         print(token.text)
+    # except:
+    #     print("error")
+    sub_np_lst, lst_children, prep_lst = combine_tied_deps_recursively_and_combine_their_children(token, True, -1, ['nsubj'])
+    sub_np_lst = [(sub_np_lst, 2)]
     sub_np = []
-    complete_children = []
-    lst_to_skip, tokens_to_add = remove_conj_if_cc_exist(lst_children)
+    lst_to_skip, couple_lst = remove_conj_if_cc_exist(lst_children)
+    lst_to_skip.extend(prep_lst)
     for child in lst_children:
+        all_sub_of_sub = []
         if child in lst_to_skip or child.text in ['-', '(', ')', '"']:
             continue
-        if child.dep_ in ['dobj', 'advcl', 'nmod']:
-            dep_type_in_sequential.add(child.dep_)
-            all_sub_of_sub = get_all_valid_sub_np(child)
-            all_sub_of_sub = sub_np_lst + all_sub_of_sub
+        if child.dep_ in dep_type_optional:
+            all_sub_of_sub = get_all_valid_sub_np(child, 3)
+        elif child.dep_ in dep_type_complement:
+            all_sub_of_sub = get_all_valid_sub_np(child, 1)
+        elif child.dep_ in combined_with:
+            all_sub_of_sub = get_all_valid_sub_special(child)
+        elif child.dep_ == 'amod':
+            all_sub_of_sub = get_all_children(child, 4)
+            all_sub_of_sub = [(all_sub_of_sub, 3)]
+        if all_sub_of_sub:
             sub_np.append(all_sub_of_sub)
-        else:
-            complete_children.append(child)
-    couple_lst = []
-    couple_lst.extend(tokens_to_add)
     sub_np_lst_couples = []
-    set_couple_deps(couple_lst, sub_np_lst_couples, [])
+    set_couple_deps(couple_lst, sub_np_lst_couples, token)
     if sub_np_lst_couples:
-        for sub_sub_np_lst in sub_np:
-            sub_sub_np_lst.append(sub_np_lst_couples)
-    for child in complete_children:
-        all_sub_of_sub = get_all_valid_sub_np(child)
-        for sub_sub_np_lst in sub_np:
-            sub_sub_np_lst.append(all_sub_of_sub)
-    if not sub_np_lst:
-        return []
-    return sub_np
+        sub_np.append(sub_np_lst_couples)
+    if sub_np:
+        sub_np_lst.append(sub_np)
+    if prep_lst:
+        sub_np_lst = [(prep_lst, 2)] + [sub_np_lst]
+    return sub_np_lst
 
 
 def get_all_children(head, head_token_type=4):
-    combined_tied_tokens = [(head, head_token_type)]
+    combined_tied_tokens = [head]
     for child in head.children:
         temp_tokens = get_all_children(child, 2)
         combined_tied_tokens.extend(temp_tokens)
@@ -162,6 +199,11 @@ def get_all_children(head, head_token_type=4):
 
 def get_children_expansion(sub_np_lst, lst_children, head):
     others = []
+    # try:
+    #     if head.text == '%':
+    #         print(head.text)
+    # except:
+    #     print("error")
     lst_to_skip, tokens_to_add = remove_conj_if_cc_exist(lst_children)
     for child in lst_children:
         if child in lst_to_skip or child.text in ['-', '(', ')', '"']:
@@ -172,11 +214,14 @@ def get_children_expansion(sub_np_lst, lst_children, head):
             others.append(child)
         else:
             if child.dep_ in dep_type_optional:
-                all_sub_of_sub = get_all_valid_sub_np(child)
+                all_sub_of_sub = get_all_valid_sub_np(child, 3)
+            elif child.dep_ in dep_type_complement:
+                all_sub_of_sub = get_all_valid_sub_np(child, 1)
             elif child.dep_ in combined_with:
                 all_sub_of_sub = get_all_valid_sub_special(child)
             elif child.dep_ == 'amod':
                 all_sub_of_sub = get_all_children(child, 4)
+                all_sub_of_sub = [(all_sub_of_sub, 3)]
             if all_sub_of_sub:
                 sub_np.append(all_sub_of_sub)
             sub_np_lst.extend(sub_np)
@@ -187,8 +232,12 @@ def get_children_expansion(sub_np_lst, lst_children, head):
     set_couple_deps(couple_lst, sub_np_lst, head)
 
 
-def get_all_valid_sub_np(head, head_word_index=-1):
-    sub_np_lst, lst_children = combine_tied_deps_recursively_and_combine_their_children(head,
-                                                                                        head_word_index, 5)
+def get_all_valid_sub_np(head, type=1, head_word_index=-1):
+    sub_np_lst, lst_children, prep_lst = combine_tied_deps_recursively_and_combine_their_children(head, True,
+                                                                                                  head_word_index)
+    sub_np_lst = [(sub_np_lst, type)]
+    lst_children = [item for item in lst_children if item not in prep_lst]
     get_children_expansion(sub_np_lst, lst_children, head)
+    if prep_lst:
+        sub_np_lst = [(prep_lst, 2)] + [sub_np_lst]
     return sub_np_lst

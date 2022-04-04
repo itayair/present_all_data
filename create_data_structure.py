@@ -3,6 +3,7 @@ import utils as ut
 import valid_deps
 import sentence_representation
 import csv
+
 # import json
 # import jsonpickle
 
@@ -11,7 +12,7 @@ noun_tags_lst = ['NN', 'NNS', 'WP', 'NNP', 'NNPS']
 
 def get_all_closest_noun(head):
     noun_lst = []
-    if head.tag_ in noun_tags_lst:
+    if head.tag_ in noun_tags_lst and head.text not in ['-', '(', ')', '"']:
         return [head]
     for child in head.children:
         noun_lst.extend(get_all_closest_noun(child))
@@ -32,14 +33,36 @@ def get_head_noun_in_sentence(sentence_dep_graph):
 def fill_all_head_phrase_in_tree(root, sentence, dict_noun_to_object, dict_noun_to_counter):
     head_phrase = dict_noun_to_object.get(root.basic_span, None)
     if head_phrase is None:
-        head_phrase = sentence_representation.head_phrase(root.basic_span)
-        if root.basic_span == "":
-            print("error")
+        head_phrase = sentence_representation.head_phrase(root)
         dict_noun_to_object[root.basic_span] = head_phrase
     head_phrase.add_new_node(root, sentence)
-    dict_noun_to_counter[root.basic_span] = dict_noun_to_counter.get(root.basic_span, 0) + 1
+    if root.type == 1:
+        dict_noun_to_counter[root.basic_span] = dict_noun_to_counter.get(root.basic_span, 0) + 1
     for child in root.children_to_the_right:
         fill_all_head_phrase_in_tree(child, sentence, dict_noun_to_object, dict_noun_to_counter)
+
+
+def combine_nodes_when_possible(node):
+    new_children_to_the_right = []
+    new_children_to_the_left = []
+    num_of_children_with_relation_type = 0
+    child_to_combine = None
+    for child in node.children_to_the_right:
+        combine_nodes_when_possible(child)
+        if node.type == 2 and child.type == 2:
+            child_to_combine = child
+            num_of_children_with_relation_type += 1
+            new_children_to_the_right.extend(child.children_to_the_right)
+            new_children_to_the_left.extend(child.children_to_the_left)
+
+    if num_of_children_with_relation_type == 1:
+        node.span.extend(child_to_combine.span)
+        node.span.sort(key=lambda x: x.i)
+        node.initialize_attr_and_basic_span(node.span)
+        node.span.sort(key=lambda x: x.i)
+        node.children_to_the_right.remove(child_to_combine)
+        node.children_to_the_right.extend(new_children_to_the_right)
+        node.children_to_the_left.extend(new_children_to_the_left)
 
 
 def create_data_structure(sentences, nlp):
@@ -59,11 +82,16 @@ def create_data_structure(sentences, nlp):
                 continue
             if boundary_length > 20:
                 continue
-            all_valid_sub_np = valid_deps.get_all_valid_sub_np(head_noun, head_noun.i)
+            all_valid_sub_np = valid_deps.get_all_valid_sub_np(head_noun, 1, head_noun.i)
             sub_np_final_lst, root = ut.from_lst_to_sequence(all_valid_sub_np, [], None)
+            combine_nodes_when_possible(root)
             fill_all_head_phrase_in_tree(root, sent, dict_noun_to_object, dict_noun_to_counter)
         counter += 1
         if counter % 1000 == 0:
             print(counter)
     return dict_noun_to_object, dict_noun_to_counter
 
+
+nlp = spacy.load("en_ud_model_sm")
+sentences_test = ["Ada Yoant is an Israely researcher who won a nobel prize in chemistry in 2004"]
+create_data_structure(sentences_test, nlp)
