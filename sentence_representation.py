@@ -1,5 +1,6 @@
 import json
 import utils as ut
+
 attr_of_node = ['det', 'neg', 'auxpass', 'aux', 'auxpass']
 
 counter_error_example = 0
@@ -11,10 +12,9 @@ def from_token_lst_to_span(token_lst):
     for token in token_lst:
         if idx != 0:
             span += " "
-        span += token.text
+        span += token.text.lower()
         idx += 1
     return span
-
 
 
 class Node:
@@ -75,14 +75,17 @@ class head_phrase:
         self.head_phrase_name = node.basic_span
         self.type = node.type
         self.head_node_lst = []
+        self.nodes_lst = []
         self.relation_to_nodes = {}
         self.nodes_lst = []
         self.from_node_to_all_his_expansion_to_the_left = {}
         self.from_node_to_sentence = {}
         self.complements_to_nodes = {}
 
-    def add_new_node(self, node, sentence):
-        self.head_node_lst.append(node)
+    def add_new_node(self, node, sentence, is_head_node = False):
+        if is_head_node:
+            self.head_node_lst.append(node)
+        self.nodes_lst.append(node)
         new_format_all_valid_sub_np = ut.get_all_options_without_shortcut(node, True)
         sub_np_final_lst_special = ut.from_lst_to_sequence_special(new_format_all_valid_sub_np, [])
         self.from_node_to_sentence[node] = sentence

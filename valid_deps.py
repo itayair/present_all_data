@@ -1,6 +1,6 @@
 import utils as ut
 
-pro_noun_tags_lst = ['WP', 'PRP', 'DET', 'NN', 'NNS']
+pro_noun_tags_lst = ['WP', 'PRP', 'DET', 'NN', 'NNS', 'DT']
 
 # Classify deps for rule based
 ######################################################################################################################
@@ -135,15 +135,23 @@ def remove_conj_if_cc_exist(lst_children):
 
 def set_couple_deps(couple_lst, sub_np_lst, head):
     for couple in couple_lst:
+        dep_types_be_tied_by_case = []
         sub_np_lst_couple, lst_children_first, _ = combine_tied_deps_recursively_and_combine_their_children(couple[0],
-                                                                                                         False, -1)
-        sub_np_lst_couple_second, lst_children_second, _ = combine_tied_deps_recursively_and_combine_their_children(
-            couple[1], False, -1)
-        sub_np_lst_couple.extend(sub_np_lst_couple_second)
-        sub_np_lst_couple = [(sub_np_lst_couple, 3)]
+                                                                                                         False, -1, dep_types_be_tied_by_case)
+        if couple[1].dep_ in ['nsubjpass', 'nsubj']:
+            sub_np_lst_couple_second = get_all_children(couple[1])
+            lst_children_second = []
+            sub_np_lst_couple.extend(sub_np_lst_couple_second)
+            sub_np_lst_couple = [(sub_np_lst_couple, 3)]
+        else:
+            sub_np_lst_couple_second, lst_children_second, _ = combine_tied_deps_recursively_and_combine_their_children(
+                couple[1], False, -1, dep_types_be_tied_by_case)
+            sub_np_lst_couple = [[(sub_np_lst_couple, 2), [(sub_np_lst_couple_second, 1)]]]
+
         all_sub_of_sub = []
         get_children_expansion(all_sub_of_sub, lst_children_first, head)
-        get_children_expansion(all_sub_of_sub, lst_children_second, head)
+        if lst_children_second:
+            get_children_expansion(all_sub_of_sub, lst_children_second, head)
         if all_sub_of_sub:
             sub_np_lst_couple.append(all_sub_of_sub)
         sub_np_lst.append(sub_np_lst_couple)

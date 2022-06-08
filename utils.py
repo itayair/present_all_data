@@ -16,6 +16,8 @@ def from_children_to_list(children):
 def get_head_of_span(span):
     head = None
     for child in span:
+        if child.head == child:
+            return child
         if child.head not in span:
             head = child
     return head

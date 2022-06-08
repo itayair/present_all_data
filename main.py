@@ -7,7 +7,6 @@ import csv
 import spacy
 import pandas as pd
 import pip
-
 # def install(package):
 #     if hasattr(pip, 'main'):
 #         pip.main(['install', package])
@@ -17,7 +16,8 @@ import pip
 # # Example
 # if __name__ == '__main__':
 #     install("https://storage.googleapis.com/en_ud_model/en_ud_model_sm-2.0.0.tar.gz")
-DEFAULT_TEXT = "Used in select mask models , this new material improves upon silicone used for three decades in mask skirts with improved light transmission and much greater resistance to discoloration."
+DEFAULT_TEXT = "Used in select mask models , this new material improves upon silicone used for three decades in mask " \
+               "skirts with improved light transmission and much greater resistance to discoloration. "
 
 
 @st.cache(allow_output_mutation=True)
@@ -54,6 +54,15 @@ def initialize_data_from_csv():
         sent_to_collect.append(row[13])
         sent_to_collect = list(set(sent_to_collect))
     return initialize_data(sent_to_collect)
+
+@st.cache(
+    hash_funcs={spacy.lang.en.English: lambda _: initialize_data, spacy.tokens.token.Token: lambda _: initialize_data_from_special_format},
+    allow_output_mutation=True)
+def initialize_data_from_special_format():
+    dict_noun_to_object, dict_noun_to_counter = create_data_structure.create_data_structure_by_list_of_head_and_sentence()
+    data = {k + " (" + str(v) + ")": k for k, v in
+            sorted(dict_noun_to_counter.items(), key=lambda item: item[1], reverse=True)}
+    return data, dict_noun_to_object, dict_noun_to_counter
 
 
 def initialize_manual_data(sentences):
@@ -131,10 +140,11 @@ if st.session_state.span != "":
     st.write(st.session_state.span + word_to_complete)
 
 if "id" not in st.session_state or st.session_state.id == 0:
-    st.session_state.data, st.session_state.dict_noun_to_object, dict_noun_to_counter = initialize_data_from_csv()
+    # st.session_state.data, st.session_state.dict_noun_to_object, dict_noun_to_counter = initialize_data_from_csv()
+    st.session_state.data, st.session_state.dict_noun_to_object, dict_noun_to_counter_output = initialize_data_from_special_format()
     st.session_state.all_data = st.session_state.data
     st.session_state.all_data_application_data = st.session_state.data
-    st.session_state.dict_noun_to_counter = dict_noun_to_counter
+    st.session_state.dict_noun_to_counter = dict_noun_to_counter_output
     st.session_state.dict_noun_to_object_application_data = st.session_state.dict_noun_to_object
 
 if kind_of_data == 'Application data' and not st.session_state.is_application_data:
@@ -148,9 +158,9 @@ if kind_of_data == 'Your own sentences':
     if st.session_state.text_in_manual_mode != text or st.session_state.is_application_data:
         st.session_state.text_in_manual_mode = text
         text = tokenize.sent_tokenize(text)
-        st.session_state.dict_noun_to_object_application_manual_data, st.session_state.dict_noun_to_object, dict_noun_to_counter = initialize_manual_data(
+        st.session_state.dict_noun_to_object_application_manual_data, st.session_state.dict_noun_to_object, dict_noun_to_counter_output = initialize_manual_data(
             text)
-        st.session_state.dict_noun_to_counter = dict_noun_to_counter
+        st.session_state.dict_noun_to_counter = dict_noun_to_counter_output
         st.session_state.data = st.session_state.dict_noun_to_object_application_manual_data
         st.session_state.all_data = st.session_state.data
         st.session_state.span = ""
