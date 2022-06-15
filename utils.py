@@ -43,9 +43,9 @@ def get_all_combination(sub_np_of_child_lst, sub_np_of_child_lst_final):
             if item == ():
                 continue
             lst_temp = []
-            for token in element:
+            for token in list(element):
                 lst_temp.extend(token)
-            sub_np_of_child_lst_final.append(list(set(lst_temp)))
+            sub_np_of_child_lst_final.append(lst_temp)
 
 
 def get_all_children_recursively(sub_np_lst, current_lst, root):
@@ -64,15 +64,15 @@ def from_lst_to_sequence(sub_np_lst, current_lst, root):
             return from_lst_to_sequence(sub_np_lst[0], current_lst, root)
         sub_np_of_child_lst = get_all_children_recursively(sub_np_lst, current_lst, root)
     else:
-        # collect_to_lst = []
-        # slice_index = 0
-        # for item in sub_np_lst:
-        #     if isinstance(item, list):
-        #         break
-        #     collect_to_lst.append(item)
-        #     slice_index += 1
-        # current_lst.extend(collect_to_lst)
-        # sub_np_of_child_lst_final.append(current_lst)
+        collect_to_lst = []
+        slice_index = 0
+        for item in sub_np_lst:
+            if isinstance(item, list):
+                break
+            collect_to_lst.append(item)
+            slice_index += 1
+        current_lst.extend(collect_to_lst)
+        sub_np_of_child_lst_final.append(current_lst)
         node_in_sentence_representation = sent_rep.Node(sub_np_lst[0])
         if len(sub_np_lst) == 1:
             if root is None:
@@ -82,6 +82,8 @@ def from_lst_to_sequence(sub_np_lst, current_lst, root):
             return [current_lst], root
         sub_np_of_child_lst = get_all_children_recursively(sub_np_lst[1:], current_lst,
                                                            node_in_sentence_representation)
+        # head_to_rest_span = [sub_np_lst[0]]
+        # sub_np_of_child_lst = head_to_rest_span.append(sub_np_of_child_lst)
         if root is None:
             root = node_in_sentence_representation
         else:

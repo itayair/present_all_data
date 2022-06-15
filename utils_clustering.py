@@ -79,39 +79,26 @@ def get_words_as_span(span_lst):
     return span
 
 
-def is_should_be_removed(dict_noun_lemma_to_span, dict_noun_lemma_to_counter, span_lst, original_word,
-                         dict_word_to_his_synonym, black_list):
+def is_should_be_removed(dict_noun_lemma_to_counter, span_lst, original_word,
+                         dict_word_to_his_synonym, black_list, dict_span_to_words):
     counter = 0
     for span in span_lst:
-        if isinstance(span, str):
-            return False
-        lemmas_already_counted = set()
-        is_exist_in_another_entry = False
-        for word in span:
-            if word.pos_ in "NOUN":
-                compound_noun = combine_tied_deps_recursively_and_combine_their_children(word)
-                compound_noun.sort(key=lambda x: x.i)
-                for word_to_lemma in compound_noun:
-                    lemma_word = word_to_lemma.lemma_.lower()
-                    if word_to_lemma.lemma_ not in lemmas_already_counted:
-                        if lemma_word != original_word and lemma_word not in black_list:
-                            if lemma_word in dict_noun_lemma_to_span or lemma_word in dict_word_to_his_synonym:
-                                if lemma_word in dict_word_to_his_synonym:
-                                    lemma_word = dict_word_to_his_synonym[lemma_word]
-                                if dict_noun_lemma_to_counter[lemma_word] > 1:
-                                    counter += 1
-                                    is_exist_in_another_entry = True
-                                    break
-                        lemmas_already_counted.add(lemma_word)
-            if is_exist_in_another_entry:
-                break
-        if not is_exist_in_another_entry:
-            return False
+        if isinstance(span[0], list):
+            continue
+        for lemma_word in dict_span_to_words[span[0]]:
+            if original_word == lemma_word or dict_word_to_his_synonym.get(lemma_word, None) == original_word:
+                continue
+            if lemma_word not in black_list and lemma_word in dict_noun_lemma_to_counter:
+                if lemma_word in dict_word_to_his_synonym:
+                    entry = dict_word_to_his_synonym[lemma_word]
+                else:
+                    entry = lemma_word
+                if dict_noun_lemma_to_counter[entry] > 1:
+                    counter += 1
+                    break
     if len(span_lst) == counter:
         black_list.add(original_word)
         print(original_word + " should be removed: " + str(len(span_lst)))
-        return True
-    return False
 
 
 def isAbbr(name):
@@ -158,8 +145,12 @@ def synonyms_consolidation(dict_noun_lemma_to_span, dict_noun_lemma_to_counter, 
         if synonyms:
             for synonym in synonyms:
                 if synonym != word and synonym in word_lst:
-                    for span in dict_noun_lemma_to_span[synonym]:
-                        dict_noun_lemma_to_span_new[word].append(span.replace(synonym, word))
+                    for spans in dict_noun_lemma_to_span[synonym]:
+                        new_spans_lst = []
+                        for span in spans[1]:
+                            new_spans_lst.append((span[0].replace(synonym, word), span[1]))
+                        dict_noun_lemma_to_span_new[word].append((spans[0], new_spans_lst))
+                    # dict_noun_lemma_to_span_new[word].extend(dict_noun_lemma_to_span[synonym])
                     dict_noun_lemma_to_counter_new[word] += dict_noun_lemma_to_counter[synonym]
                     dict_word_to_his_synonym[synonym] = word
                     already_calculated.append(synonym)

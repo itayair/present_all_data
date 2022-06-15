@@ -5,7 +5,7 @@ pro_noun_tags_lst = ['WP', 'PRP', 'DET', 'NN', 'NNS', 'DT']
 # Classify deps for rule based
 ######################################################################################################################
 # always a part of the noun
-tied_deps = ['det', 'neg', 'nmod:poss', 'compound', 'mwe', 'case', 'mark', 'auxpass', 'name', 'aux', 'nummod']
+tied_deps = ['neg', 'nmod:poss', 'compound', 'mwe', 'case', 'mark', 'auxpass', 'name', 'aux', 'nummod']
 tied_couples = [['auxpass', 'nsubjpass']]
 
 # Optional to describe the noun
@@ -247,5 +247,5 @@ def get_all_valid_sub_np(head, type=1, head_word_index=-1):
     lst_children = [item for item in lst_children if item not in prep_lst]
     get_children_expansion(sub_np_lst, lst_children, head)
     if prep_lst:
-        sub_np_lst = [(prep_lst, 2)] + [sub_np_lst]
+        sub_np_lst = [(prep_lst, 2)] + sub_np_lst
     return sub_np_lst
