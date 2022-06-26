@@ -1,599 +1,587 @@
-lumbar cyst
-overweight
-pseudocyst
-nucleus pulposus
-mngf
-expansion
-peritonei
-seven patient
-spine
-bulging
-abscess
-disc degeneration
-uterine perforation
-lumbar traction
-hematoma
-man
-l2
-fracture
-activity
-instance arachnoiditis
-ligamentum flavum
-disc operation
-reference
-recess
-sacroiliac lesion
-sac
-gluteal abscess
-awareness
-recessus laterali
-angioma
-hyperparathyroidism
-sport accident
-nerve compression
-artery pseudoaneurysm
-etiology
-fasciitis
-arachnoid cyst
-nerve root irritation
-body edge
-ligament
-hexacetonide
-paralabral
-neuropathy
-treatment
-18 year
-incarceration
-degree lumbar
-iliac
-cryptococcus neoforman
-tooth
-proinflammatory
-enzyme
-production
-root schwannoma
-boy
-disk rupture
-peripartal sacrum
-pain
-sport
-piriform
-operation
-space
-follow
-period
-hamstring
-business
-t9
-lumbar canal
-muscle belly
-separation
-lumbar segment
-calcitonin injection
-diverticula
-narrowing
-dorsal
-disk lesion
-lumbar haematoma
-device
-acetabular paralabral cyst
-meningocele
-metal
-gas
-adhesion
-spinal
+obturator internus pyomyositis
+lumbar chondroma
+hip joint
+slip
+nerve root anomaly
+infiltrating lipoma
 ray
-course
-ischiadic nerve
-bell
-femoris
-cauda equina
-lumbar discectomy
-lumbar disc protrusion
-emission
-paralabral cyst
-cause
-l2 l3 herniation
-bell test
-cord
+vessel
+production
+osthole
+tuberculosis
+metastasis
+nucleus pulposus
+mense
+disc herniation
+endometrioma
+l5 nerve root
+disc segment
+ewings sarcoma
+serum
+injury
+work
+compression injury
+angle
+osteotomy
+arthrodesis
+foramina
+hole
+abscess
+implantation
+sport
+grade
+vein
+complaint
+lumbar gas
+hernia
+pain
+neurofibromatosis
+failure
+sacralization
+angioma
+treatment
+lumbar disc surgery
+lumbar spine origin
+recurrent
+male
+paralabral
+histiocytofibroma
+ectopic endometriosis
 neuritis
-cauda
-risk
-disk disease
-causing
-internus
-canal
-herniation
-melanoma
-slr
-narrowness
-institution
-injection
+fat
+foot
+arthropathy
+piriformis muscle
+recess
+branch
+pathologic
+extralumbar lesion
+fasciitis
+resonance
+case
+degree lumbar
+body
+majority
+gluteal muscle
+up
+ligament
+awareness
 15
-literature
-resonance imaging finding
-sacroiliac
-s2
-leg
-lumbar pain
+l-5 process
+nerve root compression
+lumbar apophyseal
+term
+ray dorsal root compression
+group
+severity
+gout
+hydatidosis
+reherniation
+18 year
+disc disease
+duration
+contrast medium
+cord compression
+lumbar disc
+uterine perforation
+lumbar fibrosis
+bone
+lumbar canal
+seven patient
+butterfly
+disk disease
+degree
+observation
+abnormality
+region
+s1
+trunk
+fragment wound
+hydatid cyst
+cauda
+disc tissue
+osteochondritis dissecan
+acute sacrum
+importance
+disc prolapse
+disc
+lymphoma
+use
+inhibitor
+root schwannoma
+separation
+woman
+piriform muscle
+avulsion fracture
+malformation
+lumber disk
+cryoglobulinemia
+peripartal sacrum fracture
+quadratus femoris muscle tear
+work exposure
+spine disease
+nerve root irritation
+man
+vertebra
+lumbar ligament
+calcitonin
+catheterization
+ectopic
+osteochondritis
+disc hernia
+narrowness
+notch schwannoma
+lumbar disk herniation
+expansion
+smoking
+practitioner
+bush
+vein varicosity
+lumbar disc disease
 mechanism
 protrusion
-disc segment
-cyst
-discectomy
-contrast medium
-slip
-1.2
-outcome
-disc hemiation
-12 month
-positron emission tomography
-effect
-facet
-tear
-tendon
-lumbar ligament
-disc herniation
-notch schwannoma
-condition
-ganglion cyst
-individual
-disorder
-insufficiency
-l-5 process
-spondylolisthesis
-exposure
-heterotopic ossification
-dorsal root
-artery
-lumbar decompression
-stc
-lumbar root schwannoma
-16 year
-procedure
-osteochondrosis
-hydroxyapatite deposition disease
-nerve
-lumbar root compression
-society
-lumber
-foot drop
-nerve tumour
-extradura space
-male
-vibration
-neurinoma
-chemical
-thoracic meningioma
-symptom
-sex
-joint
-osteochondritis
-tomography
-decompression
-chemonucleolysis
-fall
-doubling
-soft
-s1 nerve root
-gonadotropin
-bone
-peripartal
-ileitis
-herpes
-piriformis muscle
-cobalt therapy
-allele
-endometrioma
-zoster origin
-none
-car driving
-endometriosis
-aneurysm
-collagen
-girl
-fusion
-bony recess
-level diagnosis
-foramina
-mucoid cyst
-osteochondrosis sciatica
-disease
-pathologic
-43
-hydatid
-sacrolisthesis
-tuberculosis
-histiocytofibroma
-mass lesion
-bladder
-lymphoma
-endoscopic discectomy
-neurilemoma
-diagnosis
-lumbar chordoma
-gait
-disc
-driving
-lumbar ligamentum flavum
-process
-   symptom duration
-endoscopic
-transverse process
-cell
-disc lesion
-one pathogen
-invasion
-car
-spondylolysis
-malformation
-back
-thigh
-imaging
-insufficiency fracture
-bladder dysfunction
-ischiadic
-gas pseudocyst
-cyst endometriosis
-sclerosis
-recurrent sciatica
-iliac vessel
-tractor
-piriform muscle
-bone dystrophy
-catheterization
-child
-hydatidosis
-l4 l5 cyst
-lumbar disc surgery
-physiological process
-up
-recurrence
-l3
-buttock pain
-absence
-claudication
-disc pathology
-nerve root compression
-haematoma
-degree
-lumbar nerve root compromise
-root cyst
-osteochondritis dissecan
-proportion
-lumbar cystic ganglion
-bush
-obturator internus pyomyositis
-lumbar disk herniation
-history
-hip joint cause sciatica
-acute sacrum
-synovioma
-plexus
-lesion
-cancer
-trajectory
-scaloping
-disc protrusion
-fragment
-vein
-spine surgery
-diskal
-return
-infiltrating
-persistence
-nerve root
-piriformis
-methylene
-extradura
-six year
-lack
-cycle
-hole
-serum
-orifice
-author
-pelvis causing sciatica
-case
-proinflammatory cytokine
-limbus
-microdiscectomy
-lumbar apophyseal
-12.2
-inhibitor
-change
-group
-development
-tuberosity
-avulsion
-tumour
-arch
-piriformis pyomyositis
-lumbar arachnoiditi
-catheter migration
-origin
-disk origin
-uterine
-cryoglobulinemia
-malaria
-calcitonin
-extralumbar lesion
-calcinosis
-fragment wound
-disc hernia
-surgery
-observation
-standpoint
-hernia
-mense
-back pain
-region
-hyperextension
-grade
-ectopic
+tooth
 extremity
-anomaly
-canal stenosis
-nerve trunk
-infiltrating lipoma
-lumbar herniation
-implantation
-diskal hernia
-endocarditis
-obesity
-lumbar disorder
-l5 root
-lumbar disc
-syndrome
-peripartal sacrum fracture
-radiculopathy
-lipoma
-thromboembolism
-s1
-nerve damage
-practitioner
-disk hernia diagnosis
-quadratus femoris muscle tear
-year
-chemical irritation
-fibrosis
-nerve root anomaly
-sarcoma
-level
-lumber disk
-lumbar spine origin
-notch
-metastasis
-bony
-osthole
-lumbar decompression surgery
-lumbar disc prolapse
-hip surgery
-irritation
-hyperalgesia
-ganglion
-majority
-catheter
-muscle
-lidh
-portion
-arthropathy
-minute
-juxtafacet
-thoracic
-popliteal
-ectopic discharge
-l5 nerve root
-body
-perifibrosis
-combination
-hypertrophy
-inability
-contrast
-recurrent
-gout
-lumbar hernia
-lumbar spine disease
-gluteal syndrome
-butterfly dysplasia
-hip luxation
-nerve scarring
-entity
-vertebra
-cobalt
-tissue
-piriformis cyst
-nerve schwannoma
-disc disease
-enlargement
-disk herniation
-abnormality
-piriformis muscle syndrome
-disc tissue
-whole
-ectopic endometriosis
-l5 sciatica
-ligamentum
-root compression
-disk displacement
-lumbar root
-week
-mass
-fat
-heterotopic
-chymopapain
-lumber disc herniation
-transverse
-decompression surgery
-injury
-degeneration
-avulsion fracture
-interaction
-disc problem
-lumbar surgery
-pathology
-lumbar disc herniation
-gluteal
-resonance
-root fibrosis
-study
-workload
-osteophyte
-instance
-vertebrae
-arachnoid
-extralumbar
-limb
-l4
-lumbar disk
-lumbar varix
-complaint
-cascade
+artery
 rat
-pregnancy
+lumbar decompression
+disc lesion
 physiological
-resonance imaging
-hip joint
-lumbar spine
-lumbar vertebra
-lumbar disk surgery
-obturator
-hyperlipidemia
-braver disc
-buttock
-lumbar sciatica
-comt
-spine disease
-pyomyositis
-height
-work
-tc-99
-role
-nerve stretch test
-lipid
-hyperextension test
-vascular
-osteochondroma
-tumor
-butterfly
-cystic
-herpes zoster virus
-work exposure
-ependymoma
-bone cyst
-four month
-dorsal root ganglion
-foot
-gait analysis technique
-vessel
-varicosity
-zoster
-disc origin
-accuracy
-lumbar chondroma
-lumbar disk hernia
-ligament leiomyoma
-hip
-mri finding
-stretch
-failure
-popliteal hydatid cyst
-lumbar gas
-piriformis syndrome
-positron
-start
-lumbar disc disease
-cyst formation
-compression
-importance
-adjustment
-analysis
-lumbar fibrosis
-lumbar diskectomy
-arthrodesis
-cord compression
-source
-trunk
-bs
-hydatid cyst
-term
-hematocolpo
-gluteal muscle
-thoracic spine
-transl
-time
-duration
-ray dorsal root compression
-meningioma
-grade spondylolisthesis
-ectopic firing
-lumbar
-reherniation
-sciatica
-leg weakness
-month
-endometriosis lesion
-pressure stimulation
-disk
-rack
-16 patient
-myelography
-patient
-entrapment
-stenosis
-evidence
-girl 14
-nerve ending
-herpes simplex
-l5
-prolapse
-herpes zoster
-woman
-burden
-bone marrow biopsy
-sacralization
-pelvis
-nucleus
-reaction
-piriformis ganglion
-trauma
-t9 compression
-macrophage
-quadratus
+muscle
+piriformis cyst
+device
+bony
+proinflammatory
+melanoma
+allele
+canal stenosis
+lumbar disc herniation
+bony recess
+six year
+1.2
+decompression
+butterfly dysplasia
+study
+incarceration
 sacroiliitis
-deposition
-inflammation
-vein varicosity
-marrow
-neurofibromatosis
-recessus
-laminectomy
-l5 disc
-deficit
-nerve root compromise
-age
-branch
-lumbar nerve root
-pathologic condition
-ewings sarcoma
-case report
-osteotomy
-radiculopathy manifesting
+fibrosis
+nerve root
+varicosity
+process
+lumbar disk hernia
+l2 l3 herniation
+four month
+extradura
+instance arachnoiditis
+lumbar herniation
+decompression surgery
 schwannoma
-lumbar stenosis
-serum lipid level
-type
-de
-disc prolapse
-pressure
-angle
-compression injury
-severity
-disk hernia
-use
-variation
+disk displacement
+lumbar cystic ganglion
+minute
+portion
+bladder
+endometriosis
+piriformis syndrome
+cell
+insufficiency
+meningioma
+lumbar surgery
+disorder
+disc operation
+anomaly
+methylene
+peripartal sacrum
+gluteal abscess
+operation
+disc origin
+lumbar hernia
+diverticula
+imaging
+herpes
+ischiadic
+positron
+quadratus
+sacrolisthesis
+piriform
+height
+hip
+notch
+effect
+lumbar spine
+inability
+fragment
+ligamentum flavum
 spine decompression surgery
-hamstring injury
-root
+sac
+l3
+degeneration
+disc protrusion
+individual
+diskal
+gait
+tc-99
+tear
+recurrence
+tomography
+ligamentum
+trajectory
+piriformis pyomyositis
+disk rupture
+thigh
+one pathogen
+lumbar
+hematoma
+mass lesion
+avulsion
+calcinosis
+synovioma
+lumbar arachnoiditi
+ileitis
+hydatid
+resonance imaging
+root compression
+radiculopathy manifesting
+nerve damage
+zoster
+bladder dysfunction
+disk
+nerve compression
+reference
+l2
+limbus
+hyperparathyroidism
+gas pseudocyst
+lumbar varix
+microdiscectomy
+pseudocyst
+heterotopic ossification
+risk
+l5 disc
+month
+mngf
+bs
+lipoma
+leg
+resonance imaging finding
+week
+level
+emission
+endoscopic
+lumbar haematoma
+hexacetonide
+bell test
+muscle belly
+t9 compression
+proportion
+s1 nerve root
+nerve root compromise
+role
+peritonei
+nerve trunk
+nerve scarring
+evidence
+gluteal
+lipid
+43
+ligament leiomyoma
+joint
+sacroiliac lesion
+s2
+de
+catheter
+lumbar chordoma
+transverse process
+nerve ending
+none
+disk origin
+hyperextension
+disc pathology
+lumber
+cascade
+cobalt therapy
+disc hemiation
+lumbar stenosis
+buttock pain
+endoscopic discectomy
+disk lesion
+enlargement
+fall
+neurilemoma
+root fibrosis
+entity
+pelvis
+instance
+hypertrophy
+outcome
+calcitonin injection
+injection
+marrow
+stenosis
+condition
+infiltrating
+recessus
+chemonucleolysis
+iliac vessel
+tendon
+follow
+driving
+ischiadic nerve
+herpes simplex
+origin
+space
+   symptom duration
+neuropathy
+chymopapain
+overweight
+sport accident
+meningocele
+stc
+disc problem
+lumbar decompression surgery
+hematocolpo
+arch
+cyst endometriosis
+bone marrow biopsy
+t9
+soft
+exposure
+femoris
+child
+procedure
+lumbar cyst
+spine
+contrast
+tuberosity
+extralumbar
+lumbar spine disease
+orifice
+claudication
+recessus laterali
+literature
+braver disc
+girl
+sclerosis
+malaria
+activity
+plexus
+boy
+development
+lumbar segment
+arachnoid
+l4
+internus
+course
+dorsal root ganglion
+stretch
+adjustment
+cryptococcus neoforman
+obesity
+thoracic meningioma
+mucoid cyst
+ectopic firing
+peripartal
+surgery
+enzyme
+thromboembolism
+endocarditis
+bell
+gait analysis technique
+disk herniation
+type
+hydroxyapatite deposition disease
+lumbar nerve root compromise
+interaction
+limb
+prolapse
+lumbar root
+accuracy
+thoracic
+irritation
+history
+inflammation
+foot drop
+facet
+gluteal syndrome
+disease
 de sac
-smoking
+cyst
+heterotopic
+source
+popliteal
+body edge
+cobalt
+zoster origin
+case report
+tissue
+16 patient
+mri finding
+car driving
+hyperlipidemia
+ganglion
+persistence
+spinal
+insufficiency fracture
+popliteal hydatid cyst
+ganglion cyst
+institution
+workload
+lumbar root schwannoma
+patient
+juxtafacet
+herpes zoster
+lumbar disk surgery
+lesion
+haematoma
+thoracic spine
+radiculopathy
+vascular
+osteochondrosis
+return
+lumbar disorder
+cord
+lumbar disc prolapse
+lumbar diskectomy
+girl 14
+symptom
+time
+cauda equina
+ectopic discharge
+sacroiliac
+cyst formation
+lumbar disk
+herniation
+herpes zoster virus
+uterine
+tractor
+syndrome
+nerve tumour
+business
+year
+lumbar root compression
+acetabular paralabral cyst
+variation
+hamstring
+comt
+transverse
+absence
+buttock
+physiological process
+lumber disc herniation
+lidh
+start
+lumbar vertebra
+extradura space
+back pain
+piriformis ganglion
+lumbar traction
+vertebrae
+deficit
+hyperextension test
+metal
+scaloping
+hip surgery
+pressure
+chemical
+gas
+macrophage
+piriformis muscle syndrome
+sex
+hyperalgesia
+nucleus
+cystic
+slr
+vibration
+disk hernia
+l5
+lumbar disc protrusion
+positron emission tomography
+author
+proinflammatory cytokine
+disc degeneration
+dorsal root
+combination
+neurinoma
+hip luxation
+entrapment
+pathologic condition
+pressure stimulation
+pyomyositis
+bulging
+fusion
+etiology
+rack
+canal
+bone dystrophy
+trauma
+endometriosis lesion
+bone cyst
+car
+nerve schwannoma
+back
+mass
+16 year
+cycle
+chemical irritation
+root
+iliac
+fracture
+hamstring injury
+osteochondroma
+grade spondylolisthesis
+serum lipid level
+spondylolisthesis
+discectomy
+lumbar ligamentum flavum
+burden
+catheter migration
+collagen
+narrowing
+laminectomy
+osteophyte
+lumbar nerve root
+compression
+pathology
+l4 l5 cyst
+doubling
+spondylolysis
+aneurysm
+standpoint
+transl
+adhesion
+gonadotropin
+obturator
+root cyst
+perifibrosis
+deposition
+change
+age
+cancer
+nerve
+sarcoma
+pregnancy
+invasion
+diskal hernia
+society
+lumbar discectomy
+whole
+lumbar pain
+dorsal
+paralabral cyst
+myelography
+arachnoid cyst
+analysis
+12 month
+ependymoma
+period
+tumour
+leg weakness
+l5 root
+tumor
+artery pseudoaneurysm
+nerve stretch test
+piriformis
+lack
+reaction
+spine surgery
+12.2

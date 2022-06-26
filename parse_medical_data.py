@@ -84,12 +84,16 @@ def get_all_expansions_of_span_from_lst(span_lst):
                 if item == head_word:
                     val += 3
                     continue
+                val_to_add = 0
                 if item.dep_ in low_val_dep:
-                    val += 1
+                    val_to_add = 1
                 if item.dep_ in med_val_dep:
-                    val += 2
+                    val_to_add = 2
                 if item.dep_ in max_val_dep:
-                    val += 3
+                    val_to_add = 3
+                if item.text == '-':
+                    val -= (val_to_add + 1)
+                val += val_to_add
             # span = valid_expansion_utils.get_tokens_as_span(new_sub_np)
             sub_np_final_spans.append((new_sub_np, val))
         sub_np_final_spans.sort(key=lambda x: len(x[0]), reverse=True)

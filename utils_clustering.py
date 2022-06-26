@@ -93,9 +93,9 @@ def is_should_be_removed(dict_noun_lemma_to_counter, span_lst, original_word,
                     entry = dict_word_to_his_synonym[lemma_word]
                 else:
                     entry = lemma_word
-                if dict_noun_lemma_to_counter[entry] > 1:
-                    counter += 1
-                    break
+                # if dict_noun_lemma_to_counter[entry] > 1:
+            counter += 1
+            break
     if len(span_lst) == counter:
         black_list.add(original_word)
         print(original_word + " should be removed: " + str(len(span_lst)))
