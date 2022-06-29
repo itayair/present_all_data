@@ -1,6 +1,6 @@
 import valid_expansion_utils
 
-tied_deps = ['neg', 'nmod:poss', 'compound', 'mwe', 'case', 'mark', 'auxpass', 'name', 'aux']
+tied_deps = ['nmod:poss', 'compound', 'mwe', 'case', 'mark', 'auxpass', 'name', 'aux']
 tied_couples = [['auxpass', 'nsubjpass']]
 
 dep_type_optional = ['advmod', 'dobj', 'npadvmod', 'nmod', 'nummod', 'conj', 'aux', 'poss', 'nmod:poss',

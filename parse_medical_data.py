@@ -87,10 +87,8 @@ def get_all_expansions_of_span_from_lst(span_lst):
                 val_to_add = 0
                 if item.dep_ in low_val_dep:
                     val_to_add = 1
-                if item.dep_ in med_val_dep:
+                if item.dep_ in med_val_dep or item.dep_ in max_val_dep:
                     val_to_add = 2
-                if item.dep_ in max_val_dep:
-                    val_to_add = 3
                 if item.text == '-':
                     val -= (val_to_add + 1)
                 val += val_to_add
