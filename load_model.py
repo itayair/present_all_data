@@ -79,6 +79,53 @@ def from_dict_to_lst(label_to_cluster):
     return label_to_cluster
 
 
+def set_cover(universe, subsets):
+    """Find a family of subsets that covers the universal set"""
+    elements = set(e for s in subsets for e in s)
+    # Check the subsets cover the universe
+    if elements != universe:
+        return None
+    covered = set()
+    cover = []
+    # Greedily add the subsets with the most uncovered points
+    while covered != elements:
+        subset = max(subsets, key=lambda s: len(s - covered))
+        cover.append(subset)
+        covered |= subset
+
+    return cover
+
+
+def create_score_to_group_dict(span_to_group_members, dict_span_to_rank):
+    dict_score_to_collection_of_sub_groups = {}
+    for key, group in span_to_group_members.items():
+        dict_score_to_collection_of_sub_groups[dict_span_to_rank[key]] = dict_score_to_collection_of_sub_groups.get(
+            dict_span_to_rank[key], [])
+        dict_score_to_collection_of_sub_groups[dict_span_to_rank[key]].append((key, set(group)))
+    dict_score_to_collection_of_sub_groups = {k: v for k, v in
+                                              sorted(dict_score_to_collection_of_sub_groups.items(),
+                                                     key=lambda item: item[0],
+                                                     reverse=True)}
+    for score, sub_group_lst in dict_score_to_collection_of_sub_groups.items():
+        sub_group_lst.sort(key=lambda tup: len(tup[1]), reverse=True)
+    return dict_score_to_collection_of_sub_groups
+
+
+def set_cover_with_priority(dict_score_to_collection_of_sub_groups):
+    covered = set()
+    span_to_group_members = {}
+    for score, sub_group_lst in dict_score_to_collection_of_sub_groups.items():
+        while True:
+            # subset = max(sub_group_lst, key=lambda s: len([x for x in s[1] if x not in covered]))
+            subset = max(sub_group_lst, key=lambda s: len(s[1] - covered))
+            if len(subset[1] - covered) > 1:
+                span_to_group_members[subset[0]] = list(subset[1])
+                covered.update(subset[1])
+            else:
+                break
+    return span_to_group_members
+
+
 def union_groups(clusters, dict_word_to_lemma, dict_lemma_to_synonyms, dict_span_to_rank):
     span_to_group_members = {}
     # idx = 0
@@ -97,24 +144,27 @@ def union_groups(clusters, dict_word_to_lemma, dict_lemma_to_synonyms, dict_span
                              sorted(span_to_group_members.items(), key=lambda item: len(item[1]),
                                     reverse=True)}
     span_to_group_members_more_than_1_element = {k: v for k, v in span_to_group_members.items() if len(v) > 1}
-    span_to_group_members_more_than_1_element = {k: v for k, v in
-                                                 sorted(span_to_group_members_more_than_1_element.items(),
-                                                        key=lambda item: (dict_span_to_rank[item[0]], len(item[1])),
-                                                        reverse=True)}
-    new_span_to_group_members_more_than_1_element = {}
-    black_lst = []
-    for span, group in span_to_group_members_more_than_1_element.items():
-        num_of_new_members = 0
-        valid_members = []
-        for member in group:
-            if member in black_lst:
-                continue
-            num_of_new_members += 1
-            valid_members.append(member)
-        if len(valid_members) > 1:
-            black_lst.extend(valid_members)
-            new_span_to_group_members_more_than_1_element[span] = valid_members
-    return new_span_to_group_members_more_than_1_element, dict_span_to_lst
+    dict_score_to_collection_of_sub_groups = create_score_to_group_dict(span_to_group_members_more_than_1_element, dict_span_to_rank)
+    span_to_group_members = set_cover_with_priority(dict_score_to_collection_of_sub_groups)
+    return span_to_group_members, dict_span_to_lst
+    # span_to_group_members_more_than_1_element = {k: v for k, v in
+    #                                              sorted(span_to_group_members_more_than_1_element.items(),
+    #                                                     key=lambda item: (dict_span_to_rank[item[0]], len(item[1])),
+    #                                                     reverse=True)}
+    # new_span_to_group_members_more_than_1_element = {}
+    # black_lst = []
+    # for span, group in span_to_group_members_more_than_1_element.items():
+    #     num_of_new_members = 0
+    #     valid_members = []
+    #     for member in group:
+    #         if member in black_lst:
+    #             continue
+    #         num_of_new_members += 1
+    #         valid_members.append(member)
+    #     if len(valid_members) > 1:
+    #         black_lst.extend(valid_members)
+    #         new_span_to_group_members_more_than_1_element[span] = valid_members
+    # return new_span_to_group_members_more_than_1_element, dict_span_to_lst
 
 
 def get_non_clustered_group_numbers(label_to_cluster, span_to_group_members, dict_label_to_spans_group):
