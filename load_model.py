@@ -143,7 +143,7 @@ def union_groups(clusters, dict_word_to_lemma, dict_lemma_to_synonyms, dict_span
     span_to_group_members = {k: v for k, v in
                              sorted(span_to_group_members.items(), key=lambda item: len(item[1]),
                                     reverse=True)}
-    span_to_group_members_more_than_1_element = {k: v for k, v in span_to_group_members.items() if len(v) > 1}
+    span_to_group_members_more_than_1_element = {k: v for k, v in span_to_group_members.items() if len(v) > 1 and dict_span_to_rank[k] >= 3}
     dict_score_to_collection_of_sub_groups = create_score_to_group_dict(span_to_group_members_more_than_1_element, dict_span_to_rank)
     span_to_group_members = set_cover_with_priority(dict_score_to_collection_of_sub_groups)
     return span_to_group_members, dict_span_to_lst

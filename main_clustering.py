@@ -69,7 +69,7 @@ def main():
                     if len(word_to_lemma.text) < 2 or word_to_lemma.dep_ in ['quantmod'] or word_to_lemma.text == '-':
                         continue
                     lemma_word = word_to_lemma.lemma_.lower()
-                    if lemma_word in ['sciatica', 'cause', 'causing', 'diagnosing', 'diagnosis']:
+                    if lemma_word in ['sciatica', 'cause', 'causing', 'diagnosing', 'diagnosis', 'pain', 'chest']:
                         continue
                     compound_noun_span_lemma_lst.append(lemma_word)
                     if word_to_lemma.lemma_ not in lemmas_already_counted:
