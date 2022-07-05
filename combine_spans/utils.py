@@ -22,14 +22,14 @@ def from_words_to_lemma_lst(span, dict_word_to_lemma):
 
 
 def load_data_dicts():
-    a_file = open("data.pkl", "rb")
+    a_file = open("load_data\\data.pkl", "rb")
     dict_of_topics = pickle.load(a_file)
     dict_of_topics = {k: v for k, v in
                       sorted(dict_of_topics.items(), key=lambda item: len(item[1]),
                              reverse=True)}
-    b_file = open("span_counter.pkl", "rb")
+    b_file = open("load_data\\span_counter.pkl", "rb")
     dict_of_span_to_counter = pickle.load(b_file)
-    c_file = open("word_to_lemma.pkl", "rb")
+    c_file = open("load_data\\word_to_lemma.pkl", "rb")
     dict_word_to_lemma = pickle.load(c_file)
     return dict_of_topics, dict_of_span_to_counter, dict_word_to_lemma
 

@@ -34,13 +34,13 @@ def get_tied_couples(children):
     return tied_couples_to_add
 
 
-
-
 def combine_tied_deps_recursively_and_combine_their_children(head, boundary_np_to_the_left):
     combined_children_lst = []
     combined_tied_tokens = [head]
     tied_couples_to_add = get_tied_couples(head.children)
     for child in head.children:
+        if boundary_np_to_the_left > child.i:
+            continue
         if child.dep_ in tied_deps or child in tied_couples_to_add:
             # if child.dep_ == 'case' and child.i == boundary_np_to_the_left:
             #     continue
@@ -134,14 +134,13 @@ def set_couple_deps(couple_lst, boundary_np_to_the_left, sub_np_lst, head):
         sub_np_lst.append(sub_np_lst_couple)
 
 
-dep_type_in_sequencial = set()
-
-
 def get_all_valid_sub_special(token, boundary_np_to_the_left):
     sub_np_lst, lst_children = combine_tied_deps_recursively_and_combine_their_children(token, boundary_np_to_the_left)
-    sub_np = []
+    # sub_np = []
     complete_children = []
+    mandatory_complete = []
     lst_to_skip, tokens_to_add = remove_conj_if_cc_exist(lst_children)
+    complete_occurrences = 0
     for child in lst_children:
         # if child.i >= next_catch_word_index:
         #     continue
@@ -149,29 +148,55 @@ def get_all_valid_sub_special(token, boundary_np_to_the_left):
         if child in lst_to_skip:
             continue
         if child.dep_ in ['dobj', 'advcl', 'nmod']:  # 'cc', 'conj', 'aux', 'auxpass', 'cop', 'nsubjpass'
-            dep_type_in_sequencial.add(child.dep_)
             all_sub_of_sub = get_all_valid_sub_np(child, boundary_np_to_the_left)
-            all_sub_of_sub = sub_np_lst + all_sub_of_sub
-            sub_np.append(all_sub_of_sub)
+            if complete_occurrences > 0 and child.dep_ in ['nmod', 'advcl'] and len(all_sub_of_sub) > 1:
+                new_sub_np_lst = []
+                optional_lst = []
+                for item in all_sub_of_sub:
+                    if isinstance(item, list):
+                        optional_lst.append(item)
+                    else:
+                        new_sub_np_lst.append(item)
+                new_sub_np_lst.sort(key=lambda x: x.i)
+                new_sub_np_lst = new_sub_np_lst + optional_lst
+                if new_sub_np_lst[0].dep_ in ['case', 'mark']:
+                    sub_np_lst = sub_np_lst + [new_sub_np_lst]
+                    complete_occurrences += 1
+                    continue
+            sub_np_lst = sub_np_lst + all_sub_of_sub
+            complete_occurrences += 1
         else:
             complete_children.append(child)
-    if sub_np == [] and token.dep_ == 'amod':
-        sub_np.append(sub_np_lst)
+    if complete_occurrences > 1:
+        new_sub_np_lst = []
+        optional_lst = []
+        for item in sub_np_lst:
+            if isinstance(item, list):
+                optional_lst.append(item)
+            else:
+                new_sub_np_lst.append(item)
+        sub_np_lst = new_sub_np_lst + optional_lst
+    # if mandatory_complete:
+    #     sub_np.append(mandatory_complete)
+    # if sub_np == [] and token.dep_ == 'amod':
+    #     sub_np.append(sub_np_lst)
     couple_lst = []
     couple_lst.extend(tokens_to_add)
     sub_np_lst_couples = []
     set_couple_deps(couple_lst, boundary_np_to_the_left, sub_np_lst_couples, [])
     if sub_np_lst_couples:
-        for sub_sub_np_lst in sub_np:
-            sub_sub_np_lst.append(sub_np_lst_couples)
+        sub_np_lst.append(sub_np_lst_couples)
+        # for sub_sub_np_lst in sub_np:
+        #     sub_sub_np_lst.append(sub_np_lst_couples)
     for child in complete_children:
         all_sub_of_sub = get_all_valid_sub_np(child, boundary_np_to_the_left)
-        for sub_sub_np_lst in sub_np:
-            sub_sub_np_lst.append(all_sub_of_sub)
+        sub_np_lst.append(all_sub_of_sub)
+        # for sub_sub_np_lst in sub_np:
+        #     sub_sub_np_lst.append(all_sub_of_sub)
     if not sub_np_lst:
         return []
     # sub_np_lst = [token] + sub_np_lst
-    return sub_np
+    return sub_np_lst
 
 
 def get_children_expansion(sub_np_lst, lst_children, boundary_np_to_the_left, head):

@@ -36,33 +36,28 @@ def powerset(iterable):
     return itertools.chain.from_iterable(itertools.combinations(iterable, r) for r in range(len(iterable) + 1))
 
 
-def get_all_combination(sub_np_of_child_lst, sub_np_of_child_lst_final):
-    result_list = list(powerset(sub_np_of_child_lst))
-    for item in result_list:
-        for element in itertools.product(*item):
-            if item == ():
-                continue
-            lst_temp = []
-            for token in list(element):
-                lst_temp.extend(token)
-            sub_np_of_child_lst_final.append(lst_temp)
+# def get_all_combination(sub_np_of_child_lst, sub_np_of_child_lst_final):
+#     result_list = list(powerset(sub_np_of_child_lst))
+#     for item in result_list:
+#         for element in itertools.product(*item):
+#             if item == ():
+#                 continue
+#             lst_temp = []
+#             for token in list(element):
+#                 lst_temp.extend(token)
+#             sub_np_of_child_lst_final.append(lst_temp)
 
 
-def get_all_children_recursively(sub_np_lst, current_lst, root):
-    sub_np_of_child_lst = []
+def get_all_children_recursively(sub_np_lst, root):
     for child in sub_np_lst:
-        new_lst_for_child = current_lst.copy()
-        sub_np_of_child, _ = from_lst_to_sequence(child, new_lst_for_child, root)
-        sub_np_of_child_lst.append(sub_np_of_child)
-    return sub_np_of_child_lst
+        from_lst_to_sequence(child, root)
 
 
-def from_lst_to_sequence(sub_np_lst, current_lst, root):
-    sub_np_of_child_lst_final = []
+def from_lst_to_sequence(sub_np_lst, root):
     if isinstance(sub_np_lst[0], list):
         if len(sub_np_lst) == 1:
-            return from_lst_to_sequence(sub_np_lst[0], current_lst, root)
-        sub_np_of_child_lst = get_all_children_recursively(sub_np_lst, current_lst, root)
+            return from_lst_to_sequence(sub_np_lst[0], root)
+        get_all_children_recursively(sub_np_lst, root)
     else:
         collect_to_lst = []
         slice_index = 0
@@ -71,25 +66,19 @@ def from_lst_to_sequence(sub_np_lst, current_lst, root):
                 break
             collect_to_lst.append(item)
             slice_index += 1
-        current_lst.extend(collect_to_lst)
-        sub_np_of_child_lst_final.append(current_lst)
-        node_in_sentence_representation = sent_rep.Node(sub_np_lst[0])
+        node_in_sentence_representation = sent_rep.Node(collect_to_lst)
         if len(sub_np_lst) == 1:
             if root is None:
                 root = node_in_sentence_representation
             else:
                 root.add_children(node_in_sentence_representation)
-            return [current_lst], root
-        sub_np_of_child_lst = get_all_children_recursively(sub_np_lst[1:], current_lst,
-                                                           node_in_sentence_representation)
-        # head_to_rest_span = [sub_np_lst[0]]
-        # sub_np_of_child_lst = head_to_rest_span.append(sub_np_of_child_lst)
+            return root
+        get_all_children_recursively(sub_np_lst[slice_index:], node_in_sentence_representation)
         if root is None:
             root = node_in_sentence_representation
         else:
             root.add_children(node_in_sentence_representation)
-    get_all_combination(sub_np_of_child_lst, sub_np_of_child_lst_final)
-    return sub_np_of_child_lst_final, root
+    return root
 
 
 def is_np_child_head(head_word, word):

@@ -4,8 +4,8 @@ import pickle
 import utils_clustering
 import valid_expansion_utils
 
-file_name = "output_noun_result.txt"
-file_name_lemma = "output_noun_lemma_result.txt"
+file_name = "text_files\\output_noun_result.txt"
+file_name_lemma = "text_files\\output_noun_lemma_result.txt"
 
 
 def filter_dict_by_lst(dict_noun_lemma_to_span, dict_noun_lemma_to_counter, black_list):
@@ -109,9 +109,9 @@ def main():
                                                                                 dict_noun_lemma_to_counter, head_lst,
                                                                                 dict_word_to_his_synonym,
                                                                                 dict_span_to_words)
-    a_file = open("data.pkl", "wb")
-    b_file = open("span_counter.pkl", "wb")
-    c_file = open("word_to_lemma.pkl", "wb")
+    a_file = open("load_data\\data.pkl", "wb")
+    b_file = open("load_data\\span_counter.pkl", "wb")
+    c_file = open("load_data\\word_to_lemma.pkl", "wb")
     pickle.dump(dict_noun_lemma_to_span, a_file)
     pickle.dump(dict_span_to_counter, b_file)
     pickle.dump(dict_word_to_lemma, c_file)

@@ -1,7 +1,7 @@
 import json
 import utils as ut
 
-attr_of_node = ['det', 'neg', 'auxpass', 'aux', 'auxpass']
+attr_of_node = ['det', 'neg', 'auxpass', 'aux']
 
 counter_error_example = 0
 
@@ -20,37 +20,37 @@ def from_token_lst_to_span(token_lst):
 class Node:
     def __init__(self, span):
         self.type = span[1]
-        span = span[0]
-        span.sort(key=lambda x: x.i)
-        self.span = span
-        self.attr_head = []
+        # span = span[0]
+        # span.sort(key=lambda x: x.i)
+        self.span = span[0]
+        # self.attr_head = []
         # self.bridge_to_head = ""
-        self.basic_span = ""
-        self.is_amod_type = False
-        self.basic_span_as_tokens = []
-        self.initialize_attr_and_basic_span(span)
+        # self.basic_span = ""
+        # self.is_amod_type = False
+        # self.basic_span_as_tokens = []
+        # self.initialize_attr_and_basic_span(span)
         ########
         self.children_to_the_left = []
         self.children_to_the_right = []
         # self.kind = kind
 
-    def initialize_attr_and_basic_span(self, span):
-        global counter_error_example
-        basic_lst = []
-        self.attr_head = []
-        for token in span:
-            if token.dep_ in attr_of_node:
-                self.attr_head.append(token)
-            else:
-                basic_lst.append(token)
-            # else:
-            #     if token[1] == 4:
-            #         self.is_amod_type = True
-        self.basic_span = from_token_lst_to_span(basic_lst)
-        self.basic_span_as_tokens = basic_lst
-        # self.bridge_to_head = from_token_lst_to_span(bridge_to_head_lst)
-        # if self.basic_span == "":
-        #     counter_error_example += 1
+    # def initialize_attr_and_basic_span(self, span):
+    #     global counter_error_example
+    #     basic_lst = []
+    #     self.attr_head = []
+    #     for token in span:
+    #         if token.dep_ in attr_of_node:
+    #             self.attr_head.append(token)
+    #         else:
+    #             basic_lst.append(token)
+    #         # else:
+    #         #     if token[1] == 4:
+    #         #         self.is_amod_type = True
+    #     self.basic_span = from_token_lst_to_span(basic_lst)
+    #     self.basic_span_as_tokens = basic_lst
+    #     # self.bridge_to_head = from_token_lst_to_span(bridge_to_head_lst)
+    #     # if self.basic_span == "":
+    #     #     counter_error_example += 1
 
     def add_children(self, child):
         if child.type in [1, 2]:

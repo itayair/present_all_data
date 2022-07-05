@@ -3,6 +3,16 @@ import itertools
 noun_tags_lst = ['NN', 'NNS', 'WP', 'PRP', 'NNP', 'NNPS']
 
 
+def get_head_of_span(span):
+    head = None
+    for child in span:
+        if child.head == child:
+            return child
+        if child.head not in span:
+            head = child
+    return head
+
+
 def from_children_to_list(children):
     lst_children = []
     for token in children:
@@ -23,15 +33,15 @@ def powerset(iterable):
     return itertools.chain.from_iterable(itertools.combinations(iterable, r) for r in range(len(iterable) + 1))
 
 
-def from_lst_to_sequence(sub_np_final_lst, sub_np_lst, current_lst):
+def from_lst_to_sequence(sub_np_final_lst, sub_np_lst):
     sub_np_of_child_lst_final = []
+    current_lst = []
     if isinstance(sub_np_lst[0], list):
         if len(sub_np_lst) == 1:
-            return from_lst_to_sequence(sub_np_final_lst, sub_np_lst[0], current_lst)
+            return from_lst_to_sequence(sub_np_final_lst, sub_np_lst[0])
         sub_np_of_child_lst = []
         for child in sub_np_lst:
-            new_lst_for_child = current_lst.copy()
-            sub_np_of_child = from_lst_to_sequence(sub_np_final_lst, child, new_lst_for_child)
+            sub_np_of_child = from_lst_to_sequence(sub_np_final_lst, child)
             sub_np_of_child_lst.append(sub_np_of_child)
     else:
         collect_to_lst = []
@@ -42,13 +52,11 @@ def from_lst_to_sequence(sub_np_final_lst, sub_np_lst, current_lst):
             collect_to_lst.append(item)
             slice_index += 1
         current_lst.extend(collect_to_lst)
-        sub_np_of_child_lst_final.append(current_lst)
         if len(sub_np_lst) == 1:
             return [current_lst]
         sub_np_of_child_lst = []
         for child in sub_np_lst[slice_index:]:
-            new_lst_for_child = current_lst.copy()
-            sub_np_of_child = from_lst_to_sequence(sub_np_final_lst, child, new_lst_for_child)
+            sub_np_of_child = from_lst_to_sequence(sub_np_final_lst, child)
             sub_np_of_child_lst.append(sub_np_of_child)
     result_list = list(powerset(sub_np_of_child_lst))
     for item in result_list:
@@ -59,6 +67,10 @@ def from_lst_to_sequence(sub_np_final_lst, sub_np_lst, current_lst):
             for token in element:
                 lst_temp.extend(token)
             sub_np_of_child_lst_final.append(lst_temp)
+    if current_lst:
+        for lst in sub_np_of_child_lst_final:
+            lst.extend(current_lst)
+        sub_np_of_child_lst_final.append(current_lst)
     return sub_np_of_child_lst_final
 
 
@@ -91,8 +103,10 @@ def get_np_boundary(head_word_index, sentence_dep_graph):
             boundary_np_to_the_right = i
             continue
         break
+    while sentence_dep_graph[boundary_np_to_the_left].dep_ in ['case', 'mark'] or sentence_dep_graph[boundary_np_to_the_left].tag_ == 'IN':
+        boundary_np_to_the_left += 1
     return sentence_dep_graph[
-           boundary_np_to_the_left:boundary_np_to_the_right + 1], head_word_index - boundary_np_to_the_left, boundary_np_to_the_right - boundary_np_to_the_left
+           boundary_np_to_the_left:boundary_np_to_the_right + 1], head_word_index - boundary_np_to_the_left, boundary_np_to_the_left
 
 
 def get_tokens_as_span(tokens):
