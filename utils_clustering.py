@@ -110,6 +110,13 @@ def isAbbr(name):
     return ""
 
 
+def from_tokens_to_lemmas(tokens):
+    lemma_lst = []
+    for token in tokens:
+        lemma_lst.append(token.lemma_)
+    return lemma_lst
+
+
 def get_dict_sorted_and_filtered(dict_noun_lemma_to_value, abbreviations_lst, dict_noun_lemma_to_counter, head_lst):
     dict_noun_lemma_to_value = {key: dict_noun_lemma_to_value[key] for key in dict_noun_lemma_to_value if
                                 (key in head_lst or dict_noun_lemma_to_counter[key] > 1) and
@@ -146,10 +153,11 @@ def synonyms_consolidation(dict_noun_lemma_to_span, dict_noun_lemma_to_counter, 
             for synonym in synonyms:
                 if synonym != word and synonym in word_lst:
                     for spans in dict_noun_lemma_to_span[synonym]:
-                        new_spans_lst = []
-                        for span in spans[1]:
-                            new_spans_lst.append((span[0].replace(synonym, word), span[1]))
-                        dict_noun_lemma_to_span_new[word].append((spans[0], new_spans_lst))
+                        # new_spans_lst = []
+                        # for span in spans[1]:
+                        #     new_spans_lst.append((span[0].replace(synonym, word), span[1]))
+                        # dict_noun_lemma_to_span_new[word].append((spans[0], new_spans_lst))
+                        dict_noun_lemma_to_span_new[word].append((spans[0], spans[1]))
                     # dict_noun_lemma_to_span_new[word].extend(dict_noun_lemma_to_span[synonym])
                     dict_noun_lemma_to_counter_new[word] += dict_noun_lemma_to_counter[synonym]
                     dict_word_to_his_synonym[synonym] = word

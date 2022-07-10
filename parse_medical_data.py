@@ -52,6 +52,49 @@ def get_sentence_ans_span_from_format(line):
     return sentence, span, sent_as_doc, span_as_doc
 
 
+def get_score(np, head_word):
+    val = 0
+    for item in np:
+        # for word in item[0]:
+        #     if word in already_counted:
+        #         continue
+        #     new_sub_np.append(word)
+        if item == head_word:
+            val += 2
+            continue
+        val_to_add = 0
+        if item.text == '-':
+            continue
+        if item.dep_ in low_val_dep:
+            val_to_add = 1
+        if item.dep_ in med_val_dep or item.dep_ in max_val_dep:
+            val_to_add = 2
+        val += val_to_add
+    return val
+
+
+def check_validity_span(np):
+    hyphen_lst = []
+    idx_lst = []
+    for token in np:
+        if token.text == '-':
+            hyphen_lst.append(token)
+            continue
+        idx_lst.append(token.i)
+    if hyphen_lst:
+        for hyphen in hyphen_lst:
+            if hyphen.i + 1 in idx_lst and hyphen.i - 1 in idx_lst:
+                continue
+            else:
+                return False
+        return True
+    return True
+
+
+
+
+
+
 def get_all_expansions_of_span_from_lst(span_lst):
     # examples_to_visualize = []
     counter = 0
@@ -76,36 +119,22 @@ def get_all_expansions_of_span_from_lst(span_lst):
         sub_np_final_lst = valid_expansion_utils.from_lst_to_sequence(sub_np_final_lst, all_valid_sub_np)
         sub_np_final_spans = []
         valid_span_lst = []
-        for sub_np in sub_np_final_lst:
-            length_from_algorithm = len(sub_np)
-            new_sub_np = list(set(sub_np))
-            length_after_remove_duplication = len(new_sub_np)
-            if length_after_remove_duplication != length_from_algorithm:
-                counter_duplication += 1
-            new_sub_np.sort(key=lambda x: x.i)
-            span = valid_expansion_utils.get_tokens_as_span(new_sub_np)
-            if span not in valid_span_lst:
-                all_valid_spans_of_all_expansions.add(span)
-                valid_span_lst.append(span)
-            val = 0
-            for item in new_sub_np:
-                # for word in item[0]:
-                #     if word in already_counted:
-                #         continue
-                #     new_sub_np.append(word)
-                if item == head_word:
-                    val += 3
-                    continue
-                val_to_add = 0
-                if item.dep_ in low_val_dep:
-                    val_to_add = 1
-                if item.dep_ in med_val_dep or item.dep_ in max_val_dep:
-                    val_to_add = 2
-                if item.text == '-':
-                    val -= (val_to_add + 1)
-                val += val_to_add
+        for np in sub_np_final_lst:
+            # length_from_algorithm = len(sub_np)
+            np.sort(key=lambda x: x.i)
+            is_valid_np = check_validity_span(np)
+            if not is_valid_np:
+                continue
+            # length_after_remove_duplication = len(new_sub_np)
+            # if length_after_remove_duplication != length_from_algorithm:
+            #     counter_duplication += 1
             # span = valid_expansion_utils.get_tokens_as_span(new_sub_np)
-            sub_np_final_spans.append((new_sub_np, val))
+            # if span not in valid_span_lst:
+            #     all_valid_spans_of_all_expansions.add(span)
+            #     valid_span_lst.append(span)
+            val = get_score(np, head_word)
+            # span = valid_expansion_utils.get_tokens_as_span(new_sub_np)
+            sub_np_final_spans.append((np, val))
         if len(valid_span_lst) > 100:
             all_span_with_more_than_hundred.append(noun_phrase)
         sub_np_final_spans.sort(key=lambda x: len(x[0]), reverse=True)

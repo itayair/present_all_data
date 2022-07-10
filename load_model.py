@@ -7,28 +7,35 @@ from combine_spans import span_comparison
 import nltk
 from nltk.tokenize import word_tokenize
 
+dict_of_topics, dict_of_span_to_counter, dict_word_to_lemma = combine_spans_utils.load_data_dicts()
+dict_lemma_to_synonyms = combine_spans_utils.create_dicts_for_words_similarity(dict_word_to_lemma)
 
-def create_dicts_length_to_span_and_span_to_list(span_to_group_members):
+
+class NP:
+    def __init__(self, np, label_lst):
+        self.np = np
+        self.label_lst = label_lst
+        self.children = []
+
+    def add_children(self, children):
+        self.children.extend(children)
+
+
+def create_dicts_length_to_span_and_span_to_list(span_to_group_members, dict_span_to_lst):
     dict_length_to_span = {}
-    dict_span_to_lst = {}
+    # dict_span_to_lst = {}
     for span, sub_set in span_to_group_members.items():
-        span_as_lst = span.replace(",", "")
-        span_as_lst = span_as_lst.replace(".", "")
-        span_as_lst = span_as_lst.split()
+        # span_as_lst = span.replace(",", "")
+        # span_as_lst = span_as_lst.replace(".", "")
+        # span_as_lst = span_as_lst.split()
+        span_as_lst = dict_span_to_lst[span]
         dict_length_to_span[len(span_as_lst)] = dict_length_to_span.get(len(span_as_lst), [])
         dict_length_to_span[len(span_as_lst)].append((span, span_as_lst))
         dict_span_to_lst[span] = span_as_lst
-    return dict_length_to_span, dict_span_to_lst
+    return dict_length_to_span
 
 
 def combine_similar_spans(span_to_group_members, dict_length_to_span, dict_word_to_lemma, dict_lemma_to_synonyms):
-    # dict_length_to_span = {}
-    # for span, sub_set in span_to_group_members.items():
-    #     span_as_lst = span.replace(",", "")
-    #     span_as_lst = span_as_lst.replace(".", "")
-    #     span_as_lst = span_as_lst.split()
-    #     dict_length_to_span[len(span_as_lst)] = dict_length_to_span.get(len(span_as_lst), [])
-    #     dict_length_to_span[len(span_as_lst)].append((span, span_as_lst))
     dict_spans = {}
     for idx, spans in dict_length_to_span.items():
         if idx == 1:
@@ -44,7 +51,7 @@ def combine_similar_spans(span_to_group_members, dict_length_to_span, dict_word_
     return span_to_group_members_new
 
 
-def group_agglomerative_clustering_results(clustering, dict_idx_to_all_valid_expansions, dict_of_span_to_counter):
+def group_agglomerative_clustering_results(clustering, dict_idx_to_all_valid_expansions):
     label_to_cluster = {}
     dict_label_to_spans_group = {}
     for idx, label in enumerate(clustering.labels_):
@@ -53,24 +60,22 @@ def group_agglomerative_clustering_results(clustering, dict_idx_to_all_valid_exp
         dict_label_to_spans_group[int(label)] = dict_label_to_spans_group.get(int(label), [])
         dict_label_to_spans_group[int(label)].append(dict_idx_to_all_valid_expansions[idx][0])
     span_to_same_meaning_cluster_of_spans = {}
-    for label, cluster in label_to_cluster.items():
-        most_frequent_span = combine_spans_utils.get_most_frequent_span(cluster, dict_of_span_to_counter)
-        span_to_same_meaning_cluster_of_spans[most_frequent_span] = cluster
-    return label_to_cluster, dict_label_to_spans_group, span_to_same_meaning_cluster_of_spans
+    # for label, cluster in label_to_cluster.items():
+    #     most_frequent_span = combine_spans_utils.get_most_frequent_span(cluster, dict_of_span_to_counter)
+    #     span_to_same_meaning_cluster_of_spans[most_frequent_span] = cluster
+    return label_to_cluster, dict_label_to_spans_group
 
 
 def initialize_spans_data(example_list, dict_span_to_rank):
-    phrase_list = []
     dict_idx_to_all_valid_expansions = {}
     idx = 0
     for phrase in example_list:
-        phrase_list.append(phrase[1][0][0])
         dict_idx_to_all_valid_expansions[idx] = []
         for span in phrase[1]:
             dict_span_to_rank[span[0]] = span[1]
-            dict_idx_to_all_valid_expansions[idx].append(span[0])
+            dict_idx_to_all_valid_expansions[idx].append((span[0], span[2]))
         idx += 1
-    return phrase_list, dict_idx_to_all_valid_expansions, dict_span_to_rank
+    return dict_idx_to_all_valid_expansions
 
 
 def from_dict_to_lst(label_to_cluster):
@@ -116,7 +121,6 @@ def set_cover_with_priority(dict_score_to_collection_of_sub_groups):
     span_to_group_members = {}
     for score, sub_group_lst in dict_score_to_collection_of_sub_groups.items():
         while True:
-            # subset = max(sub_group_lst, key=lambda s: len([x for x in s[1] if x not in covered]))
             subset = max(sub_group_lst, key=lambda s: len(s[1] - covered))
             if len(subset[1] - covered) > 1:
                 span_to_group_members[subset[0]] = list(subset[1])
@@ -126,45 +130,67 @@ def set_cover_with_priority(dict_score_to_collection_of_sub_groups):
     return span_to_group_members
 
 
-def union_groups(clusters, dict_word_to_lemma, dict_lemma_to_synonyms, dict_span_to_rank):
+def add_NP_to_DAG(main_np_object, np_object):
+    is_added = False
+    for np in main_np_object.np:
+        if np_object.np[0][0] == np[0]:
+            return True
+        if span_comparison.is_similar_meaning_between_span(np_object.np[0][1], np[1], dict_word_to_lemma,
+                                                           dict_lemma_to_synonyms):
+            for child in main_np_object.children:
+                is_added = add_NP_to_DAG(child, np_object)
+            if not is_added:
+                main_np_object.add_children([np_object])
+            return True
+    return False
+
+
+def create_DAG(dict_score_to_collection_of_sub_groups, dict_label_to_spans_group, dict_span_to_lemmas_lst):
+    np_object_lst = []
+    dict_label_to_np_object = {}
+    for label, nps in dict_label_to_spans_group.items():
+        # lst_strings = []
+        # for np in nps:
+        #     lst_strings.append(np[0])
+        np_object = NP(nps, [label])
+        np_object_lst.append(np_object)
+        dict_label_to_np_object[label] = np_object
+    for score, np_to_labels_collection in dict_score_to_collection_of_sub_groups.items():
+        for np, labels in np_to_labels_collection:
+            np_object = NP([(np, dict_span_to_lemmas_lst[np])], labels)
+            for label in labels:
+                main_np_object = dict_label_to_np_object[label]
+                is_added = add_NP_to_DAG(main_np_object, np_object)
+                if not is_added:
+                    print("main NP:", main_np_object.np, "sub NP", np)
+    return np_object_lst
+
+
+def union_groups(clusters, dict_word_to_lemma, dict_lemma_to_synonyms, dict_span_to_rank, dict_label_to_spans_group):
     span_to_group_members = {}
-    # idx = 0
-    for idx, valid_expansions_lst in clusters.items():
-        for span in valid_expansions_lst:
-            span_to_group_members[span] = span_to_group_members.get(span, [])
-            span_to_group_members[span].append(idx)
-        # idx += 1
+    dict_span_to_lemmas_lst = {}
+    for idx, valid_expansions_idx in clusters.items():
+        # valid_expansions_lst = clusters[valid_expansions_idx]
+        for span in valid_expansions_idx:
+            span_to_group_members[span[0]] = span_to_group_members.get(span[0], [])
+            span_to_group_members[span[0]].append(idx)
+            dict_span_to_lemmas_lst[span[0]] = span[1]
     span_to_group_members = {k: v for k, v in
                              sorted(span_to_group_members.items(), key=lambda item: len(item[1]),
                                     reverse=True)}
-    dict_length_to_span, dict_span_to_lst = create_dicts_length_to_span_and_span_to_list(span_to_group_members)
+    dict_length_to_span = create_dicts_length_to_span_and_span_to_list(span_to_group_members, dict_span_to_lemmas_lst)
     span_to_group_members = combine_similar_spans(span_to_group_members, dict_length_to_span, dict_word_to_lemma,
                                                   dict_lemma_to_synonyms)
     span_to_group_members = {k: v for k, v in
                              sorted(span_to_group_members.items(), key=lambda item: len(item[1]),
                                     reverse=True)}
-    span_to_group_members_more_than_1_element = {k: v for k, v in span_to_group_members.items() if len(v) > 1 and dict_span_to_rank[k] >= 3}
-    dict_score_to_collection_of_sub_groups = create_score_to_group_dict(span_to_group_members_more_than_1_element, dict_span_to_rank)
+    span_to_group_members_more_than_1_element = {k: v for k, v in span_to_group_members.items() if
+                                                 len(v) > 1 and dict_span_to_rank[k] >= 2}
+    dict_score_to_collection_of_sub_groups = create_score_to_group_dict(span_to_group_members_more_than_1_element,
+                                                                        dict_span_to_rank)
+    np_object_lst = create_DAG(dict_score_to_collection_of_sub_groups, dict_label_to_spans_group, dict_span_to_lemmas_lst)
     span_to_group_members = set_cover_with_priority(dict_score_to_collection_of_sub_groups)
-    return span_to_group_members, dict_span_to_lst
-    # span_to_group_members_more_than_1_element = {k: v for k, v in
-    #                                              sorted(span_to_group_members_more_than_1_element.items(),
-    #                                                     key=lambda item: (dict_span_to_rank[item[0]], len(item[1])),
-    #                                                     reverse=True)}
-    # new_span_to_group_members_more_than_1_element = {}
-    # black_lst = []
-    # for span, group in span_to_group_members_more_than_1_element.items():
-    #     num_of_new_members = 0
-    #     valid_members = []
-    #     for member in group:
-    #         if member in black_lst:
-    #             continue
-    #         num_of_new_members += 1
-    #         valid_members.append(member)
-    #     if len(valid_members) > 1:
-    #         black_lst.extend(valid_members)
-    #         new_span_to_group_members_more_than_1_element[span] = valid_members
-    # return new_span_to_group_members_more_than_1_element, dict_span_to_lst
+    return span_to_group_members, dict_span_to_lemmas_lst
 
 
 def get_non_clustered_group_numbers(label_to_cluster, span_to_group_members, dict_label_to_spans_group):
@@ -188,7 +214,6 @@ def combine_clustered_and_non_clustered(label_to_cluster, span_to_group_members,
     # check if the clustered spans are contained in spans without match
     for num in res_group_numbers:
         if len(dict_label_to_spans_group[num]) > 1:
-            # dict_sub_string_to_spans[dict_label_to_spans_group[num][0]] = dict_label_to_spans_group[num]
             dict_sub_string[dict_label_to_spans_group[num][0]] = dict_label_to_spans_group[num]
         else:
             dict_sub_string[dict_label_to_spans_group[num][0]] = []
@@ -196,46 +221,31 @@ def combine_clustered_and_non_clustered(label_to_cluster, span_to_group_members,
 
 
 def main():
-    dict_of_topics, dict_of_span_to_counter, dict_word_to_lemma = combine_spans_utils.load_data_dicts()
-    dict_lemma_to_synonyms = combine_spans_utils.create_dicts_for_words_similarity(dict_word_to_lemma)
-    # dict_lemma_to_close_words = create_dict_lemma_word2vec_and_edit_distance(dict_lemma_to_synonyms, dict_word_to_lemma)
-    # tokenizer = AutoTokenizer.from_pretrained("microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract")
-    # model = AutoModel.from_pretrained("microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract")
     model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
     word_to_cluster = {}
     dict_span_to_rank = {}
     for key, example_list in dict_of_topics.items():
         dict_span_to_all_valid_expansions = {}
+        phrase_list = []
         for example in example_list:
             dict_span_to_all_valid_expansions[example[0]] = [item[0] for item in example[1]]
-        # print(dict_span_to_all_valid_expansions)
-        phrase_list, dict_idx_to_all_valid_expansions, dict_span_to_rank = initialize_spans_data(example_list,
-                                                                                                 dict_span_to_rank)
+            phrase_list.append(example[0])
+        dict_idx_to_all_valid_expansions = initialize_spans_data(example_list, dict_span_to_rank)
         if len(phrase_list) > 1:
-            # inputs = tokenizer(phrase_list, padding=True, return_tensors="pt")
-            # outputs = model(**inputs, output_hidden_states=True)
-            #
-            # last_hidden_states = outputs.hidden_states[-1]
-            # last_hidden_states_temp = []
-            # for i in range(len(phrase_list)):
-            #     temp = last_hidden_states[i, 0, :]
-            #     last_hidden_states_temp.append(temp)
-            # last_hidden_states = torch.stack(last_hidden_states_temp)
             phrase_embeddings = model.encode(phrase_list)
             clustering = AgglomerativeClustering(distance_threshold=0.08, n_clusters=None, linkage="average",
                                                  affinity="cosine", compute_full_tree=True).fit(phrase_embeddings)
-            label_to_cluster, dict_label_to_spans_group, span_to_same_meaning_cluster_of_spans = group_agglomerative_clustering_results(
-                clustering, dict_idx_to_all_valid_expansions, dict_of_span_to_counter)
+            label_to_cluster, dict_label_to_spans_group = group_agglomerative_clustering_results(
+                clustering, dict_idx_to_all_valid_expansions)
             dict_label_to_spans_group = {k: v for k, v in
                                          sorted(dict_label_to_spans_group.items(), key=lambda item: len(item[1]),
                                                 reverse=True)}
         else:
             word_to_cluster[phrase_list[0]] = []
             continue
-        label_to_cluster = from_dict_to_lst(label_to_cluster)
         span_to_group_members, dict_span_to_lst = union_groups(label_to_cluster, dict_word_to_lemma,
                                                                dict_lemma_to_synonyms,
-                                                               dict_span_to_rank)
+                                                               dict_span_to_rank, dict_label_to_spans_group)
         dict_sub_string_to_spans, dict_sub_string = combine_clustered_and_non_clustered(label_to_cluster,
                                                                                         span_to_group_members,
                                                                                         dict_label_to_spans_group)
@@ -245,8 +255,6 @@ def main():
         dict_sub_string_to_spans.update(dict_sub_string)
         word_to_cluster[key] = dict_sub_string_to_spans
     print(word_to_cluster)
-
-    # a_file.close()
 
 
 main()

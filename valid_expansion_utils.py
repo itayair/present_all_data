@@ -113,8 +113,8 @@ def get_tokens_as_span(tokens):
     span = ""
     idx = 0
     for token in tokens:
-        if idx == 0 and token.tag_ in ['IN', 'TO']:
-            continue
+        # if idx == 0 and token.tag_ in ['IN', 'TO']:
+        #     continue
         if idx != 0 and token.text != ',':
             span += ' '
         span += token.text.lower()

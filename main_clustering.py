@@ -47,8 +47,8 @@ def main():
     dict_span_to_rank = {}
     dict_word_to_lemma = {}
     counter = 0
-    for noun_phrase, head_span, all_valid_expansion in examples:
-        span = valid_expansion_utils.get_tokens_as_span(all_valid_expansion[0][0])
+    for biggest_noun_phrase, head_span, all_valid_nps_lst in examples:
+        span = valid_expansion_utils.get_tokens_as_span(biggest_noun_phrase)
         if span in span_lst:
             dict_span_to_counter[span] += 1
             continue
@@ -58,7 +58,7 @@ def main():
         head = head_span.lemma_.lower()
         head_lst.add(head)
         lemmas_already_counted = set()
-        for word in all_valid_expansion[0][0]:
+        for word in biggest_noun_phrase:
             dict_word_to_lemma[word.text.lower()] = word.lemma_.lower()
             if word.pos_ in "NOUN":
                 compound_noun = utils_clustering.combine_tied_deps_recursively_and_combine_their_children(word)
@@ -74,12 +74,16 @@ def main():
                     compound_noun_span_lemma_lst.append(lemma_word)
                     if word_to_lemma.lemma_ not in lemmas_already_counted:
                         sub_string_contain_word = []
-                        for sub_span in all_valid_expansion:
+                        for sub_span in all_valid_nps_lst:
+                            # if word_to_lemma in sub_span[0]:
+                            #     new_span = valid_expansion_utils.get_tokens_as_span(sub_span[0])
+                            #     # dict_span_to_rank[new_span] = sub_span[1]
                             if word_to_lemma in sub_span[0]:
-                                new_span = valid_expansion_utils.get_tokens_as_span(sub_span[0])
-                                dict_span_to_rank[new_span] = sub_span[1]
-                                sub_string_contain_word.append((new_span, sub_span[1]))
-                        if sub_string_contain_word == []:
+                                np_span = valid_expansion_utils.get_tokens_as_span(sub_span[0])
+                                dict_span_to_rank[np_span] = sub_span[1]
+                                lemma_lst = utils_clustering.from_tokens_to_lemmas(sub_span[0])
+                                sub_string_contain_word.append((np_span, sub_span[1], lemma_lst))
+                        if not sub_string_contain_word:
                             continue
                         dict_noun_lemma_to_span[lemma_word] = dict_noun_lemma_to_span.get(lemma_word, [])
                         dict_noun_lemma_to_span[lemma_word].append((span, sub_string_contain_word))
@@ -88,7 +92,7 @@ def main():
                         dict_span_to_words[span] = dict_span_to_words.get(span, set())
                         dict_span_to_words[span].add(lemma_word)
                         lemmas_already_counted.add(lemma_word)
-                if compound_noun_span_lemma_lst == []:
+                if not compound_noun_span_lemma_lst:
                     continue
                 compound_noun_span_lemma = utils_clustering.get_words_as_span(compound_noun_span_lemma_lst)
                 noun_lemma_lst.add(compound_noun_span_lemma)
@@ -118,10 +122,6 @@ def main():
     c_file.close()
     b_file.close()
     a_file.close()
-    # a_file = open("data.pkl", "rb")
-    # output = pickle.load(a_file)
-    # print(output)
-    # a_file.close()
     with open(file_name, 'w', encoding='utf-8') as f:
         for span in noun_lst:
             f.write(span + '\n')
