@@ -115,8 +115,7 @@ def get_all_expansions_of_span_from_lst(span_lst):
         # all_valid_sub_np = valid_deps.get_all_valid_sub_np(noun_phrase[head_word_in_np_index])
         all_valid_sub_np = valid_expansion.get_all_valid_sub_np(noun_phrase[head_word_in_np_index],
                                                                 boundary_np_to_the_left)
-        sub_np_final_lst = []
-        sub_np_final_lst = valid_expansion_utils.from_lst_to_sequence(sub_np_final_lst, all_valid_sub_np)
+        sub_np_final_lst = valid_expansion_utils.from_lst_to_sequence(all_valid_sub_np)
         sub_np_final_spans = []
         valid_span_lst = []
         for np in sub_np_final_lst:
@@ -138,7 +137,9 @@ def get_all_expansions_of_span_from_lst(span_lst):
         if len(valid_span_lst) > 100:
             all_span_with_more_than_hundred.append(noun_phrase)
         sub_np_final_spans.sort(key=lambda x: len(x[0]), reverse=True)
-        sub_np_final_lst_collection.append((noun_phrase, head_word, sub_np_final_spans))
+        if not sub_np_final_spans:
+            continue
+        sub_np_final_lst_collection.append((sub_np_final_spans[0][0], head_word, sub_np_final_spans))
     # print(max_valid_expansions)
     file_name = "text_files\\output_all_valid_expansions_result.txt"
     with open(file_name, 'w', encoding='utf-8') as f:

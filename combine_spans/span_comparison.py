@@ -143,16 +143,21 @@ def find_similarity_in_same_length_group(lst_spans_tuple, dict_word_to_lemma, di
 #         return False
 #     return True
 
-def combine_not_clustered_spans_in_clustered_spans(not_clustered_spans, clustered_spans, dict_word_to_lemma, dict_lemma_to_synonyms, dict_span_to_lst):
-    for cluster in clustered_spans.keys():
-        span_to_remove = []
-        for span, lst_spans in not_clustered_spans.items():
-            if len(dict_span_to_lst[cluster]) < len(dict_span_to_lst[span]):
-                if is_similar_meaning_between_span(dict_span_to_lst[cluster], dict_span_to_lst[span], dict_word_to_lemma, dict_lemma_to_synonyms):
-                    if lst_spans == []:
-                        clustered_spans[cluster].append(span)
-                    else:
-                        clustered_spans[cluster].extend(lst_spans)
-                    span_to_remove.append(span)
-        for span in span_to_remove:
-            not_clustered_spans.pop(span, None)
+def combine_not_clustered_spans_in_clustered_spans(not_clustered_spans,
+                                                   clustered_spans,
+                                                   dict_word_to_lemma,
+                                                   dict_lemma_to_synonyms,
+                                                   common_np_to_group_members_indices):
+    for label, lst_spans in not_clustered_spans.items():
+        for cluster_span, tuple_of_synonym_lst in clustered_spans.items():
+            for (span, tokens_lst) in tuple_of_synonym_lst:
+                is_contained = False
+                for span_tuple in lst_spans:
+                    if len(tokens_lst) < len(span_tuple[1]):
+                        if is_similar_meaning_between_span(tokens_lst, span_tuple[1], dict_word_to_lemma, dict_lemma_to_synonyms):
+                            is_contained = True
+                            break
+                if is_contained:
+                    common_np_to_group_members_indices[cluster_span].add(label)
+                    break
+

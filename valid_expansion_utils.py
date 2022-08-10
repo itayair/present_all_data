@@ -33,15 +33,15 @@ def powerset(iterable):
     return itertools.chain.from_iterable(itertools.combinations(iterable, r) for r in range(len(iterable) + 1))
 
 
-def from_lst_to_sequence(sub_np_final_lst, sub_np_lst):
+def from_lst_to_sequence(sub_np_lst):
     sub_np_of_child_lst_final = []
     current_lst = []
     if isinstance(sub_np_lst[0], list):
         if len(sub_np_lst) == 1:
-            return from_lst_to_sequence(sub_np_final_lst, sub_np_lst[0])
+            return from_lst_to_sequence(sub_np_lst[0])
         sub_np_of_child_lst = []
         for child in sub_np_lst:
-            sub_np_of_child = from_lst_to_sequence(sub_np_final_lst, child)
+            sub_np_of_child = from_lst_to_sequence(child)
             sub_np_of_child_lst.append(sub_np_of_child)
     else:
         collect_to_lst = []
@@ -56,7 +56,7 @@ def from_lst_to_sequence(sub_np_final_lst, sub_np_lst):
             return [current_lst]
         sub_np_of_child_lst = []
         for child in sub_np_lst[slice_index:]:
-            sub_np_of_child = from_lst_to_sequence(sub_np_final_lst, child)
+            sub_np_of_child = from_lst_to_sequence(child)
             sub_np_of_child_lst.append(sub_np_of_child)
     result_list = list(powerset(sub_np_of_child_lst))
     for item in result_list:
