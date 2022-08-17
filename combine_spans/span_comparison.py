@@ -118,7 +118,8 @@ def find_similarity_in_same_length_group(lst_spans_tuple, dict_word_to_lemma, di
     for span_tuple in lst_spans_tuple:
         if span_tuple[0] in black_list:
             continue
-        dict_span_to_similar_spans[span_tuple[0]] = [span_tuple[0]]
+        dict_span_to_similar_spans[span_tuple[0]] = set()
+        dict_span_to_similar_spans[span_tuple[0]].add(span_tuple[0])
         black_list.append(span_tuple[0])
         for span_tuple_to_compare in lst_spans_tuple:
             if span_tuple_to_compare[0] in black_list:
@@ -127,7 +128,7 @@ def find_similarity_in_same_length_group(lst_spans_tuple, dict_word_to_lemma, di
                                                          dict_lemma_to_synonyms)
             if is_similar:
                 black_list.append(span_tuple_to_compare[0])
-                dict_span_to_similar_spans[span_tuple[0]].append(span_tuple_to_compare[0])
+                dict_span_to_similar_spans[span_tuple[0]].add(span_tuple_to_compare[0])
     return dict_span_to_similar_spans
 
 
@@ -147,17 +148,18 @@ def combine_not_clustered_spans_in_clustered_spans(not_clustered_spans,
                                                    clustered_spans,
                                                    dict_word_to_lemma,
                                                    dict_lemma_to_synonyms,
-                                                   common_np_to_group_members_indices):
+                                                   common_np_to_group_members_indices, common_span_lst, dict_span_to_lst):
     for label, lst_spans in not_clustered_spans.items():
-        for cluster_span, tuple_of_synonym_lst in clustered_spans.items():
-            for (span, tokens_lst) in tuple_of_synonym_lst:
+        for common_span in common_span_lst:
+            synonym_span_lst = clustered_spans[common_span]
+            for span in synonym_span_lst:
                 is_contained = False
                 for span_tuple in lst_spans:
-                    if len(tokens_lst) < len(span_tuple[1]):
-                        if is_similar_meaning_between_span(tokens_lst, span_tuple[1], dict_word_to_lemma, dict_lemma_to_synonyms):
+                    if len(dict_span_to_lst[span]) < len(span_tuple[1]):
+                        if is_similar_meaning_between_span(dict_span_to_lst[span], span_tuple[1], dict_word_to_lemma, dict_lemma_to_synonyms):
                             is_contained = True
                             break
                 if is_contained:
-                    common_np_to_group_members_indices[cluster_span].add(label)
+                    common_np_to_group_members_indices[common_span].add(label)
                     break
 
