@@ -1,5 +1,6 @@
 import heapq
 from itertools import combinations
+from combine_spans import utils as combine_spans_utils
 
 
 # def marginal_gain():
@@ -42,7 +43,7 @@ def get_rep(y, dist, already_counted_labels):
     # non_counted_labels = []
     # for label in y.label_lst:
     #     non_counted_labels.append(label)
-    rep = (len(y.label_lst) ** 2 - 0.5) / (dist + 1)
+    rep = (len(y.label_lst) ** 2) / (dist + 1)
     return rep
 
 
@@ -60,7 +61,7 @@ def calculate_marginal_gain(x, dist_matrix, S_rep, already_counted_labels, k, di
             marginal_val_y = S_rep.get(hash(y), 0)
             if x == y:
                 if x in topic_lst:
-                    label_lst = get_labels_of_children(x.children)
+                    label_lst = combine_spans_utils.get_labels_of_children(x.children)
                     label_lst = label_lst - x.label_lst
                     gain_x = len(label_lst)**2
                     # distance_x_given_S += 1
@@ -73,13 +74,6 @@ def calculate_marginal_gain(x, dist_matrix, S_rep, already_counted_labels, k, di
                 S_rep_new[hash(y)] = get_rep(y, dist, already_counted_labels)
                 marginal_val += (S_rep_new[hash(y)] - marginal_val_y)
     return marginal_val, S_rep_new
-
-
-def get_labels_of_children(children):
-    label_lst = set()
-    for child in children:
-        label_lst.update(child.label_lst)
-    return label_lst
 
 
 def compute_value_for_each_node(x, dist_matrix, dict_object_to_desc, dict_node_to_rep, topic_lst):
@@ -102,14 +96,14 @@ def compute_value_for_each_node(x, dist_matrix, dict_object_to_desc, dict_node_t
             if u not in visited:
                 x_u = hash(str(hash(x))) - hash(str(hash(u)))
                 dist_matrix[x_u] = dist_matrix[x_v] + 1
-                distance_x_given_S = distance_x_given_S + (len(u.label_lst) ** 2 - 0.5) / (dist_matrix[x_u] + 1)
+                distance_x_given_S = distance_x_given_S + (len(u.label_lst) ** 2) / (dist_matrix[x_u] + 1)
                 rep_matrix[x_u] = (len(u.label_lst) - 1) / (dist_matrix[x_u] + 1)
                 # (1 + dist_matrix.get(hash(v) + hash(u), float('inf')))
                 counter += 1
                 Q.append(u)
                 visited.append(u)
     if x in topic_lst:
-        label_lst = get_labels_of_children(x.children)
+        label_lst = combine_spans_utils.get_labels_of_children(x.children)
         label_lst = label_lst - x.label_lst
         distance_x_given_S += len(label_lst) **2
         # distance_x_given_S += 1
@@ -145,14 +139,15 @@ def get_all_group_with_intersection_greater_than_X(selected_np_objects, threshol
     return objects_set_more_than_threshold_intersection
 
 
-def remove_unselected_np_objects(children, selected_np_objects, visited_nodes):
+def remove_unselected_np_objects(parent_np_object, selected_np_objects, visited_nodes):
     # list of unselected children to remove from parent
     remove_lst = []
-    for child in children:
+    for child in parent_np_object.children:
         if child not in selected_np_objects and child not in visited_nodes:
             remove_lst.append(child)
+            child.parents.remove(parent_np_object)
     for np_object in remove_lst:
-        children.remove(np_object)
+        parent_np_object.children.remove(np_object)
 
 
 def set_cover(children, visited_labels, np_object_parent):
@@ -180,7 +175,9 @@ def add_longest_nps_to_np_object_children(topic_object, labels, global_dict_labe
     longest_nps_lst = set()
     for label in labels:
         longest_nps_lst.add(global_dict_label_to_object[label])
-    topic_object.children.extend(list(longest_nps_lst))
+    topic_object.children.update(longest_nps_lst)
+    for longest_np in longest_nps_lst:
+        longest_np.parents.add(topic_object)
 
 
 def get_k_trees_from_DAG(k, topic_object_lst, global_dict_label_to_object):
@@ -208,7 +205,7 @@ def get_labels_from_visited_children(children, visited_nodes):
 def build_tree_from_DAG(np_object, global_dict_label_to_object, k, visited_nodes, visited_labels):
     if not np_object.children:
         return
-    labels_covered_by_children = get_labels_of_children(np_object.children)
+    labels_covered_by_children = combine_spans_utils.get_labels_of_children(np_object.children)
     labels_covered_by_parent = np_object.label_lst - labels_covered_by_children
     visited_labels.update(labels_covered_by_parent)
     visited_labels.update(get_labels_from_visited_children(np_object.children, visited_nodes))
@@ -218,7 +215,7 @@ def build_tree_from_DAG(np_object, global_dict_label_to_object, k, visited_nodes
     # list of groups of objects with intersection greater than a threshold
     # objects_set_intersection = get_all_group_with_intersection_greater_than_X(
     #     selected_np_objects)
-    remove_unselected_np_objects(np_object.children, selected_np_objects, visited_nodes)
+    remove_unselected_np_objects(np_object, selected_np_objects, visited_nodes)
     uncounted_labels = all_labels - counted_labels
     visited_labels.update(uncounted_labels)
     add_longest_nps_to_np_object_children(np_object, uncounted_labels, global_dict_label_to_object)
@@ -232,10 +229,13 @@ def greedy_algorithm(k, topic_lst):
     dist_matrix = {}
     dict_object_to_desc = {}
     dict_node_to_rep = {}
+    # all_object_np_lst = topic_lst.copy()
     all_object_np_lst = []
     for node in topic_lst:
         dfs(all_object_np_lst, node)
+    all_labels = set()
     for node in all_object_np_lst:
+        all_labels.update(node.label_lst)
         node.marginal_val = compute_value_for_each_node(node, dist_matrix, dict_object_to_desc, dict_node_to_rep,
                                                         topic_lst)
     # for node in all_object_np_lst:
@@ -247,19 +247,33 @@ def greedy_algorithm(k, topic_lst):
     already_counted_labels = []
     S_rep = {}
     counter = 0
-    while len(S) < k:
+    while len(S) < k and heap_data_structure:
         x = heapq.heappop(heap_data_structure)
+        is_fully_contained = False
+        for np_object in S:
+            if len(np_object.label_lst.intersection(x.label_lst)) == len(np_object.label_lst) or \
+                    len(x.label_lst.intersection(np_object.label_lst)) == len(x.label_lst):
+                is_fully_contained = True
+                break
+        if is_fully_contained:
+            continue
         marginal_val_x, S_rep_new = calculate_marginal_gain(x, dist_matrix, S_rep, already_counted_labels,
                                                             k, dict_object_to_desc, topic_lst)
         if x.marginal_val > marginal_val_x + 0.1:
             x.marginal_val = marginal_val_x
             heapq.heappush(heap_data_structure, x)
             continue
+        uncounted_labels_counter = 0
+        for label in x.label_lst:
+            if label not in already_counted_labels:
+                uncounted_labels_counter += 1
+        if uncounted_labels_counter < 5:
+            continue
+        already_counted_labels.extend(x.label_lst)
         for key, value in S_rep_new.items():
             S_rep[key] = value
-        already_counted_labels.extend(x.label_lst)
         S.append(x)
         dist_matrix[hash(k) - hash(x)] = 0
         counter += 1
         dfs_update_marginal_gain([], x, dist_matrix, k)
-    x = 0
+    return S, already_counted_labels, all_labels

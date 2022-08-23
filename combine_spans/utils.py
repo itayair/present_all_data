@@ -84,3 +84,84 @@ def create_dicts_for_words_similarity(dict_word_to_lemma):
                               sorted(dict_lemma_to_synonyms.items(), key=lambda item: len(item[1]),
                                      reverse=True)}
     return dict_lemma_to_synonyms
+
+
+def check_symmetric_relation_in_DAG(nodes_lst, visited=set()):
+    for node in nodes_lst:
+        if node in visited:
+            continue
+        visited.add(node)
+        for child in node.children:
+            if node not in child.parents:
+                raise Exception("Parent and child isn't consistent")
+        for parent in node.parents:
+            if node not in parent.children:
+                raise Exception("Parent and child isn't consistent")
+        check_symmetric_relation_in_DAG(node.children, visited)
+
+
+def get_labels_of_children(children):
+    label_lst = set()
+    for child in children:
+        label_lst.update(child.label_lst)
+    return label_lst
+
+
+def get_leaves(nodes_lst, leaves_lst, visited):  # function for dfs
+    for node in nodes_lst:
+        if node not in visited:
+            if len(node.children) == 0:
+                leaves_lst.add(node)
+            visited.add(node)
+        get_leaves(node.children, leaves_lst, visited)
+
+
+def remove_redundant_nodes(leaves_lst, nodes_lst):
+    queue = []
+    visited = []
+    visited.extend(leaves_lst)
+    queue.extend(leaves_lst)
+    counter = 0
+    ignore_lst = []
+    while queue:
+        counter += 1
+        check_symmetric_relation_in_DAG(nodes_lst, set())
+        s = queue.pop(0)
+        parents = s.parents.copy()
+        for parent in parents:
+            if parent in ignore_lst:
+                continue
+            if len(parent.children) == 1 and parent.label_lst == s.label_lst:
+                # labels_children = get_labels_of_children(parent.children)
+                # parent.label_lst - labels_children
+                if parent.parents:
+                    for ancestor in parent.parents:
+                        ancestor.children.add(s)
+                        if parent in ancestor.children:
+                            ancestor.children.remove(parent)
+                        else:
+                            raise Exception("Parent and child isn't consistent", parent.np_val, s.np_val)
+                        s.parents.add(ancestor)
+                    ignore_lst.append(parent)
+                    if parent in s.parents:
+                        s.parents.remove(parent)
+                    else:
+                        raise Exception("unclear error")
+                    if s in parent.children:
+                        parent.children.remove(s)
+                    else:
+                        raise Exception("Parent and child isn't consistent", s.np_val, parent.np_val)
+                else:
+                    ignore_lst.append(parent)
+                    s.parents.remove(parent)
+                    if parent in nodes_lst:
+                        nodes_lst.remove(parent)
+                    else:
+                        continue
+                    if not s.parents:
+                        nodes_lst.append(s)
+                        break
+            else:
+                if parent not in visited:
+                    visited.append(parent)
+                    queue.append(parent)
