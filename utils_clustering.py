@@ -5,6 +5,32 @@ from nltk.corpus import wordnet
 tied_deps = ['compound', 'mwe', 'name', 'nummod']
 
 
+def get_synonyms_by_word(word):
+    synonyms = set()
+    for syn in wordnet.synsets(word):
+        for l in syn.lemmas():
+            synonyms.add(l.name())
+    # aliases = umls_loader.umls_loader.get_term_aliases(word)
+    # for syn in aliases:
+    #     synonyms.add(syn)
+    return synonyms
+
+
+def create_dicts_for_words_similarity(dict_word_to_lemma):
+    dict_lemma_to_synonyms = {}
+    lemma_lst = set()
+    for _, lemma in dict_word_to_lemma.items():
+        lemma_lst.add(lemma)
+    for lemma in lemma_lst:
+        synonyms = get_synonyms_by_word(lemma)
+        synonyms = [synonym for synonym in synonyms if synonym in lemma_lst]
+        dict_lemma_to_synonyms[lemma] = synonyms
+    dict_lemma_to_synonyms = {k: v for k, v in
+                              sorted(dict_lemma_to_synonyms.items(), key=lambda item: len(item[1]),
+                                     reverse=True)}
+    return dict_lemma_to_synonyms
+
+
 def print_dendrogram_tree_by_parenthesis(node, num_of_leaves, phrase_list, already_counted):
     if node['name'] >= num_of_leaves:
         sub_tree = []

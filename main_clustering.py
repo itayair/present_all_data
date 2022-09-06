@@ -8,12 +8,30 @@ file_name = "text_files\\output_noun_result.txt"
 file_name_lemma = "text_files\\output_noun_lemma_result.txt"
 
 
-def filter_dict_by_lst(dict_noun_lemma_to_span, dict_noun_lemma_to_counter, black_list):
+def filter_dict_by_lst(dict_noun_lemma_to_span, dict_noun_lemma_to_counter, topic_lst):
     dict_noun_lemma_to_span = {key: dict_noun_lemma_to_span[key] for key in dict_noun_lemma_to_span if
-                               key not in black_list}
+                               key in topic_lst}
     dict_noun_lemma_to_counter = {key: dict_noun_lemma_to_counter[key] for key in dict_noun_lemma_to_counter if
-                                  key not in black_list}
+                                  key in topic_lst}
     return dict_noun_lemma_to_span, dict_noun_lemma_to_counter
+
+
+def set_cover(dict_noun_lemma_to_span):
+    covered = set()
+    topic_lst = set()
+    noun_to_spans_lst = []
+    for noun, tuples_span_lst in dict_noun_lemma_to_span.items():
+        spans_lst = [tuple_span[0] for tuple_span in tuples_span_lst]
+        noun_to_spans_lst.append((noun, set(spans_lst)))
+    print("start")
+    while True:
+        item = max(noun_to_spans_lst, key=lambda s: len(s[1] - covered))
+        if len(item[1] - covered) > 0:
+            covered.update(item[1])
+            topic_lst.add(item[0])
+        else:
+            break
+    return topic_lst
 
 
 def filter_and_sort_dicts(dict_noun_lemma_to_span, abbreviations_lst, dict_noun_lemma_to_counter, head_lst,
@@ -23,13 +41,14 @@ def filter_and_sort_dicts(dict_noun_lemma_to_span, abbreviations_lst, dict_noun_
     dict_noun_lemma_to_counter = utils_clustering.get_dict_sorted_and_filtered(dict_noun_lemma_to_counter,
                                                                                abbreviations_lst,
                                                                                dict_noun_lemma_to_counter, head_lst)
-    black_list = set()
-    for word, counter in dict_noun_lemma_to_counter.items():
-        utils_clustering.is_should_be_removed(dict_noun_lemma_to_counter,
-                                              dict_noun_lemma_to_span[word], word,
-                                              dict_word_to_his_synonym, black_list, dict_span_to_words)
+    # black_list = set()
+    # for word, counter in dict_noun_lemma_to_counter.items():
+    #     utils_clustering.is_should_be_removed(dict_noun_lemma_to_counter,
+    #                                           dict_noun_lemma_to_span[word], word,
+    #                                           dict_word_to_his_synonym, black_list, dict_span_to_words)
+    topic_lst = set_cover(dict_noun_lemma_to_span)
     dict_noun_lemma_to_span, dict_noun_lemma_to_counter = filter_dict_by_lst(dict_noun_lemma_to_span,
-                                                                             dict_noun_lemma_to_counter, black_list)
+                                                                             dict_noun_lemma_to_counter, topic_lst)
     return dict_noun_lemma_to_span, dict_noun_lemma_to_counter
 
 
@@ -47,11 +66,16 @@ def main():
     dict_span_to_rank = {}
     dict_word_to_lemma = {}
     counter = 0
-    for biggest_noun_phrase, head_span, all_valid_nps_lst in examples:
+    dict_sentence_to_span_lst = {}
+    for biggest_noun_phrase, head_span, all_valid_nps_lst, sentence in examples:
         span = valid_expansion_utils.get_tokens_as_span(biggest_noun_phrase)
+        dict_sentence_to_span_lst[sentence] = dict_sentence_to_span_lst.get(sentence, [])
         if span in span_lst:
-            dict_span_to_counter[span] += 1
+            if span not in dict_sentence_to_span_lst[sentence]:
+                dict_sentence_to_span_lst[sentence].append(span)
+                dict_span_to_counter[span] += 1
             continue
+        dict_sentence_to_span_lst[sentence].append(span)
         counter += 1
         dict_span_to_counter[span] = 1
         span_lst.add(span)
@@ -75,9 +99,6 @@ def main():
                     if word_to_lemma.lemma_ not in lemmas_already_counted:
                         sub_string_contain_word = []
                         for sub_span in all_valid_nps_lst:
-                            # if word_to_lemma in sub_span[0]:
-                            #     new_span = valid_expansion_utils.get_tokens_as_span(sub_span[0])
-                            #     # dict_span_to_rank[new_span] = sub_span[1]
                             if word_to_lemma in sub_span[0]:
                                 np_span = valid_expansion_utils.get_tokens_as_span(sub_span[0])
                                 dict_span_to_rank[np_span] = sub_span[1]
@@ -113,12 +134,16 @@ def main():
                                                                                 dict_noun_lemma_to_counter, head_lst,
                                                                                 dict_word_to_his_synonym,
                                                                                 dict_span_to_words)
+    dict_lemma_to_synonyms = utils_clustering.create_dicts_for_words_similarity(dict_word_to_lemma)
     a_file = open("load_data\\data.pkl", "wb")
     b_file = open("load_data\\span_counter.pkl", "wb")
     c_file = open("load_data\\word_to_lemma.pkl", "wb")
+    d_file = open("load_data\\word_to_synonyms.pkl", "wb")
     pickle.dump(dict_noun_lemma_to_span, a_file)
     pickle.dump(dict_span_to_counter, b_file)
     pickle.dump(dict_word_to_lemma, c_file)
+    pickle.dump(dict_lemma_to_synonyms, d_file)
+    d_file.close()
     c_file.close()
     b_file.close()
     a_file.close()

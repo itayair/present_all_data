@@ -8,6 +8,9 @@ def get_synonyms_by_word(word):
     for syn in wordnet.synsets(word):
         for l in syn.lemmas():
             synonyms.add(l.name())
+    # aliases = umls_loader.umls_loader.get_term_aliases(word)
+    # for syn in aliases:
+    #     synonyms.append(syn)
     return synonyms
 
 
@@ -31,7 +34,24 @@ def load_data_dicts():
     dict_of_span_to_counter = pickle.load(b_file)
     c_file = open("load_data\\word_to_lemma.pkl", "rb")
     dict_word_to_lemma = pickle.load(c_file)
-    return dict_of_topics, dict_of_span_to_counter, dict_word_to_lemma
+    d_file = open("load_data\\word_to_synonyms.pkl", "rb")
+    dict_lemma_to_synonyms = pickle.load(d_file)
+    return dict_of_topics, dict_of_span_to_counter, dict_word_to_lemma, dict_lemma_to_synonyms
+
+
+dict_of_topics, dict_of_span_to_counter, dict_word_to_lemma, dict_lemma_to_synonyms = load_data_dicts()
+dict_of_span_to_counter = {k: v for k, v in
+                           sorted(dict_of_span_to_counter.items(), key=lambda item: item[1],
+                                  reverse=True)}
+
+
+def get_frequency_from_labels_lst(global_index_to_similar_longest_np, label_lst):
+    num_of_labels = 0
+    for label in label_lst:
+        for span in global_index_to_similar_longest_np[label]:
+            num_of_labels += dict_of_span_to_counter[span]
+        # num_of_labels += len(global_index_to_similar_longest_np[label])
+    return num_of_labels
 
 
 def create_dict_lemma_word2vec_and_edit_distance(dict_lemma_to_synonyms, dict_word_to_lemma):
@@ -107,6 +127,14 @@ def get_labels_of_children(children):
     return label_lst
 
 
+def get_labels_of_leaves(children):
+    label_lst = set()
+    for child in children:
+        if not child.children:
+            label_lst.update(child.label_lst)
+    return label_lst
+
+
 def get_leaves(nodes_lst, leaves_lst, visited):  # function for dfs
     for node in nodes_lst:
         if node not in visited:
@@ -136,7 +164,7 @@ def remove_redundant_nodes(leaves_lst, nodes_lst):
                 # parent.label_lst - labels_children
                 if parent.parents:
                     for ancestor in parent.parents:
-                        ancestor.children.add(s)
+                        ancestor.add_children([s])
                         if parent in ancestor.children:
                             ancestor.children.remove(parent)
                         else:

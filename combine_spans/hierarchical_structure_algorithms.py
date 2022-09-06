@@ -3,17 +3,11 @@ from itertools import combinations
 from combine_spans import utils as combine_spans_utils
 
 
-# def marginal_gain():
-
-
 def dfs_update_marginal_gain(visited, node, dist_matrix, k, dist=1):  # function for dfs
     if node not in visited:
         visited.append(node)
         for neighbour in node.children:
-            # if dist_matrix[hash(str(hash(node))) - hash(str(hash(neighbour)))] + dist < dist_matrix.get(hash(k) - hash(neighbour),
-            #                                                                       float('inf')):
             if dist < dist_matrix.get(hash(k) - hash(neighbour), float('inf')):
-                # dist_matrix[hash(k) - hash(neighbour)] = dist_matrix[hash(str(hash(node))) - hash(str(hash(neighbour)))] + dist
                 dist_matrix[hash(k) - hash(neighbour)] = dist
             dfs_update_marginal_gain(visited, neighbour, dist_matrix, k, dist + 1)
 
@@ -34,56 +28,80 @@ def calculate_dist_from_set_to_vertex(S, v, dist_matrix):
     return min_dist
 
 
-def get_rep_from_group(S, y, dist_matrix, already_counted_labels):
+def get_rep_from_group(S, y, dist_matrix, global_index_to_similar_longest_np):
     dist = calculate_dist_from_set_to_vertex(S, y, dist_matrix)
-    return get_rep(y, dist, already_counted_labels)
+    return get_rep(y, dist, global_index_to_similar_longest_np)
 
 
-def get_rep(y, dist, already_counted_labels):
-    # non_counted_labels = []
-    # for label in y.label_lst:
-    #     non_counted_labels.append(label)
-    rep = (len(y.label_lst) ** 2) / (dist + 1)
+def get_rep(y, dist, global_index_to_similar_longest_np):
+    rep = get_value_in_score_format(dist, global_index_to_similar_longest_np, y)
+    # label_lst = combine_spans_utils.get_labels_of_children(y.children)
+    # label_lst = y.label_lst - label_lst
+    # rep = (combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+    #                                                          label_lst) ** 2) / (dist + 1)
     return rep
 
 
-def calculate_marginal_gain(x, dist_matrix, S_rep, already_counted_labels, k, dict_object_to_desc, topic_lst):
+def calculate_marginal_gain(x, dist_matrix, S_rep, k, dict_object_to_desc, topic_lst,
+                            global_index_to_similar_longest_np):
     marginal_val = 0
     S_rep_new = {}
     for y in dict_object_to_desc[hash(x)]:
         if dist_matrix.get(hash(k) - hash(y), 1) == 0:
             continue
-            # marginal_val_y = S_rep[hash(y)]
-            # marginal_val_y_with_x = get_rep_from_group(S_temp, y, dist_matrix, already_counted_labels)
-            # S_rep_new[hash(y)] = marginal_val_y_with_x
-            # marginal_val += (marginal_val_y_with_x - marginal_val_y)
         else:
             marginal_val_y = S_rep.get(hash(y), 0)
             if x == y:
-                if x in topic_lst:
-                    label_lst = combine_spans_utils.get_labels_of_children(x.children)
-                    label_lst = label_lst - x.label_lst
-                    gain_x = len(label_lst)**2
-                    # distance_x_given_S += 1
-                else:
-                    gain_x = len(x.label_lst)**2
+                # if x in topic_lst:
+                #     label_lst = combine_spans_utils.get_labels_of_children(x.children)
+                #     label_lst = x.label_lst - label_lst
+                #     gain_x = combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+                #                                                                label_lst) ** 2
+                # else:
+                gain_x = get_value_in_score_format(0, global_index_to_similar_longest_np, x)
+                # label_lst = combine_spans_utils.get_labels_of_children(x.children)
+                # label_lst = x.label_lst - label_lst
+                # gain_x = combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+                #                                                            label_lst) ** 2
                 S_rep_new[hash(y)] = gain_x
                 marginal_val += (gain_x - marginal_val_y)
             else:
                 dist = dist_matrix[hash(str(hash(x))) - hash(str(hash(y)))]
-                S_rep_new[hash(y)] = get_rep(y, dist, already_counted_labels)
+                S_rep_new[hash(y)] = get_rep(y, dist, global_index_to_similar_longest_np)
                 marginal_val += (S_rep_new[hash(y)] - marginal_val_y)
     return marginal_val, S_rep_new
 
 
-def compute_value_for_each_node(x, dist_matrix, dict_object_to_desc, dict_node_to_rep, topic_lst):
+def get_value_in_score_format(dist, global_index_to_similar_longest_np, node):
+    label_lst = combine_spans_utils.get_labels_of_children(node.children)
+    label_lst_minus_children_labels = node.label_lst - label_lst
+    # labels_children = label_lst - label_lst_minus_children_labels
+    leaves_labels = combine_spans_utils.get_labels_of_leaves(node.children)
+    marginal_gain = (combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+                                                                       label_lst_minus_children_labels) ** 2)
+    marginal_gain += combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+                                                                       leaves_labels) * (node.score - 1)
+    marginal_gain = marginal_gain / (dist + 1)
+    return marginal_gain
+
+
+def get_value_in_pow_format(dist, global_index_to_similar_longest_np, label_lst_node, children):
+    label_lst = combine_spans_utils.get_labels_of_children(children)
+    label_lst = label_lst_node - label_lst
+    marginal_gain = (combine_spans_utils.get_frequency_from_labels_lst
+                     (global_index_to_similar_longest_np, label_lst) ** 2) / (dist + 1)
+    return marginal_gain
+
+
+def compute_value_for_each_node(x, dist_matrix, dict_object_to_desc, dict_node_to_rep,
+                                global_index_to_similar_longest_np):
     Q = [x]
     visited = [x]
-    distance_x_given_S = 0
     dist_matrix[hash(x)] = 0
     dict_object_to_desc[hash(x)] = []
     rep_matrix = {}
     counter = 0
+    total_gain = 0
     while Q:
         v = Q.pop()
         dict_object_to_desc[hash(x)].append(v)
@@ -96,29 +114,26 @@ def compute_value_for_each_node(x, dist_matrix, dict_object_to_desc, dict_node_t
             if u not in visited:
                 x_u = hash(str(hash(x))) - hash(str(hash(u)))
                 dist_matrix[x_u] = dist_matrix[x_v] + 1
-                distance_x_given_S = distance_x_given_S + (len(u.label_lst) ** 2) / (dist_matrix[x_u] + 1)
-                rep_matrix[x_u] = (len(u.label_lst) - 1) / (dist_matrix[x_u] + 1)
-                # (1 + dist_matrix.get(hash(v) + hash(u), float('inf')))
+                # distance_x_given_S = distance_x_given_S + (len(u.label_lst) ** 2) / (dist_matrix[x_u] + 1)
+                # rep_matrix[x_u] = (len(u.label_lst) - 1) / (dist_matrix[x_u] + 1)
+                # label_lst = combine_spans_utils.get_labels_of_children(u.children)
+                # label_lst = u.label_lst - label_lst
+                # x_u_marginal_gain = (combine_spans_utils.get_frequency_from_labels_lst
+                #                      (global_index_to_similar_longest_np, label_lst) ** 2) / (dist_matrix[x_u] + 1)
+                x_u_marginal_gain = get_value_in_score_format(dist_matrix[x_u], global_index_to_similar_longest_np, u)
+                rep_matrix[x_u] = x_u_marginal_gain
+                total_gain += x_u_marginal_gain
                 counter += 1
                 Q.append(u)
                 visited.append(u)
-    if x in topic_lst:
-        label_lst = combine_spans_utils.get_labels_of_children(x.children)
-        label_lst = label_lst - x.label_lst
-        distance_x_given_S += len(label_lst) **2
-        # distance_x_given_S += 1
-    else:
-        distance_x_given_S += len(x.label_lst)**2
+    # label_lst = combine_spans_utils.get_labels_of_children(x.children)
+    # label_lst = x.label_lst - label_lst
+    # total_gain += combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+    #                                                                 label_lst) ** 2
+    total_gain += get_value_in_score_format(0, global_index_to_similar_longest_np, x)
+    rep_matrix[hash(x)] = total_gain
     dict_node_to_rep[list(x.np_val)[0]] = rep_matrix
-    return distance_x_given_S
-
-
-# def compute_value_for_each_node(x):
-#     distance_x_given_S = 0
-#     for node in x.children:
-#         distance_x_given_S = distance_x_given_S + (len(node.label_lst) -1) / 2
-#     distance_x_given_S += len(x.np) * 0.5
-#     return distance_x_given_S
+    return total_gain
 
 
 def get_all_group_with_intersection_greater_than_X(selected_np_objects, threshold_intersection=0.7):
@@ -130,13 +145,14 @@ def get_all_group_with_intersection_greater_than_X(selected_np_objects, threshol
             max_object_idx = max(combo[1:], key=lambda idx: len(selected_np_objects[idx].label_lst))
             max_labels_val = max(len(selected_np_objects[max_object_idx].label_lst), len(intersection))
             for i in combo[1:]:
-                # if len(selected_np_objects[i].label_lst) > max_labels_val:
-                #     max_labels_val = len(selected_np_objects[i].label_lst)
                 intersection = intersection & selected_np_objects[i].label_lst
                 intersection_set.append(selected_np_objects[i])
             if len(intersection) > threshold_intersection * max_labels_val:
                 objects_set_more_than_threshold_intersection.append(intersection_set)
     return objects_set_more_than_threshold_intersection
+
+
+common_span_remove_lst = []
 
 
 def remove_unselected_np_objects(parent_np_object, selected_np_objects, visited_nodes):
@@ -146,28 +162,32 @@ def remove_unselected_np_objects(parent_np_object, selected_np_objects, visited_
         if child not in selected_np_objects and child not in visited_nodes:
             remove_lst.append(child)
             child.parents.remove(parent_np_object)
+    for node in remove_lst:
+        if node.frequency > 1:
+            common_span_remove_lst.append(node)
     for np_object in remove_lst:
         parent_np_object.children.remove(np_object)
 
 
-def set_cover(children, visited_labels, np_object_parent):
+def set_cover(children, visited_labels, np_object_parent, global_index_to_similar_longest_np):
     covered = set()
     covered.update(visited_labels)
     selected_np_objects = []
     counted_labels = set()
     while True:
-        np_object = max(children, key=lambda np_object: len(
-            np_object_parent.label_lst.intersection(np_object.label_lst - covered)), default=None)
-        if np_object == None:
+        # np_object = max(children, key=lambda np_object: len(
+        #     np_object_parent.label_lst.intersection(np_object.label_lst - covered)), default=None)
+        np_object = max(children, key=lambda np_object: combine_spans_utils.get_frequency_from_labels_lst(
+            global_index_to_similar_longest_np, np_object.label_lst - covered), default=None)
+        if not np_object:
             break
-        if len(np_object.label_lst - covered) > 1:
+        if combine_spans_utils.get_frequency_from_labels_lst(
+                global_index_to_similar_longest_np, np_object.label_lst - covered) > 1:
             counted_labels.update(np_object_parent.label_lst.intersection(np_object.label_lst - visited_labels))
             selected_np_objects.append(np_object)
             covered.update(np_object.label_lst - visited_labels)
         else:
             break
-        # if len(np_object_parent.label_lst - covered) == 0:
-        #     break
     return selected_np_objects, counted_labels
 
 
@@ -175,23 +195,27 @@ def add_longest_nps_to_np_object_children(topic_object, labels, global_dict_labe
     longest_nps_lst = set()
     for label in labels:
         longest_nps_lst.add(global_dict_label_to_object[label])
-    topic_object.children.update(longest_nps_lst)
+    topic_object.add_children(longest_nps_lst)
     for longest_np in longest_nps_lst:
         longest_np.parents.add(topic_object)
 
 
-def get_k_trees_from_DAG(k, topic_object_lst, global_dict_label_to_object):
-    # if len(topic_object_lst) == 1:
-    #     if topic_object_lst.children:
-    #         topic_object_lst.children = []
-    #         add_longest_nps_to_np_object_children(topic_object_lst, topic_object_lst.label_lst,
-    #                                               global_dict_label_to_object)
-    #     return
-    topic_object_lst = sorted(topic_object_lst, key=lambda item: len(item.label_lst), reverse=True)
-    visited_nodes = set()
-    # visited_labels = set()
+def sort_DAG_by_frequency(topic_object_lst, visited=[]):
     for topic_object in topic_object_lst:
-        build_tree_from_DAG(topic_object, global_dict_label_to_object, k, visited_nodes, set())
+        if topic_object in visited:
+            continue
+        visited.append(topic_object)
+        topic_object.children = sorted(topic_object.children, key=lambda item: item.frequency, reverse=True)
+        sort_DAG_by_frequency(topic_object.children, visited)
+
+
+def get_k_navigable_DAGS_from_DAG(k, topic_object_lst, global_dict_label_to_object, global_index_to_similar_longest_np):
+    topic_object_lst = sorted(topic_object_lst, key=lambda item: item.frequency, reverse=True)
+    visited_nodes = set()
+    for topic_object in topic_object_lst:
+        build_tree_from_DAG(topic_object, global_dict_label_to_object, k, visited_nodes,
+                            global_index_to_similar_longest_np, set())
+    sort_DAG_by_frequency(topic_object_lst)
 
 
 def get_labels_from_visited_children(children, visited_nodes):
@@ -202,7 +226,8 @@ def get_labels_from_visited_children(children, visited_nodes):
     return visited_labels
 
 
-def build_tree_from_DAG(np_object, global_dict_label_to_object, k, visited_nodes, visited_labels):
+def build_tree_from_DAG(np_object, global_dict_label_to_object, k, visited_nodes,
+                        global_index_to_similar_longest_np, visited_labels):
     if not np_object.children:
         return
     labels_covered_by_children = combine_spans_utils.get_labels_of_children(np_object.children)
@@ -211,10 +236,8 @@ def build_tree_from_DAG(np_object, global_dict_label_to_object, k, visited_nodes
     visited_labels.update(get_labels_from_visited_children(np_object.children, visited_nodes))
     all_labels = np_object.label_lst - visited_labels
     unvisited_nodes = set(np_object.children) - visited_nodes
-    selected_np_objects, counted_labels = set_cover(unvisited_nodes, visited_labels, np_object)
-    # list of groups of objects with intersection greater than a threshold
-    # objects_set_intersection = get_all_group_with_intersection_greater_than_X(
-    #     selected_np_objects)
+    selected_np_objects, counted_labels = set_cover(unvisited_nodes, visited_labels, np_object,
+                                                    global_index_to_similar_longest_np)
     remove_unselected_np_objects(np_object, selected_np_objects, visited_nodes)
     uncounted_labels = all_labels - counted_labels
     visited_labels.update(uncounted_labels)
@@ -222,14 +245,14 @@ def build_tree_from_DAG(np_object, global_dict_label_to_object, k, visited_nodes
     if selected_np_objects:
         for np_object_child in selected_np_objects:
             visited_nodes.add(np_object_child)
-            build_tree_from_DAG(np_object_child, global_dict_label_to_object, k, visited_nodes, visited_labels)
+            build_tree_from_DAG(np_object_child, global_dict_label_to_object, k, visited_nodes,
+                                global_index_to_similar_longest_np, visited_labels)
 
 
-def greedy_algorithm(k, topic_lst):
+def greedy_algorithm(k, topic_lst, global_index_to_similar_longest_np):
     dist_matrix = {}
     dict_object_to_desc = {}
     dict_node_to_rep = {}
-    # all_object_np_lst = topic_lst.copy()
     all_object_np_lst = []
     for node in topic_lst:
         dfs(all_object_np_lst, node)
@@ -237,14 +260,11 @@ def greedy_algorithm(k, topic_lst):
     for node in all_object_np_lst:
         all_labels.update(node.label_lst)
         node.marginal_val = compute_value_for_each_node(node, dist_matrix, dict_object_to_desc, dict_node_to_rep,
-                                                        topic_lst)
-    # for node in all_object_np_lst:
-    #     node.marginal_val = len(node.label_lst)
-    #     heap_data_structure.append(node)
+                                                        global_index_to_similar_longest_np)
     S = []
     heap_data_structure = all_object_np_lst
     heapq.heapify(heap_data_structure)
-    already_counted_labels = []
+    already_counted_labels = set()
     S_rep = {}
     counter = 0
     while len(S) < k and heap_data_structure:
@@ -257,19 +277,23 @@ def greedy_algorithm(k, topic_lst):
                 break
         if is_fully_contained:
             continue
-        marginal_val_x, S_rep_new = calculate_marginal_gain(x, dist_matrix, S_rep, already_counted_labels,
-                                                            k, dict_object_to_desc, topic_lst)
+        marginal_val_x, S_rep_new = calculate_marginal_gain(x, dist_matrix, S_rep,
+                                                            k, dict_object_to_desc, topic_lst,
+                                                            global_index_to_similar_longest_np)
         if x.marginal_val > marginal_val_x + 0.1:
             x.marginal_val = marginal_val_x
             heapq.heappush(heap_data_structure, x)
             continue
-        uncounted_labels_counter = 0
+        uncounted_labels = []
         for label in x.label_lst:
             if label not in already_counted_labels:
-                uncounted_labels_counter += 1
-        if uncounted_labels_counter < 5:
+                uncounted_labels.append(label)
+        uncounted_labels_frequency = combine_spans_utils.get_frequency_from_labels_lst(
+            global_index_to_similar_longest_np,
+            uncounted_labels)
+        if uncounted_labels_frequency < 5:
             continue
-        already_counted_labels.extend(x.label_lst)
+        already_counted_labels.update(x.label_lst)
         for key, value in S_rep_new.items():
             S_rep[key] = value
         S.append(x)

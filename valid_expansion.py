@@ -1,5 +1,9 @@
-import valid_expansion_utils
+import nltk
 
+import valid_expansion_utils
+from nltk.corpus import stopwords
+nltk.download('stopwords')
+stop_words = set(stopwords.words('english'))
 tied_deps = ['compound', 'mwe', 'case', 'mark', 'auxpass', 'name', 'aux']
 tied_couples = [['auxpass', 'nsubjpass']]
 
@@ -39,6 +43,8 @@ def combine_tied_deps_recursively_and_combine_their_children(head, boundary_np_t
     combined_tied_tokens = [head]
     tied_couples_to_add = get_tied_couples(head.children)
     for child in head.children:
+        if child.text in stop_words:
+            continue
         if boundary_np_to_the_left > child.i:
             continue
         if child.dep_ in tied_deps or child in tied_couples_to_add:
@@ -129,6 +135,8 @@ def get_all_valid_sub_special(token, boundary_np_to_the_left):
     lst_to_skip, tokens_to_add = remove_conj_if_cc_exist(lst_children)
     complete_occurrences = 0
     for child in lst_children:
+        if child.text in stop_words:
+            continue
         if child in lst_to_skip:
             continue
         if child.dep_ in ['dobj', 'advcl', 'nmod']:  # 'cc', 'conj', 'aux', 'auxpass', 'cop', 'nsubjpass'
@@ -178,6 +186,8 @@ def get_children_expansion(sub_np_lst, lst_children, boundary_np_to_the_left, he
     others = []
     lst_to_skip, tokens_to_add = remove_conj_if_cc_exist(lst_children)
     for child in lst_children:
+        if child.text in stop_words:
+            continue
         if child in lst_to_skip:
             continue
         sub_np = []

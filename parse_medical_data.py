@@ -60,15 +60,15 @@ def get_score(np, head_word):
         #         continue
         #     new_sub_np.append(word)
         if item == head_word:
-            val += 2
+            val += 1
             continue
         val_to_add = 0
         if item.text == '-':
             continue
         if item.dep_ in low_val_dep:
-            val_to_add = 1
+            val_to_add = 0
         if item.dep_ in med_val_dep or item.dep_ in max_val_dep:
-            val_to_add = 2
+            val_to_add = 1
         val += val_to_add
     return val
 
@@ -91,10 +91,6 @@ def check_validity_span(np):
     return True
 
 
-
-
-
-
 def get_all_expansions_of_span_from_lst(span_lst):
     # examples_to_visualize = []
     counter = 0
@@ -102,7 +98,7 @@ def get_all_expansions_of_span_from_lst(span_lst):
     counter_duplication = 0
     all_span_with_more_than_hundred = []
     all_valid_spans_of_all_expansions = set()
-    for head_word, sentence_dep_graph in span_lst:
+    for head_word, sentence_dep_graph, sentence in span_lst:
         counter += 1
         noun_phrase, head_word_in_np_index, boundary_np_to_the_left = valid_expansion_utils.get_np_boundary(
             head_word.i,
@@ -139,7 +135,7 @@ def get_all_expansions_of_span_from_lst(span_lst):
         sub_np_final_spans.sort(key=lambda x: len(x[0]), reverse=True)
         if not sub_np_final_spans:
             continue
-        sub_np_final_lst_collection.append((sub_np_final_spans[0][0], head_word, sub_np_final_spans))
+        sub_np_final_lst_collection.append((sub_np_final_spans[0][0], head_word, sub_np_final_spans, sentence))
     # print(max_valid_expansions)
     file_name = "text_files\\output_all_valid_expansions_result.txt"
     with open(file_name, 'w', encoding='utf-8') as f:
@@ -166,7 +162,7 @@ def get_examples_from_special_format():
             head_of_span = valid_expansion_utils.get_head_of_span(span_as_doc)
             if head_of_span is None:
                 continue
-            examples.append((head_of_span, sent_as_doc))
+            examples.append((head_of_span, sent_as_doc, sentence))
             # examples.append((sentence, span, sent_as_doc, span_as_doc, head_of_span))
     examples = get_all_expansions_of_span_from_lst(examples)
     # with open(output_file_name, 'w', encoding='utf-8') as f:

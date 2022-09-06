@@ -16,21 +16,25 @@ import json
 
 g1 = nx.DiGraph()
 
-dict_of_topics, dict_of_span_to_counter, dict_word_to_lemma = combine_spans_utils.load_data_dicts()
-dict_lemma_to_synonyms = combine_spans_utils.create_dicts_for_words_similarity(dict_word_to_lemma)
+# dict_lemma_to_synonyms = combine_spans_utils.create_dicts_for_words_similarity(combine_spans_utils.dict_word_to_lemma)
+dict_lemma_to_synonyms = combine_spans_utils.dict_lemma_to_synonyms
 
 
 class NP:
     def __init__(self, np, label_lst):
         self.np_val, self.np = nps_lst_to_string(np)
         self.label_lst = set(label_lst)
-        self.children = set()
+        self.children = []
         self.parents = set()
+        self.frequency = 0
+        self.score = 0.0
         self.marginal_val = 0.0
         self.combined_nodes_lst = set()
 
     def add_children(self, children):
-        self.children.update(children)
+        for child in children:
+            if child not in self.children:
+                self.children.append(child)
         for child in children:
             self.label_lst.update(child.label_lst)
 
@@ -61,7 +65,8 @@ class NP:
 
     def update_parents_with_new_node(self, parents, previous_node):
         for parent in parents:
-            parent.children.add(self)
+            if self not in parent.children:
+                parent.children.append(self)
             parent.children.remove(previous_node)
 
     def combine_nodes(self, np_object):
@@ -73,7 +78,7 @@ class NP:
         self.update_parents_with_new_node(np_object.parents, np_object)
         self.update_children_with_new_parent(np_object.children, np_object)
         self.parents.update(np_object.parents)
-        self.children.update(np_object.children)
+        self.children.extend(np_object.children)
         self.combined_nodes_lst.add(np_object)
 
     def __gt__(self, ob2):
@@ -101,7 +106,8 @@ def create_dicts_length_to_span_and_span_to_list(span_to_group_members, dict_spa
     return dict_length_to_span
 
 
-def combine_similar_spans(span_to_group_members, dict_length_to_span, dict_word_to_lemma, dict_lemma_to_synonyms):
+def combine_similar_spans(span_to_group_members, dict_length_to_span, dict_word_to_lemma,
+                          dict_lemma_to_synonyms, dict_longest_span_to_his_synonyms):
     dict_spans = {}
     for idx, spans in dict_length_to_span.items():
         dict_spans.update(
@@ -111,6 +117,24 @@ def combine_similar_spans(span_to_group_members, dict_length_to_span, dict_word_
         span_to_group_members_new[span] = span_to_group_members[span]
         for union_span in sub_set:
             span_to_group_members_new[span].update(span_to_group_members[union_span])
+    for span, synonyms in dict_spans.items():
+        new_synonyms = set()
+        for synonym in synonyms:
+            if synonym in dict_longest_span_to_his_synonyms.keys():
+                new_synonyms.update(dict_longest_span_to_his_synonyms[synonym])
+        synonyms.update(new_synonyms)
+    # black_list = set()
+    # dict_keys_lst = list(dict_spans.keys())
+    # for idx, key in enumerate(dict_keys_lst):
+    #     if key in black_list:
+    #         continue
+    #     for key_ref in dict_keys_lst[idx+1:-1]:
+    #         if key_ref in black_list:
+    #             continue
+    #         if dict_spans[key] == dict_spans[key_ref]:
+    #             black_list.add(key_ref)
+    # for key in black_list:
+    #     dict_spans.pop(key, None)
     return span_to_group_members_new, dict_spans
 
 
@@ -173,12 +197,21 @@ def set_cover(universe, subsets):
     return cover
 
 
-def create_score_to_group_dict(span_to_group_members, dict_span_to_rank):
+def get_average_value(spans_lst, dict_span_to_rank):
+    average_val = 0
+    for span in spans_lst:
+        average_val += dict_span_to_rank[span]
+    average_val = average_val / len(spans_lst)
+    return int(average_val)
+
+
+def create_score_to_group_dict(span_to_group_members, dict_span_to_rank, dict_span_to_similar_spans):
     dict_score_to_collection_of_sub_groups = {}
     for key, group in span_to_group_members.items():
-        dict_score_to_collection_of_sub_groups[dict_span_to_rank[key]] = dict_score_to_collection_of_sub_groups.get(
-            dict_span_to_rank[key], [])
-        dict_score_to_collection_of_sub_groups[dict_span_to_rank[key]].append((key, set(group)))
+        average_val = get_average_value(dict_span_to_similar_spans[key], dict_span_to_rank)
+        dict_score_to_collection_of_sub_groups[average_val] = dict_score_to_collection_of_sub_groups.get(
+            average_val, [])
+        dict_score_to_collection_of_sub_groups[average_val].append((key, set(group)))
     dict_score_to_collection_of_sub_groups = {k: v for k, v in
                                               sorted(dict_score_to_collection_of_sub_groups.items(),
                                                      key=lambda item: item[0])}
@@ -207,7 +240,7 @@ def add_NP_to_DAG_up_to_bottom(np_object_to_add, np_object, similar_np_object):
         return True
     for np in np_object_to_add.np:
         for np_ref in np_object.np:
-            if span_comparison.is_similar_meaning_between_span(np_ref, np, dict_word_to_lemma,
+            if span_comparison.is_similar_meaning_between_span(np_ref, np, combine_spans_utils.dict_word_to_lemma,
                                                                dict_lemma_to_synonyms):
                 is_contained = True
                 if len(np_ref) == len(np):
@@ -221,7 +254,8 @@ def add_NP_to_DAG_up_to_bottom(np_object_to_add, np_object, similar_np_object):
             if similar_np_object[0]:
                 return True
         if not is_added:
-            np_object.add_children([np_object_to_add])
+            if np_object_to_add not in np_object.children:
+                np_object.add_children([np_object_to_add])
             np_object_to_add.parents.add(np_object)
         return True
     return False
@@ -236,7 +270,7 @@ def add_NP_to_DAG_bottom_to_up(np_object_to_add, np_object, visited, similar_np_
     visited.add(np_object)
     for np in np_object_to_add.np:
         for np_ref in np_object.np:
-            if span_comparison.is_similar_meaning_between_span(np, np_ref, dict_word_to_lemma,
+            if span_comparison.is_similar_meaning_between_span(np, np_ref, combine_spans_utils.dict_word_to_lemma,
                                                                dict_lemma_to_synonyms):
                 is_contained = True
                 if len(np_ref) == len(np):
@@ -250,7 +284,8 @@ def add_NP_to_DAG_bottom_to_up(np_object_to_add, np_object, visited, similar_np_
             if similar_np_object[0]:
                 return True
         if not is_added:
-            np_object_to_add.add_children([np_object])
+            if np_object not in np_object_to_add.children:
+                np_object_to_add.add_children([np_object])
             np_object.parents.add(np_object_to_add)
         return True
     return False
@@ -407,7 +442,7 @@ def union_common_np(clusters, dict_word_to_lemma, dict_lemma_to_synonyms, dict_s
         create_date_dicts_for_combine_synonyms(clusters, dict_label_to_spans_group)
     span_to_group_members, dict_span_to_similar_spans = combine_similar_spans(span_to_group_members,
                                                                               dict_length_to_span, dict_word_to_lemma,
-                                                                              dict_lemma_to_synonyms)
+                                                                              dict_lemma_to_synonyms, dict_longest_span_to_his_synonyms)
     common_np_to_group_members_indices = \
         create_dict_from_common_np_to_group_members_indices(span_to_group_members,
                                                             dict_span_to_rank, dict_longest_span_to_his_synonyms)
@@ -453,13 +488,14 @@ def change_DAG_direction(global_np_object_lst, visited=[]):
                     if len(np) == 1:
                         print(np)
                         break
-                child_np_object_to_remove.children.append(np_object)
-                np_object.children.remove(child_np_object_to_remove)
+                if np_object not in child_np_object_to_remove:
+                    child_np_object_to_remove.add_children([np_object])
+                    np_object.children.remove(child_np_object_to_remove)
 
 
 def union_nps(label_to_cluster, dict_span_to_rank, dict_label_to_spans_group):
     dict_span_to_lst, common_np_to_group_members_indices, dict_span_to_similar_spans = union_common_np(
-        label_to_cluster, dict_word_to_lemma,
+        label_to_cluster, combine_spans_utils.dict_word_to_lemma,
         dict_lemma_to_synonyms,
 
         dict_span_to_rank, dict_label_to_spans_group)
@@ -468,12 +504,13 @@ def union_nps(label_to_cluster, dict_span_to_rank, dict_label_to_spans_group):
         common_np_to_group_members_indices,
         dict_label_to_spans_group)
     span_comparison.combine_not_clustered_spans_in_clustered_spans(dict_label_to_longest_np_without_common_sub_np,
-                                                                   dict_span_to_similar_spans, dict_word_to_lemma,
+                                                                   dict_span_to_similar_spans,
+                                                                   combine_spans_utils.dict_word_to_lemma,
                                                                    dict_lemma_to_synonyms,
                                                                    common_np_to_group_members_indices, common_span_lst,
                                                                    dict_span_to_lst)
     dict_score_to_collection_of_sub_groups = create_score_to_group_dict(common_np_to_group_members_indices,
-                                                                        dict_span_to_rank)
+                                                                        dict_span_to_rank, dict_span_to_similar_spans)
     return dict_score_to_collection_of_sub_groups, dict_span_to_lst, dict_span_to_similar_spans
 
 
@@ -506,15 +543,15 @@ def create_longest_nps_clusters(model, longest_np_lst, dict_idx_to_all_valid_exp
     return label_to_cluster, dict_label_to_spans_group, dict_label_to_spans_group, cluster_index_to_local_indices
 
 
-def from_DAG_to_JSON(topic_object_lst):
+def from_DAG_to_JSON(topic_object_lst, global_index_to_similar_longest_np):
     np_val_lst = {}
-    topic_object_lst.sort(key=lambda topic_object: len(topic_object.label_lst), reverse=True)
+    topic_object_lst.sort(key=lambda topic_object: topic_object.marginal_val, reverse=True)
     for topic_node in topic_object_lst:
-        np_val_lst.update(add_descendants_of_node_to_graph(topic_node))
+        np_val_lst.update(add_descendants_of_node_to_graph(topic_node, global_index_to_similar_longest_np))
     return np_val_lst
 
 
-def add_descendants_of_node_to_graph(node):
+def add_descendants_of_node_to_graph(node, global_index_to_similar_longest_np):
     span_to_present = ""
     first_val = True
     for np_val in node.np_val:
@@ -522,11 +559,61 @@ def add_descendants_of_node_to_graph(node):
             span_to_present += " | "
         first_val = False
         span_to_present += np_val
+    label_lst = combine_spans_utils.get_labels_of_children(node.children)
+    label_lst = node.label_lst - label_lst
+    NP_occurrences = combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+                                                                       label_lst)
+    span_to_present += " NP " + str(NP_occurrences) + " covered by NP " + str(
+        combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+                                                          node.label_lst))
     np_val_dict = {span_to_present: {}}
-    node.children = sorted(node.children, key=lambda child: len(child.label_lst), reverse=True)
+    node.children = sorted(node.children, key=lambda child: combine_spans_utils.get_frequency_from_labels_lst(
+        global_index_to_similar_longest_np,
+        child.label_lst), reverse=True)
     for child in node.children:
-        np_val_dict[span_to_present].update(add_descendants_of_node_to_graph(child))
+        np_val_dict[span_to_present].update(add_descendants_of_node_to_graph(child, global_index_to_similar_longest_np))
     return np_val_dict
+
+
+def update_nodes_frequency(topic_object_lst, global_index_to_similar_longest_np, visited=[]):
+    for node in topic_object_lst:
+        if node in visited:
+            continue
+        node.frequency = combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+                                                                           node.label_lst)
+        # for np_val in node.np_val:
+        #     num_of_occurrences = dict_of_span_to_counter.get(np_val, 0) -1
+        #     if num_of_occurrences > 0:
+        #         node.frequency += num_of_occurrences
+        update_nodes_frequency(node.children, global_index_to_similar_longest_np, visited)
+
+
+def add_dependency_routh_between_longest_np_to_topic(span_to_object, topic_object_lst,
+                                                     longest_nps, topic_object):
+    for longest_np_span in longest_nps:
+        np_object = span_to_object[longest_np_span]
+        if np_object in topic_object_lst:
+            np_object.combine_nodes(topic_object)
+            topic_object_lst.remove(topic_object)
+            topic_object = np_object
+            continue
+        similar_np_object = [None]
+        add_NP_to_DAG_bottom_to_up(topic_object, np_object, set(), similar_np_object)
+        if similar_np_object[0]:
+            if similar_np_object[0] in topic_object_lst:
+                topic_object_lst.remove(topic_object)
+                topic_object = similar_np_object[0]
+            for np in similar_np_object[0].np_val:
+                span_to_object[np] = similar_np_object[0]
+
+
+def update_score(topic_object_lst, dict_span_to_rank, visited=[]):
+    for node in topic_object_lst:
+        if node in visited:
+            continue
+        visited.append(node)
+        node.score = get_average_value(node.np_val, dict_span_to_rank)
+        update_score(node.children, dict_span_to_rank, visited)
 
 
 def main():
@@ -539,10 +626,8 @@ def main():
     span_to_object = {}
     global_longest_np_index = [0]
     global_index_to_similar_longest_np = {}
-    counter = 0
-    for topic, example_list in dict_of_topics.items():
-        counter += 1
-        print(counter)
+    for topic, example_list in combine_spans_utils.dict_of_topics.items():
+        dict_span_to_rank[topic] = 1
         dict_span_to_all_valid_expansions, longest_np_lst, longest_np_total_lst, all_nps_example_lst = get_only_relevant_example(
             example_list, global_longest_np_lst)
         if len(longest_np_total_lst) == 0 or len(longest_np_lst) == 0:
@@ -570,38 +655,29 @@ def main():
                                                      dict_label_to_spans_group,
                                                      global_dict_label_to_object, topic_object_lst)
         longest_spans_calculated_in_previous_topics = set(longest_np_total_lst) - set(longest_np_lst)
-        for longest_np_span in longest_spans_calculated_in_previous_topics:
-            np_object = span_to_object[longest_np_span]
-            if np_object in topic_object_lst:
-                np_object.combine_nodes(topic_object)
-                topic_object_lst.remove(topic_object)
-                topic_object = np_object
-                continue
-            similar_np_object = [None]
-            add_NP_to_DAG_bottom_to_up(topic_object, np_object, set(), similar_np_object)
-            if similar_np_object[0]:
-                if similar_np_object[0] in topic_object_lst:
-                    topic_object_lst.remove(topic_object)
-                    topic_object = similar_np_object[0]
-                for np in similar_np_object[0].np_val:
-                    span_to_object[np] = similar_np_object[0]
-    hierarchical_structure_algorithms.get_k_trees_from_DAG(100, topic_object_lst, global_dict_label_to_object)
+        add_dependency_routh_between_longest_np_to_topic(span_to_object, topic_object_lst,
+                                                         longest_spans_calculated_in_previous_topics, topic_object)
+
+    update_nodes_frequency(topic_object_lst, global_index_to_similar_longest_np)
+    hierarchical_structure_algorithms.get_k_navigable_DAGS_from_DAG(50, topic_object_lst, global_dict_label_to_object,
+                                                                    global_index_to_similar_longest_np)
     combine_spans_utils.check_symmetric_relation_in_DAG(topic_object_lst)
     leaves_lst = set()
     combine_spans_utils.get_leaves(topic_object_lst, leaves_lst, set())
     combine_spans_utils.remove_redundant_nodes(leaves_lst, topic_object_lst)
-    np_val_lst = from_DAG_to_JSON(topic_object_lst)
+    update_score(topic_object_lst, dict_span_to_rank)
+    np_val_lst = from_DAG_to_JSON(topic_object_lst, global_index_to_similar_longest_np)
     print(np_val_lst)
     print("END of the regular form")
-    top_k_topics, already_counted_labels, all_labels = hierarchical_structure_algorithms.greedy_algorithm(50, topic_object_lst)
-    covered_labels = 0
-    for label in already_counted_labels:
-        covered_labels += len(global_index_to_similar_longest_np[label])
-    total_labels = 0
-    for label in all_labels:
-        total_labels += len(global_index_to_similar_longest_np[label])
-    top_k_topics = from_DAG_to_JSON(top_k_topics)
+    top_k_topics, already_counted_labels, all_labels = \
+        hierarchical_structure_algorithms.greedy_algorithm(50, topic_object_lst, global_index_to_similar_longest_np)
+    covered_labels = combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+                                                                       already_counted_labels)
+    total_labels = combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+                                                                     all_labels)
+    top_k_topics = from_DAG_to_JSON(top_k_topics, global_index_to_similar_longest_np)
     print(top_k_topics)
+    print(covered_labels, total_labels)
 
 
 main()
