@@ -26,20 +26,22 @@ def from_words_to_lemma_lst(span, dict_word_to_lemma):
 
 def load_data_dicts():
     a_file = open("load_data\\data.pkl", "rb")
-    dict_of_topics = pickle.load(a_file)
-    dict_of_topics = {k: v for k, v in
-                      sorted(dict_of_topics.items(), key=lambda item: len(item[1]),
+    topics_dict = pickle.load(a_file)
+    topics_dict = {k: v for k, v in
+                      sorted(topics_dict.items(), key=lambda item: len(item[1]),
                              reverse=True)}
     b_file = open("load_data\\span_counter.pkl", "rb")
-    dict_of_span_to_counter = pickle.load(b_file)
+    dict_span_to_counter = pickle.load(b_file)
     c_file = open("load_data\\word_to_lemma.pkl", "rb")
-    dict_word_to_lemma = pickle.load(c_file)
+    dict_noun_head_to_lemma = pickle.load(c_file)
     d_file = open("load_data\\word_to_synonyms.pkl", "rb")
-    dict_lemma_to_synonyms = pickle.load(d_file)
-    return dict_of_topics, dict_of_span_to_counter, dict_word_to_lemma, dict_lemma_to_synonyms
+    dict_noun_head_to_synonyms = pickle.load(d_file)
+    e_file = open("load_data\\topic_to_his_synonym.pkl", "rb")
+    dict_topic_to_synonym = pickle.load(e_file)
+    return topics_dict, dict_span_to_counter, dict_noun_head_to_lemma, dict_noun_head_to_synonyms, dict_topic_to_synonym
 
 
-dict_of_topics, dict_of_span_to_counter, dict_word_to_lemma, dict_lemma_to_synonyms = load_data_dicts()
+dict_of_topics, dict_of_span_to_counter, dict_word_to_lemma, dict_lemma_to_synonyms, dict_topic_to_his_synonym = load_data_dicts()
 dict_of_span_to_counter = {k: v for k, v in
                            sorted(dict_of_span_to_counter.items(), key=lambda item: item[1],
                                   reverse=True)}
@@ -80,7 +82,7 @@ def create_dict_lemma_word2vec_and_edit_distance(dict_lemma_to_synonyms, dict_wo
     return dict_lemma_to_close_words
 
 
-def get_most_frequent_span(lst_of_spans, dict_of_span_to_counter):
+def get_most_frequent_span(lst_of_spans):
     most_frequent_span_value = -1
     most_frequent_span = None
     for span in lst_of_spans:

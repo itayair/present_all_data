@@ -43,8 +43,8 @@ def combine_tied_deps_recursively_and_combine_their_children(head, boundary_np_t
     combined_tied_tokens = [head]
     tied_couples_to_add = get_tied_couples(head.children)
     for child in head.children:
-        if child.text in stop_words:
-            continue
+        # if child.text in stop_words:
+        #     continue
         if boundary_np_to_the_left > child.i:
             continue
         if child.dep_ in tied_deps or child in tied_couples_to_add:

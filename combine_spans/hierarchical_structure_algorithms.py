@@ -35,14 +35,10 @@ def get_rep_from_group(S, y, dist_matrix, global_index_to_similar_longest_np):
 
 def get_rep(y, dist, global_index_to_similar_longest_np):
     rep = get_value_in_score_format(dist, global_index_to_similar_longest_np, y)
-    # label_lst = combine_spans_utils.get_labels_of_children(y.children)
-    # label_lst = y.label_lst - label_lst
-    # rep = (combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
-    #                                                          label_lst) ** 2) / (dist + 1)
     return rep
 
 
-def calculate_marginal_gain(x, dist_matrix, S_rep, k, dict_object_to_desc, topic_lst,
+def calculate_marginal_gain(x, dist_matrix, S_rep, k, dict_object_to_desc,
                             global_index_to_similar_longest_np):
     marginal_val = 0
     S_rep_new = {}
@@ -52,17 +48,7 @@ def calculate_marginal_gain(x, dist_matrix, S_rep, k, dict_object_to_desc, topic
         else:
             marginal_val_y = S_rep.get(hash(y), 0)
             if x == y:
-                # if x in topic_lst:
-                #     label_lst = combine_spans_utils.get_labels_of_children(x.children)
-                #     label_lst = x.label_lst - label_lst
-                #     gain_x = combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
-                #                                                                label_lst) ** 2
-                # else:
                 gain_x = get_value_in_score_format(0, global_index_to_similar_longest_np, x)
-                # label_lst = combine_spans_utils.get_labels_of_children(x.children)
-                # label_lst = x.label_lst - label_lst
-                # gain_x = combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
-                #                                                            label_lst) ** 2
                 S_rep_new[hash(y)] = gain_x
                 marginal_val += (gain_x - marginal_val_y)
             else:
@@ -77,8 +63,8 @@ def get_value_in_score_format(dist, global_index_to_similar_longest_np, node):
     label_lst_minus_children_labels = node.label_lst - label_lst
     # labels_children = label_lst - label_lst_minus_children_labels
     leaves_labels = combine_spans_utils.get_labels_of_leaves(node.children)
-    marginal_gain = (combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
-                                                                       label_lst_minus_children_labels) ** 2)
+    marginal_gain = combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+                                                                      label_lst_minus_children_labels) ** 2
     marginal_gain += combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
                                                                        leaves_labels) * (node.score - 1)
     marginal_gain = marginal_gain / (dist + 1)
@@ -161,7 +147,10 @@ def remove_unselected_np_objects(parent_np_object, selected_np_objects, visited_
     for child in parent_np_object.children:
         if child not in selected_np_objects and child not in visited_nodes:
             remove_lst.append(child)
-            child.parents.remove(parent_np_object)
+            try:
+                child.parents.remove(parent_np_object)
+            except:
+                print(parent_np_object)
     for node in remove_lst:
         if node.frequency > 1:
             common_span_remove_lst.append(node)
@@ -277,9 +266,8 @@ def greedy_algorithm(k, topic_lst, global_index_to_similar_longest_np):
                 break
         if is_fully_contained:
             continue
-        marginal_val_x, S_rep_new = calculate_marginal_gain(x, dist_matrix, S_rep,
-                                                            k, dict_object_to_desc, topic_lst,
-                                                            global_index_to_similar_longest_np)
+        marginal_val_x, S_rep_new = calculate_marginal_gain(x, dist_matrix, S_rep, k,
+                                                            dict_object_to_desc, global_index_to_similar_longest_np)
         if x.marginal_val > marginal_val_x + 0.1:
             x.marginal_val = marginal_val_x
             heapq.heappush(heap_data_structure, x)
@@ -289,8 +277,7 @@ def greedy_algorithm(k, topic_lst, global_index_to_similar_longest_np):
             if label not in already_counted_labels:
                 uncounted_labels.append(label)
         uncounted_labels_frequency = combine_spans_utils.get_frequency_from_labels_lst(
-            global_index_to_similar_longest_np,
-            uncounted_labels)
+            global_index_to_similar_longest_np, uncounted_labels)
         if uncounted_labels_frequency < 5:
             continue
         already_counted_labels.update(x.label_lst)

@@ -106,12 +106,12 @@ def get_words_as_span(span_lst):
 
 
 def is_should_be_removed(dict_noun_lemma_to_counter, span_lst, original_word,
-                         dict_word_to_his_synonym, black_list, dict_span_to_words):
+                         dict_word_to_his_synonym, black_list, dict_span_to_topic_entry):
     counter = 0
     for span in span_lst:
         if isinstance(span[0], list):
             continue
-        for lemma_word in dict_span_to_words[span[0]]:
+        for lemma_word in dict_span_to_topic_entry[span[0]]:
             if original_word == lemma_word or dict_word_to_his_synonym.get(lemma_word, None) == original_word:
                 continue
             if lemma_word not in black_list and lemma_word in dict_noun_lemma_to_counter:
@@ -174,9 +174,13 @@ def synonyms_consolidation(dict_noun_lemma_to_span, dict_noun_lemma_to_counter, 
         dict_noun_lemma_to_span_new[word] = []
         dict_noun_lemma_to_span_new[word].extend(dict_noun_lemma_to_span[word])
         dict_noun_lemma_to_counter_new[word] = dict_noun_lemma_to_counter[word]
+        dict_word_to_his_synonym[word] = dict_word_to_his_synonym.get(word, set())
+        dict_word_to_his_synonym[word].add(word)
         synonyms = set(synonyms)
         if synonyms:
             for synonym in synonyms:
+                if synonym in already_calculated:
+                    continue
                 if synonym != word and synonym in word_lst:
                     for spans in dict_noun_lemma_to_span[synonym]:
                         # new_spans_lst = []
@@ -186,7 +190,8 @@ def synonyms_consolidation(dict_noun_lemma_to_span, dict_noun_lemma_to_counter, 
                         dict_noun_lemma_to_span_new[word].append((spans[0], spans[1]))
                     # dict_noun_lemma_to_span_new[word].extend(dict_noun_lemma_to_span[synonym])
                     dict_noun_lemma_to_counter_new[word] += dict_noun_lemma_to_counter[synonym]
-                    dict_word_to_his_synonym[synonym] = word
+                    # dict_word_to_his_synonym[synonym] = word
+                    dict_word_to_his_synonym[word].add(synonym)
                     already_calculated.append(synonym)
         already_calculated.append(word)
     dict_noun_lemma_to_counter_new = {k: v for k, v in

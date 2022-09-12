@@ -80,6 +80,8 @@ def is_similar_meaning_between_span(span_1, span_2, dict_word_to_lemma, dict_lem
             not_satisfied.append(lemma)
     if len(not_satisfied) > 2:
         return False
+    if len(span_1_lemma_lst) == 1 and not_satisfied:
+        return False
     for lemma in not_satisfied:
         is_exist, lemma_to_remove = word_contained_in_list_by_edit_distance(lemma, span_2_lemma_lst)
         if is_exist:
