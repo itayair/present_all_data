@@ -2,6 +2,8 @@ from sentence_transformers import SentenceTransformer
 import torch
 from torch import nn
 from sklearn.cluster import AgglomerativeClustering
+from transformers import AutoTokenizer, AutoModel
+
 from combine_spans import utils as combine_spans_utils
 from combine_spans import span_comparison
 import combine_spans.hierarchical_structure_algorithms as hierarchical_structure_algorithms
@@ -14,6 +16,10 @@ import graphviz
 from networkx.readwrite import json_graph
 import json
 
+tokenizer = AutoTokenizer.from_pretrained('allenai/scibert_scivocab_uncased')
+medical_model = AutoModel.from_pretrained('allenai/scibert_scivocab_uncased')
+# encoded_input = tokenizer("My name is Itay Yair", return_tensors='pt')
+# output = model(**encoded_input)
 g1 = nx.DiGraph()
 
 # dict_lemma_to_synonyms = combine_spans_utils.create_dicts_for_words_similarity(combine_spans_utils.dict_word_to_lemma)
@@ -30,6 +36,7 @@ class NP:
         self.score = 0.0
         self.marginal_val = 0.0
         self.combined_nodes_lst = set()
+        self.weighted_average_vector = None
 
     def add_children(self, children):
         for child in children:
@@ -627,8 +634,19 @@ def update_nodes_frequency(topic_object_lst, global_index_to_similar_longest_np,
     for node in topic_object_lst:
         if node in visited:
             continue
+        is_first = True
+        for np in node.np_val:
+            encoded_input = tokenizer(np, return_tensors='pt')
+            if is_first:
+                weighted_average_vector = medical_model(**encoded_input).last_hidden_state[0,0,:]
+                is_first = False
+            else:
+                weighted_average_vector += medical_model(**encoded_input).last_hidden_state[0,0,:]
+        weighted_average_vector /= len(node.np_val)
+        node.weighted_average_vector = weighted_average_vector
         node.frequency = combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
                                                                            node.label_lst)
+        visited.append(node)
         update_nodes_frequency(node.children, global_index_to_similar_longest_np, visited)
 
 
@@ -711,12 +729,12 @@ def main():
         longest_spans_calculated_in_previous_topics = set(longest_np_total_lst) - set(longest_np_lst)
         add_dependency_routh_between_longest_np_to_topic(span_to_object, topic_object_lst,
                                                          longest_spans_calculated_in_previous_topics, topic_object)
-    uncounted_span = []
-    for span in list(combine_spans_utils.dict_of_span_to_counter.keys()):
-        if span not in global_longest_np_lst:
-            uncounted_span.append(span)
-    print(uncounted_span)
-    print(num_of_examples)
+    # uncounted_span = []
+    # for span in list(combine_spans_utils.dict_of_span_to_counter.keys()):
+    #     if span not in global_longest_np_lst:
+    #         uncounted_span.append(span)
+    # print(uncounted_span)
+    # print(num_of_examples)
     update_nodes_frequency(topic_object_lst, global_index_to_similar_longest_np)
     hierarchical_structure_algorithms.get_k_navigable_DAGS_from_DAG(50, topic_object_lst, global_dict_label_to_object,
                                                                     global_index_to_similar_longest_np)
