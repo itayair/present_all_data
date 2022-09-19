@@ -443,7 +443,48 @@ def create_date_dicts_for_combine_synonyms(clusters, dict_label_to_spans_group):
     return span_to_group_members, dict_span_to_lemmas_lst, dict_longest_span_to_his_synonyms, dict_length_to_span
 
 
-def union_common_np(clusters, dict_word_to_lemma, dict_lemma_to_synonyms, dict_span_to_rank, dict_label_to_spans_group):
+def get_weighted_average_vector_of_some_vectors_embeddings(spans_embeddings, dict_of_span_to_counter, common_np_lst):
+    weighted_average_vector = torch.zeros(spans_embeddings[0].shape)
+    total_occurrences = 0
+    for idx, embedding_vector in enumerate(spans_embeddings):
+        # total_occurrences += dict_of_span_to_counter[common_np_lst[idx]]
+        # weighted_average_vector += embedding_vector * common_np_lst[idx]
+        weighted_average_vector += embedding_vector
+    # weighted_average_vector /= total_occurrences
+    weighted_average_vector /= len(common_np_lst)
+    return weighted_average_vector
+
+
+def union_common_np_by_DL_model(common_np_to_group_members_indices, dict_span_to_similar_spans, model):
+    if len(common_np_to_group_members_indices.keys()) < 2:
+        return common_np_to_group_members_indices
+    weighted_average_vector_lst = []
+    for span in common_np_to_group_members_indices.keys():
+        spans_embeddings = model.encode(list(dict_span_to_similar_spans[span]))
+        weighted_average_vector = get_weighted_average_vector_of_some_vectors_embeddings(spans_embeddings,
+                                                                                         combine_spans_utils.dict_of_span_to_counter,
+                                                                                         dict_span_to_similar_spans[
+                                                                                             span])
+        weighted_average_vector_lst.append(weighted_average_vector)
+    clustering = AgglomerativeClustering(distance_threshold=0.08, n_clusters=None, linkage="average",
+                                         affinity="cosine", compute_full_tree=True).fit(torch.stack(weighted_average_vector_lst, dim=0))
+    dict_cluster_to_common_spans_lst = {}
+    for idx, label in enumerate(clustering.labels_):
+        dict_cluster_to_common_spans_lst[label] = dict_cluster_to_common_spans_lst.get(label, [])
+        dict_cluster_to_common_spans_lst[label].append(list(common_np_to_group_members_indices.keys())[idx])
+    new_common_np_to_group_members_indices = {}
+    for label, similar_common_spans_lst in dict_cluster_to_common_spans_lst.items():
+        if len(similar_common_spans_lst) == 1:
+            continue
+        new_common_np_to_group_members_indices[similar_common_spans_lst[0]] = set()
+        for common_span in similar_common_spans_lst:
+            for span in similar_common_spans_lst:
+                dict_span_to_similar_spans[common_span].update(dict_span_to_similar_spans[span])
+            new_common_np_to_group_members_indices[similar_common_spans_lst[0]].update(common_np_to_group_members_indices[common_span])
+    return new_common_np_to_group_members_indices
+
+
+def union_common_np(clusters, dict_word_to_lemma, dict_lemma_to_synonyms, dict_span_to_rank, dict_label_to_spans_group, model):
     span_to_group_members, dict_span_to_lemmas_lst, dict_longest_span_to_his_synonyms, dict_length_to_span = \
         create_date_dicts_for_combine_synonyms(clusters, dict_label_to_spans_group)
     span_to_group_members, dict_span_to_similar_spans = combine_similar_spans(span_to_group_members,
@@ -453,6 +494,8 @@ def union_common_np(clusters, dict_word_to_lemma, dict_lemma_to_synonyms, dict_s
     common_np_to_group_members_indices = \
         create_dict_from_common_np_to_group_members_indices(span_to_group_members,
                                                             dict_span_to_rank, dict_longest_span_to_his_synonyms)
+    common_np_to_group_members_indices = union_common_np_by_DL_model(common_np_to_group_members_indices,
+                                                                     dict_span_to_similar_spans, model)
     return dict_span_to_lemmas_lst, common_np_to_group_members_indices, dict_span_to_similar_spans
 
 
@@ -500,12 +543,10 @@ def change_DAG_direction(global_np_object_lst, visited=[]):
                     np_object.children.remove(child_np_object_to_remove)
 
 
-def union_nps(label_to_cluster, dict_span_to_rank, dict_label_to_spans_group):
+def union_nps(model, label_to_cluster, dict_span_to_rank, dict_label_to_spans_group):
     dict_span_to_lst, common_np_to_group_members_indices, dict_span_to_similar_spans = union_common_np(
         label_to_cluster, combine_spans_utils.dict_word_to_lemma,
-        dict_lemma_to_synonyms,
-
-        dict_span_to_rank, dict_label_to_spans_group)
+        dict_lemma_to_synonyms, dict_span_to_rank, dict_label_to_spans_group, model)
     dict_label_to_longest_np_without_common_sub_np, common_span_lst = get_non_clustered_group_numbers(
         label_to_cluster,
         common_np_to_group_members_indices,
@@ -657,9 +698,10 @@ def main():
             label_to_cluster, dict_label_to_spans_group, dict_label_to_spans_group, cluster_index_to_local_indices = \
                 create_longest_nps_clusters(model, longest_np_lst, dict_idx_to_all_valid_expansions,
                                             global_longest_np_index, global_index_to_similar_longest_np)
-            dict_score_to_collection_of_sub_groups, dict_span_to_lst, dict_span_to_similar_spans = union_nps(
-                label_to_cluster, dict_span_to_rank,
-                dict_label_to_spans_group)
+            dict_score_to_collection_of_sub_groups, dict_span_to_lst, dict_span_to_similar_spans = union_nps(model,
+                                                                                                             label_to_cluster,
+                                                                                                             dict_span_to_rank,
+                                                                                                             dict_label_to_spans_group)
         # span_to_group_members = set_cover_with_priority(dict_score_to_collection_of_sub_groups)
         topic_object = create_DAG_from_top_to_bottom(dict_score_to_collection_of_sub_groups, topic_synonym_lst,
                                                      dict_span_to_lst, all_object_np_lst,
@@ -687,7 +729,7 @@ def main():
     # print(np_val_lst)
     # print("END of the regular form")
     top_k_topics, already_counted_labels, all_labels = \
-        hierarchical_structure_algorithms.greedy_algorithm(50, topic_object_lst, global_index_to_similar_longest_np)
+        hierarchical_structure_algorithms.greedy_algorithm(100, topic_object_lst, global_index_to_similar_longest_np)
     covered_labels = combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
                                                                        already_counted_labels)
     total_labels = combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,

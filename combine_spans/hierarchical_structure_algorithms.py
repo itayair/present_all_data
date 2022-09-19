@@ -67,6 +67,8 @@ def get_value_in_score_format(dist, global_index_to_similar_longest_np, node):
                                                                       label_lst_minus_children_labels) ** 2
     marginal_gain += combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
                                                                        leaves_labels) * (node.score - 1)
+    marginal_gain += combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+                                                                       label_lst - leaves_labels) * (node.score - 1)
     marginal_gain = marginal_gain / (dist + 1)
     return marginal_gain
 
@@ -238,6 +240,20 @@ def build_tree_from_DAG(np_object, global_dict_label_to_object, k, visited_nodes
                                 global_index_to_similar_longest_np, visited_labels)
 
 
+def is_ancestor_in_S(v, S, visited):
+    visited.add(v)
+    for parent in v.parents:
+        if parent in visited:
+            continue
+        if parent in S:
+            return True
+        is_ancestor = is_ancestor_in_S(parent, S, visited)
+        if is_ancestor:
+            return True
+    return False
+
+
+
 def greedy_algorithm(k, topic_lst, global_index_to_similar_longest_np):
     dist_matrix = {}
     dict_object_to_desc = {}
@@ -258,14 +274,17 @@ def greedy_algorithm(k, topic_lst, global_index_to_similar_longest_np):
     counter = 0
     while len(S) < k and heap_data_structure:
         x = heapq.heappop(heap_data_structure)
-        is_fully_contained = False
-        for np_object in S:
-            if len(np_object.label_lst.intersection(x.label_lst)) == len(np_object.label_lst) or \
-                    len(x.label_lst.intersection(np_object.label_lst)) == len(x.label_lst):
-                is_fully_contained = True
-                break
-        if is_fully_contained:
+        is_ancestor_already_in_S = is_ancestor_in_S(x, S, set())
+        if is_ancestor_already_in_S:
             continue
+        # is_fully_contained = False
+        # for np_object in S:
+        #     if len(np_object.label_lst.intersection(x.label_lst)) == len(np_object.label_lst) or \
+        #             len(x.label_lst.intersection(np_object.label_lst)) == len(x.label_lst):
+        #         is_fully_contained = True
+        #         break
+        # if is_fully_contained:
+        #     continue
         marginal_val_x, S_rep_new = calculate_marginal_gain(x, dist_matrix, S_rep, k,
                                                             dict_object_to_desc, global_index_to_similar_longest_np)
         if x.marginal_val > marginal_val_x + 0.1:
@@ -276,10 +295,10 @@ def greedy_algorithm(k, topic_lst, global_index_to_similar_longest_np):
         for label in x.label_lst:
             if label not in already_counted_labels:
                 uncounted_labels.append(label)
-        uncounted_labels_frequency = combine_spans_utils.get_frequency_from_labels_lst(
-            global_index_to_similar_longest_np, uncounted_labels)
-        if uncounted_labels_frequency < 5:
-            continue
+        # uncounted_labels_frequency = combine_spans_utils.get_frequency_from_labels_lst(
+        #     global_index_to_similar_longest_np, uncounted_labels)
+        # if uncounted_labels_frequency < 5:
+        #     continue
         already_counted_labels.update(x.label_lst)
         for key, value in S_rep_new.items():
             S_rep[key] = value

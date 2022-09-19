@@ -135,12 +135,12 @@ def main():
             counter += 1
     print(counter)
     dict_word_to_his_synonym = {}
-    dict_noun_lemma_to_counter, dict_noun_lemma_to_example = utils_clustering.synonyms_consolidation(
-        dict_noun_lemma_to_example,
-        dict_noun_lemma_to_counter, dict_word_to_his_synonym, 'wordnet')
     # dict_noun_lemma_to_counter, dict_noun_lemma_to_example = utils_clustering.synonyms_consolidation(
     #     dict_noun_lemma_to_example,
-    #     dict_noun_lemma_to_counter, dict_word_to_his_synonym, 'umls')
+    #     dict_noun_lemma_to_counter, dict_word_to_his_synonym, 'wordnet')
+    dict_noun_lemma_to_counter, dict_noun_lemma_to_example = utils_clustering.synonyms_consolidation(
+        dict_noun_lemma_to_example,
+        dict_noun_lemma_to_counter, dict_word_to_his_synonym, 'umls')
     not_in_head_lst = []
     for key in dict_noun_lemma_to_example:
         if key not in head_lst and len(dict_noun_lemma_to_example[key]) < 2:
