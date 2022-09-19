@@ -1,7 +1,9 @@
 import heapq
 from itertools import combinations
+import torch
 from combine_spans import utils as combine_spans_utils
 
+cos = torch.nn.CosineSimilarity(dim=0, eps=1e-08)
 
 def dfs_update_marginal_gain(visited, node, dist_matrix, k, dist=1):  # function for dfs
     if node not in visited:
@@ -33,8 +35,8 @@ def get_rep_from_group(S, y, dist_matrix, global_index_to_similar_longest_np):
     return get_rep(y, dist, global_index_to_similar_longest_np)
 
 
-def get_rep(y, dist, global_index_to_similar_longest_np):
-    rep = get_value_in_score_format(dist, global_index_to_similar_longest_np, y)
+def get_rep(y, dist, global_index_to_similar_longest_np, x):
+    rep = get_value_by_cosineSimilarity_format(dist, global_index_to_similar_longest_np, y, x)
     return rep
 
 
@@ -48,17 +50,26 @@ def calculate_marginal_gain(x, dist_matrix, S_rep, k, dict_object_to_desc,
         else:
             marginal_val_y = S_rep.get(hash(y), 0)
             if x == y:
-                gain_x = get_value_in_score_format(0, global_index_to_similar_longest_np, x)
+                gain_x = get_value_by_cosineSimilarity_format(0, global_index_to_similar_longest_np, x, x)
                 S_rep_new[hash(y)] = gain_x
                 marginal_val += (gain_x - marginal_val_y)
             else:
                 dist = dist_matrix[hash(str(hash(x))) - hash(str(hash(y)))]
-                S_rep_new[hash(y)] = get_rep(y, dist, global_index_to_similar_longest_np)
+                S_rep_new[hash(y)] = get_rep(y, dist, global_index_to_similar_longest_np, x)
                 marginal_val += (S_rep_new[hash(y)] - marginal_val_y)
     return marginal_val, S_rep_new
 
 
-def get_value_in_score_format(dist, global_index_to_similar_longest_np, node):
+def get_value_in_score_format(global_index_to_similar_longest_np, current_node, main_node):
+    label_lst = combine_spans_utils.get_labels_of_children(current_node.children)
+    label_lst_minus_children_labels = current_node.label_lst - label_lst
+    cos_similarity_val = cos(current_node.weighted_average_vector, main_node.weighted_average_vector)
+    marginal_gain = combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+                                                                      label_lst_minus_children_labels) * cos_similarity_val
+    return marginal_gain
+
+
+def get_value_by_cosineSimilarity_format(dist, global_index_to_similar_longest_np, node):
     label_lst = combine_spans_utils.get_labels_of_children(node.children)
     label_lst_minus_children_labels = node.label_lst - label_lst
     # labels_children = label_lst - label_lst_minus_children_labels
@@ -71,6 +82,8 @@ def get_value_in_score_format(dist, global_index_to_similar_longest_np, node):
                                                                        label_lst - leaves_labels) * (node.score - 1)
     marginal_gain = marginal_gain / (dist + 1)
     return marginal_gain
+
+
 
 
 def get_value_in_pow_format(dist, global_index_to_similar_longest_np, label_lst_node, children):
@@ -102,23 +115,13 @@ def compute_value_for_each_node(x, dist_matrix, dict_object_to_desc, dict_node_t
             if u not in visited:
                 x_u = hash(str(hash(x))) - hash(str(hash(u)))
                 dist_matrix[x_u] = dist_matrix[x_v] + 1
-                # distance_x_given_S = distance_x_given_S + (len(u.label_lst) ** 2) / (dist_matrix[x_u] + 1)
-                # rep_matrix[x_u] = (len(u.label_lst) - 1) / (dist_matrix[x_u] + 1)
-                # label_lst = combine_spans_utils.get_labels_of_children(u.children)
-                # label_lst = u.label_lst - label_lst
-                # x_u_marginal_gain = (combine_spans_utils.get_frequency_from_labels_lst
-                #                      (global_index_to_similar_longest_np, label_lst) ** 2) / (dist_matrix[x_u] + 1)
-                x_u_marginal_gain = get_value_in_score_format(dist_matrix[x_u], global_index_to_similar_longest_np, u)
+                x_u_marginal_gain = get_value_in_score_format(dist_matrix[x_u], global_index_to_similar_longest_np, u, x)
                 rep_matrix[x_u] = x_u_marginal_gain
                 total_gain += x_u_marginal_gain
                 counter += 1
                 Q.append(u)
                 visited.append(u)
-    # label_lst = combine_spans_utils.get_labels_of_children(x.children)
-    # label_lst = x.label_lst - label_lst
-    # total_gain += combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
-    #                                                                 label_lst) ** 2
-    total_gain += get_value_in_score_format(0, global_index_to_similar_longest_np, x)
+    total_gain += get_value_by_cosineSimilarity_format(0, global_index_to_similar_longest_np, x, x)
     rep_matrix[hash(x)] = total_gain
     dict_node_to_rep[list(x.np_val)[0]] = rep_matrix
     return total_gain
