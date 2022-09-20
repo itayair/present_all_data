@@ -1,4 +1,3 @@
-from combine_spans import span_comparison as span_comparison
 from combine_spans import utils as combine_spans_utils
 from transformers import AutoTokenizer, AutoModel
 import DAG.NounPhraseObject as NounPhrase
@@ -7,14 +6,13 @@ tokenizer = AutoTokenizer.from_pretrained('allenai/scibert_scivocab_uncased')
 medical_model = AutoModel.from_pretrained('allenai/scibert_scivocab_uncased')
 
 
-def add_NP_to_DAG_up_to_bottom(np_object_to_add, np_object, similar_np_object, dict_lemma_to_synonyms):
+def add_NP_to_DAG_up_to_bottom(np_object_to_add, np_object, similar_np_object):
     is_contained = False
     if np_object == np_object_to_add:
         return True
     for np in np_object_to_add.np:
         for np_ref in np_object.np:
-            if span_comparison.is_similar_meaning_between_span(np_ref, np, combine_spans_utils.dict_word_to_lemma,
-                                                               dict_lemma_to_synonyms):
+            if combine_spans_utils.is_similar_meaning_between_span(np_ref, np):
                 is_contained = True
                 if len(np_ref) == len(np):
                     np_object.combine_nodes(np_object_to_add)
@@ -23,7 +21,7 @@ def add_NP_to_DAG_up_to_bottom(np_object_to_add, np_object, similar_np_object, d
     if is_contained:
         is_added = False
         for child in np_object.children:
-            is_added |= add_NP_to_DAG_up_to_bottom(np_object_to_add, child, similar_np_object, dict_lemma_to_synonyms)
+            is_added |= add_NP_to_DAG_up_to_bottom(np_object_to_add, child, similar_np_object)
             if similar_np_object[0]:
                 return True
         if not is_added:
@@ -34,7 +32,7 @@ def add_NP_to_DAG_up_to_bottom(np_object_to_add, np_object, similar_np_object, d
     return False
 
 
-def add_NP_to_DAG_bottom_to_up(np_object_to_add, np_object, visited, similar_np_object, dict_lemma_to_synonyms):
+def add_NP_to_DAG_bottom_to_up(np_object_to_add, np_object, visited, similar_np_object):
     is_contained = False
     if np_object in visited:
         return False
@@ -43,8 +41,7 @@ def add_NP_to_DAG_bottom_to_up(np_object_to_add, np_object, visited, similar_np_
     visited.add(np_object)
     for np in np_object_to_add.np:
         for np_ref in np_object.np:
-            if span_comparison.is_similar_meaning_between_span(np, np_ref, combine_spans_utils.dict_word_to_lemma,
-                                                               dict_lemma_to_synonyms):
+            if combine_spans_utils.is_similar_meaning_between_span(np, np_ref):
                 is_contained = True
                 if len(np_ref) == len(np):
                     np_object.combine_nodes(np_object_to_add)
@@ -53,7 +50,7 @@ def add_NP_to_DAG_bottom_to_up(np_object_to_add, np_object, visited, similar_np_
     if is_contained:
         is_added = False
         for parent in np_object.parents:
-            is_added |= add_NP_to_DAG_bottom_to_up(np_object_to_add, parent, visited, similar_np_object, dict_lemma_to_synonyms)
+            is_added |= add_NP_to_DAG_bottom_to_up(np_object_to_add, parent, visited, similar_np_object)
             if similar_np_object[0]:
                 return True
         if not is_added:
@@ -68,7 +65,7 @@ def create_DAG_from_top_to_bottom(dict_score_to_collection_of_sub_groups, topic_
                                   dict_span_to_lemmas_lst,
                                   all_object_np_lst, span_to_object,
                                   dict_span_to_similar_spans, dict_label_to_spans_group,
-                                  global_dict_label_to_object, topic_object_lst, dict_lemma_to_synonyms):
+                                  global_dict_label_to_object, topic_object_lst):
     topic_synonyms_tuples = [(synonym, [synonym]) for synonym in topic_synonym_lst]
     topic_object = NounPhrase.NP(topic_synonyms_tuples, set(dict_label_to_spans_group.keys()))
     topic_object_lst.append(topic_object)
@@ -87,7 +84,7 @@ def create_DAG_from_top_to_bottom(dict_score_to_collection_of_sub_groups, topic_
                 tuple_np_lst.append((np, dict_span_to_lemmas_lst[np]))
             np_object = NounPhrase.NP(tuple_np_lst, labels)
             similar_np_object = [None]
-            add_NP_to_DAG_up_to_bottom(np_object, topic_object, similar_np_object, dict_lemma_to_synonyms)
+            add_NP_to_DAG_up_to_bottom(np_object, topic_object, similar_np_object)
             if not similar_np_object[0]:
                 all_object_np_lst.append(np_object)
     for label, nps in dict_label_to_spans_group.items():
@@ -111,7 +108,7 @@ def create_DAG_from_top_to_bottom(dict_score_to_collection_of_sub_groups, topic_
                 span_to_object[np[0]] = topic_object
             continue
         similar_np_object = [None]
-        add_NP_to_DAG_up_to_bottom(np_object, topic_object, similar_np_object, dict_lemma_to_synonyms)
+        add_NP_to_DAG_up_to_bottom(np_object, topic_object, similar_np_object)
         if similar_np_object[0]:
             np_object = similar_np_object[0]
         else:
@@ -125,16 +122,15 @@ def create_DAG_from_top_to_bottom(dict_score_to_collection_of_sub_groups, topic_
 def insert_examples_of_topic_to_DAG(dict_score_to_collection_of_sub_groups, topic_synonym_lst, dict_span_to_lst,
                                     all_object_np_lst, span_to_object, dict_span_to_similar_spans,
                                     dict_label_to_spans_group, global_dict_label_to_object, topic_object_lst,
-                                    longest_np_total_lst, longest_np_lst, dict_lemma_to_synonyms):
+                                    longest_np_total_lst, longest_np_lst):
     topic_object = create_DAG_from_top_to_bottom(dict_score_to_collection_of_sub_groups, topic_synonym_lst,
                                                  dict_span_to_lst, all_object_np_lst,
                                                  span_to_object, dict_span_to_similar_spans,
                                                  dict_label_to_spans_group,
-                                                 global_dict_label_to_object, topic_object_lst, dict_lemma_to_synonyms)
+                                                 global_dict_label_to_object, topic_object_lst)
     longest_spans_calculated_in_previous_topics = set(longest_np_total_lst) - set(longest_np_lst)
     add_dependency_routh_between_longest_np_to_topic(span_to_object, topic_object_lst,
-                                                     longest_spans_calculated_in_previous_topics, topic_object,
-                                                     dict_lemma_to_synonyms)
+                                                     longest_spans_calculated_in_previous_topics, topic_object)
 
 
 def change_DAG_direction(global_np_object_lst, visited=[]):
@@ -189,7 +185,7 @@ def from_DAG_to_JSON(topic_object_lst, global_index_to_similar_longest_np):
 
 
 def add_dependency_routh_between_longest_np_to_topic(span_to_object, topic_object_lst,
-                                                     longest_nps, topic_object, dict_lemma_to_synonyms):
+                                                     longest_nps, topic_object):
     for longest_np_span in longest_nps:
         np_object = span_to_object[longest_np_span]
         if np_object in topic_object_lst:
@@ -198,7 +194,7 @@ def add_dependency_routh_between_longest_np_to_topic(span_to_object, topic_objec
             topic_object = np_object
             continue
         similar_np_object = [None]
-        add_NP_to_DAG_bottom_to_up(topic_object, np_object, set(), similar_np_object, dict_lemma_to_synonyms)
+        add_NP_to_DAG_bottom_to_up(topic_object, np_object, set(), similar_np_object)
         if similar_np_object[0]:
             if similar_np_object[0] in topic_object_lst:
                 topic_object_lst.remove(topic_object)
@@ -234,7 +230,7 @@ def get_frequency_from_labels_lst(global_index_to_similar_longest_np, label_lst)
     num_of_labels = 0
     for label in label_lst:
         for span in global_index_to_similar_longest_np[label]:
-            num_of_labels += combine_spans_utils.dict_of_span_to_counter[span]
+            num_of_labels += combine_spans_utils.dict_longest_span_to_counter[span]
         # num_of_labels += len(global_index_to_similar_longest_np[label])
     return num_of_labels
 

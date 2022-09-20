@@ -75,6 +75,7 @@ def convert_examples_to_clustered_data():
     abbreviations_lst = set()
     span_lst = set()
     dict_span_to_counter = {}
+    dict_longest_span_to_counter = {}
     dict_span_to_topic_entry = {}
     dict_span_to_rank = {}
     dict_word_to_lemma = {}
@@ -87,9 +88,11 @@ def convert_examples_to_clustered_data():
         if span in span_lst:
             if span not in dict_sentence_to_span_lst[sentence]:
                 dict_sentence_to_span_lst[sentence].append(span)
-                if span in dict_span_to_counter:
-                    dict_span_to_counter[span] += 1
+                if span in dict_longest_span_to_counter:
+                    dict_longest_span_to_counter[span] += 1
                     counter += 1
+                for sub_span in all_valid_nps_lst:
+                    dict_span_to_counter[sub_span[1]] = dict_span_to_counter.get(sub_span[1], 0) + 1
             continue
         dict_sentence_to_span_lst[sentence].append(span)
         span_lst.add(span)
@@ -125,7 +128,12 @@ def convert_examples_to_clustered_data():
                 # noun_lemma_lst.add(compound_noun_span_lemma)
                 # noun_lst.add(compound_noun_span)
         if is_valid_example:
-            dict_span_to_counter[span] = 1
+            dict_longest_span_to_counter[span] = 1
+            if not valid_span_lst:
+                dict_span_to_counter[span] = dict_span_to_counter.get(span, 0) + 1
+                print("There is longest expansion that isn't in the all_valid_nps_lst")
+            for sub_span in all_valid_nps_lst:
+                dict_span_to_counter[sub_span[1]] = dict_span_to_counter.get(sub_span[1], 0) + 1
             valid_span_lst.add(span)
             counter += 1
     print(counter)
@@ -146,4 +154,5 @@ def convert_examples_to_clustered_data():
                                                                                    dict_word_to_his_synonym,
                                                                                    dict_span_to_topic_entry)
     dict_lemma_to_synonyms = utils_clustering.create_dicts_for_words_similarity(dict_word_to_lemma)
-    return dict_noun_lemma_to_example, dict_span_to_counter, dict_word_to_lemma, dict_lemma_to_synonyms, dict_word_to_his_synonym
+    return dict_noun_lemma_to_example, dict_span_to_counter, dict_word_to_lemma, dict_lemma_to_synonyms, \
+           dict_word_to_his_synonym, dict_longest_span_to_counter

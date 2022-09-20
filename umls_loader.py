@@ -34,7 +34,7 @@ class UMLSLoader(metaclass=Singleton):
     def read_df(corpus_dir):
         col_names = ['CUI', 'LAT', 'TS', 'LUI', 'STT', 'SUI', 'ISPREF', 'AUI', 'SAUI', 'SCUI', 'SDUI', 'SAB', 'TTY',
                      'CODE', 'STR', 'SRL', 'SUPPRESS', 'CVF']
-        umls_df = pd.read_table(corpus_dir, sep='|', encoding='utf-8', index_col=False, header=None, names=col_names)
+        umls_df = pd.read_table(corpus_dir, sep='|', encoding='utf-8', index_col=False, header=None, names=col_names, low_memory=False)
         umls_df['STR'] = umls_df['STR'].str.lower()
         return umls_df
 
