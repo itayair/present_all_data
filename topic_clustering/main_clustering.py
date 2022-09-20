@@ -1,11 +1,6 @@
 import parse_medical_data
-import utils
-import pickle
-import utils_clustering
-import valid_expansion_utils
-
-file_name = "text_files\\output_noun_result.txt"
-file_name_lemma = "text_files\\output_noun_lemma_result.txt"
+from topic_clustering import utils_clustering
+from expansions import valid_expansion_utils
 
 
 def filter_dict_by_lst(dict_noun_lemma_to_example, dict_noun_lemma_to_counter, topic_lst):
@@ -70,7 +65,7 @@ def initialize_token_expansions_information(all_valid_nps_lst, token, dict_span_
     dict_span_to_topic_entry[span].add(lemma_word)
 
 
-def main():
+def convert_examples_to_clustered_data():
     examples = parse_medical_data.get_examples_from_special_format()
     noun_lst = set()
     head_lst = set()
@@ -151,28 +146,4 @@ def main():
                                                                                    dict_word_to_his_synonym,
                                                                                    dict_span_to_topic_entry)
     dict_lemma_to_synonyms = utils_clustering.create_dicts_for_words_similarity(dict_word_to_lemma)
-    a_file = open("load_data\\data.pkl", "wb")
-    b_file = open("load_data\\span_counter.pkl", "wb")
-    c_file = open("load_data\\word_to_lemma.pkl", "wb")
-    d_file = open("load_data\\word_to_synonyms.pkl", "wb")
-    e_file = open("load_data\\topic_to_his_synonym.pkl", "wb")
-    pickle.dump(dict_noun_lemma_to_example, a_file)
-    pickle.dump(dict_span_to_counter, b_file)
-    pickle.dump(dict_word_to_lemma, c_file)
-    pickle.dump(dict_lemma_to_synonyms, d_file)
-    pickle.dump(dict_word_to_his_synonym, e_file)
-    e_file.close()
-    d_file.close()
-    c_file.close()
-    b_file.close()
-    a_file.close()
-    with open(file_name, 'w', encoding='utf-8') as f:
-        for span in noun_lst:
-            f.write(span + '\n')
-    with open(file_name_lemma, 'w', encoding='utf-8') as f:
-        for span in noun_lemma_lst:
-            f.write(span + '\n')
-    print("Done!")
-
-
-main()
+    return dict_noun_lemma_to_example, dict_span_to_counter, dict_word_to_lemma, dict_lemma_to_synonyms, dict_word_to_his_synonym

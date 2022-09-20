@@ -1,9 +1,10 @@
 import heapq
 from itertools import combinations
 import torch
-from combine_spans import utils as combine_spans_utils
+from DAG import DAG_utils as DAG_utils
 
 cos = torch.nn.CosineSimilarity(dim=0, eps=1e-08)
+
 
 def dfs_update_marginal_gain(visited, node, dist_matrix, k, dist=1):  # function for dfs
     if node not in visited:
@@ -36,7 +37,7 @@ def get_rep_from_group(S, y, dist_matrix, global_index_to_similar_longest_np):
 
 
 def get_rep(y, dist, global_index_to_similar_longest_np, x):
-    rep = get_value_by_cosineSimilarity_format(dist, global_index_to_similar_longest_np, y, x)
+    rep = get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, y, x)
     return rep
 
 
@@ -50,7 +51,7 @@ def calculate_marginal_gain(x, dist_matrix, S_rep, k, dict_object_to_desc,
         else:
             marginal_val_y = S_rep.get(hash(y), 0)
             if x == y:
-                gain_x = get_value_by_cosineSimilarity_format(0, global_index_to_similar_longest_np, x, x)
+                gain_x = get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, x, x)
                 S_rep_new[hash(y)] = gain_x
                 marginal_val += (gain_x - marginal_val_y)
             else:
@@ -60,36 +61,35 @@ def calculate_marginal_gain(x, dist_matrix, S_rep, k, dict_object_to_desc,
     return marginal_val, S_rep_new
 
 
-def get_value_in_score_format(global_index_to_similar_longest_np, current_node, main_node):
-    label_lst = combine_spans_utils.get_labels_of_children(current_node.children)
+def get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, current_node, main_node):
+    label_lst = DAG_utils.get_labels_of_children(current_node.children)
     label_lst_minus_children_labels = current_node.label_lst - label_lst
     cos_similarity_val = cos(current_node.weighted_average_vector, main_node.weighted_average_vector)
-    marginal_gain = combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
-                                                                      label_lst_minus_children_labels) * cos_similarity_val
+    marginal_gain = DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+                                                                      label_lst_minus_children_labels) * (
+                                cos_similarity_val ** 2)
     return marginal_gain
 
 
-def get_value_by_cosineSimilarity_format(dist, global_index_to_similar_longest_np, node):
-    label_lst = combine_spans_utils.get_labels_of_children(node.children)
+def get_value_in_score_format(dist, global_index_to_similar_longest_np, node):
+    label_lst = DAG_utils.get_labels_of_children(node.children)
     label_lst_minus_children_labels = node.label_lst - label_lst
     # labels_children = label_lst - label_lst_minus_children_labels
-    leaves_labels = combine_spans_utils.get_labels_of_leaves(node.children)
-    marginal_gain = combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+    leaves_labels = DAG_utils.get_labels_of_leaves(node.children)
+    marginal_gain = DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
                                                                       label_lst_minus_children_labels) ** 2
-    marginal_gain += combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+    marginal_gain += DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
                                                                        leaves_labels) * (node.score - 1)
-    marginal_gain += combine_spans_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+    marginal_gain += DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
                                                                        label_lst - leaves_labels) * (node.score - 1)
     marginal_gain = marginal_gain / (dist + 1)
     return marginal_gain
 
 
-
-
 def get_value_in_pow_format(dist, global_index_to_similar_longest_np, label_lst_node, children):
-    label_lst = combine_spans_utils.get_labels_of_children(children)
+    label_lst = DAG_utils.get_labels_of_children(children)
     label_lst = label_lst_node - label_lst
-    marginal_gain = (combine_spans_utils.get_frequency_from_labels_lst
+    marginal_gain = (DAG_utils.get_frequency_from_labels_lst
                      (global_index_to_similar_longest_np, label_lst) ** 2) / (dist + 1)
     return marginal_gain
 
@@ -115,13 +115,13 @@ def compute_value_for_each_node(x, dist_matrix, dict_object_to_desc, dict_node_t
             if u not in visited:
                 x_u = hash(str(hash(x))) - hash(str(hash(u)))
                 dist_matrix[x_u] = dist_matrix[x_v] + 1
-                x_u_marginal_gain = get_value_in_score_format(dist_matrix[x_u], global_index_to_similar_longest_np, u, x)
+                x_u_marginal_gain = get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, u, x)
                 rep_matrix[x_u] = x_u_marginal_gain
                 total_gain += x_u_marginal_gain
                 counter += 1
                 Q.append(u)
                 visited.append(u)
-    total_gain += get_value_by_cosineSimilarity_format(0, global_index_to_similar_longest_np, x, x)
+    total_gain += get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, x, x)
     rep_matrix[hash(x)] = total_gain
     dict_node_to_rep[list(x.np_val)[0]] = rep_matrix
     return total_gain
@@ -171,11 +171,11 @@ def set_cover(children, visited_labels, np_object_parent, global_index_to_simila
     while True:
         # np_object = max(children, key=lambda np_object: len(
         #     np_object_parent.label_lst.intersection(np_object.label_lst - covered)), default=None)
-        np_object = max(children, key=lambda np_object: combine_spans_utils.get_frequency_from_labels_lst(
+        np_object = max(children, key=lambda np_object: DAG_utils.get_frequency_from_labels_lst(
             global_index_to_similar_longest_np, np_object.label_lst - covered), default=None)
         if not np_object:
             break
-        if combine_spans_utils.get_frequency_from_labels_lst(
+        if DAG_utils.get_frequency_from_labels_lst(
                 global_index_to_similar_longest_np, np_object.label_lst - covered) > 1:
             counted_labels.update(np_object_parent.label_lst.intersection(np_object.label_lst - visited_labels))
             selected_np_objects.append(np_object)
@@ -203,11 +203,12 @@ def sort_DAG_by_frequency(topic_object_lst, visited=[]):
         sort_DAG_by_frequency(topic_object.children, visited)
 
 
-def get_k_navigable_DAGS_from_DAG(k, topic_object_lst, global_dict_label_to_object, global_index_to_similar_longest_np):
+def DAG_contraction_by_set_cover_algorithm(topic_object_lst, global_dict_label_to_object,
+                                           global_index_to_similar_longest_np):
     topic_object_lst = sorted(topic_object_lst, key=lambda item: item.frequency, reverse=True)
     visited_nodes = set()
     for topic_object in topic_object_lst:
-        build_tree_from_DAG(topic_object, global_dict_label_to_object, k, visited_nodes,
+        build_tree_from_DAG(topic_object, global_dict_label_to_object, visited_nodes,
                             global_index_to_similar_longest_np, set())
     sort_DAG_by_frequency(topic_object_lst)
 
@@ -220,11 +221,11 @@ def get_labels_from_visited_children(children, visited_nodes):
     return visited_labels
 
 
-def build_tree_from_DAG(np_object, global_dict_label_to_object, k, visited_nodes,
+def build_tree_from_DAG(np_object, global_dict_label_to_object, visited_nodes,
                         global_index_to_similar_longest_np, visited_labels):
     if not np_object.children:
         return
-    labels_covered_by_children = combine_spans_utils.get_labels_of_children(np_object.children)
+    labels_covered_by_children = DAG_utils.get_labels_of_children(np_object.children)
     labels_covered_by_parent = np_object.label_lst - labels_covered_by_children
     visited_labels.update(labels_covered_by_parent)
     visited_labels.update(get_labels_from_visited_children(np_object.children, visited_nodes))
@@ -239,7 +240,7 @@ def build_tree_from_DAG(np_object, global_dict_label_to_object, k, visited_nodes
     if selected_np_objects:
         for np_object_child in selected_np_objects:
             visited_nodes.add(np_object_child)
-            build_tree_from_DAG(np_object_child, global_dict_label_to_object, k, visited_nodes,
+            build_tree_from_DAG(np_object_child, global_dict_label_to_object, visited_nodes,
                                 global_index_to_similar_longest_np, visited_labels)
 
 
@@ -256,8 +257,7 @@ def is_ancestor_in_S(v, S, visited):
     return False
 
 
-
-def greedy_algorithm(k, topic_lst, global_index_to_similar_longest_np):
+def extract_top_k_concept_nodes_greedy_algorithm(k, topic_lst, global_index_to_similar_longest_np):
     dist_matrix = {}
     dict_object_to_desc = {}
     dict_node_to_rep = {}
@@ -280,14 +280,6 @@ def greedy_algorithm(k, topic_lst, global_index_to_similar_longest_np):
         is_ancestor_already_in_S = is_ancestor_in_S(x, S, set())
         if is_ancestor_already_in_S:
             continue
-        # is_fully_contained = False
-        # for np_object in S:
-        #     if len(np_object.label_lst.intersection(x.label_lst)) == len(np_object.label_lst) or \
-        #             len(x.label_lst.intersection(np_object.label_lst)) == len(x.label_lst):
-        #         is_fully_contained = True
-        #         break
-        # if is_fully_contained:
-        #     continue
         marginal_val_x, S_rep_new = calculate_marginal_gain(x, dist_matrix, S_rep, k,
                                                             dict_object_to_desc, global_index_to_similar_longest_np)
         if x.marginal_val > marginal_val_x + 0.1:
@@ -298,7 +290,7 @@ def greedy_algorithm(k, topic_lst, global_index_to_similar_longest_np):
         for label in x.label_lst:
             if label not in already_counted_labels:
                 uncounted_labels.append(label)
-        # uncounted_labels_frequency = combine_spans_utils.get_frequency_from_labels_lst(
+        # uncounted_labels_frequency = DAG_utils.get_frequency_from_labels_lst(
         #     global_index_to_similar_longest_np, uncounted_labels)
         # if uncounted_labels_frequency < 5:
         #     continue

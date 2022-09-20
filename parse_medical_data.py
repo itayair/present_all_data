@@ -1,13 +1,8 @@
 import spacy
 # import utils as ut
 # import valid_deps
-import valid_expansion
-import valid_expansion_utils
+from expansions import valid_expansion_utils, valid_expansion
 
-low_val_dep = ['neg', 'nmod:poss', 'case', 'mark', 'auxpass', 'aux', 'nummod', 'quantmod', 'cop']
-med_val_dep = ['nsubjpass', 'advmod', 'npadvmod', 'conj', 'poss', 'nmod:poss', 'xcomp', 'nmod:npmod', 'dobj', 'nmod',
-               'amod', 'nsubj', 'acl', 'relcl', 'acl:relcl', 'ccomp', 'advcl']
-max_val_dep = ['compound', 'mwe', 'name']
 nlp = spacy.load("en_ud_model_sm")
 
 
@@ -52,104 +47,11 @@ def get_sentence_ans_span_from_format(line):
     return sentence, span, sent_as_doc, span_as_doc
 
 
-def get_score(np, head_word):
-    val = 0
-    for item in np:
-        # for word in item[0]:
-        #     if word in already_counted:
-        #         continue
-        #     new_sub_np.append(word)
-        if item == head_word:
-            val += 1
-            continue
-        val_to_add = 0
-        if item.text == '-':
-            continue
-        if item.dep_ in low_val_dep:
-            val_to_add = 0
-        if item.dep_ in med_val_dep or item.dep_ in max_val_dep:
-            val_to_add = 1
-        val += val_to_add
-    return val
-
-
-def check_validity_span(np):
-    hyphen_lst = []
-    idx_lst = []
-    for token in np:
-        if token.text == '-':
-            hyphen_lst.append(token)
-            continue
-        idx_lst.append(token.i)
-    if hyphen_lst:
-        for hyphen in hyphen_lst:
-            if hyphen.i + 1 in idx_lst and hyphen.i - 1 in idx_lst:
-                continue
-            else:
-                return False
-        return True
-    return True
-
-
-def get_all_expansions_of_span_from_lst(span_lst):
-    # examples_to_visualize = []
-    counter = 0
-    sub_np_final_lst_collection = []
-    counter_duplication = 0
-    all_span_with_more_than_hundred = []
-    all_valid_spans_of_all_expansions = set()
-    for head_word, sentence_dep_graph, sentence in span_lst:
-        counter += 1
-        noun_phrase, head_word_in_np_index, boundary_np_to_the_left = valid_expansion_utils.get_np_boundary(
-            head_word.i,
-            sentence_dep_graph)
-        if noun_phrase is None:
-            continue
-        if len(noun_phrase) > 15:
-            continue
-        # examples_to_visualize.append(noun_phrase)
-        # all_valid_sub_np = valid_deps.get_all_valid_sub_np(noun_phrase[head_word_in_np_index])
-        all_valid_sub_np = valid_expansion.get_all_valid_sub_np(noun_phrase[head_word_in_np_index],
-                                                                boundary_np_to_the_left)
-        sub_np_final_lst = valid_expansion_utils.from_lst_to_sequence(all_valid_sub_np)
-        sub_np_final_spans = []
-        valid_span_lst = []
-        for np in sub_np_final_lst:
-            # length_from_algorithm = len(sub_np)
-            np.sort(key=lambda x: x.i)
-            is_valid_np = check_validity_span(np)
-            if not is_valid_np:
-                continue
-            # length_after_remove_duplication = len(new_sub_np)
-            # if length_after_remove_duplication != length_from_algorithm:
-            #     counter_duplication += 1
-            # span = valid_expansion_utils.get_tokens_as_span(new_sub_np)
-            # if span not in valid_span_lst:
-            #     all_valid_spans_of_all_expansions.add(span)
-            #     valid_span_lst.append(span)
-            val = get_score(np, head_word)
-            # span = valid_expansion_utils.get_tokens_as_span(new_sub_np)
-            sub_np_final_spans.append((np, val))
-        if len(valid_span_lst) > 100:
-            all_span_with_more_than_hundred.append(noun_phrase)
-        sub_np_final_spans.sort(key=lambda x: len(x[0]), reverse=True)
-        if not sub_np_final_spans:
-            continue
-        sub_np_final_lst_collection.append((sub_np_final_spans[0][0], head_word, sub_np_final_spans, sentence))
-    # print(max_valid_expansions)
-    file_name = "text_files\\output_all_valid_expansions_result.txt"
-    with open(file_name, 'w', encoding='utf-8') as f:
-        for span in all_valid_spans_of_all_expansions:
-            f.write(span + '\n')
-    print(counter_duplication)
-    return sub_np_final_lst_collection
-
-
 def get_examples_from_special_format():
     examples = []
     # file_name = 'covid-treatments.txt'
-    # file_name = 'text_files\\sciatica_causes_full.txt'
-    file_name = 'text_files\\chest_pain_causes.txt'
+    file_name = 'text_files\\sciatica_causes_full.txt'
+    # file_name = 'text_files\\chest_pain_causes.txt'
     # output_file_name = 'output_sciatica_causes_full.txt'
     with open(file_name, 'r', encoding='utf-8') as f:
         lines = f.readlines()
@@ -164,7 +66,7 @@ def get_examples_from_special_format():
                 continue
             examples.append((head_of_span, sent_as_doc, sentence))
             # examples.append((sentence, span, sent_as_doc, span_as_doc, head_of_span))
-    examples = get_all_expansions_of_span_from_lst(examples)
+    examples = valid_expansion.get_all_expansions_of_span_from_lst(examples)
     # with open(output_file_name, 'w', encoding='utf-8') as f:
     #     for example in examples:
     #         f.write(example[1] + '\n')

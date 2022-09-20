@@ -1,5 +1,5 @@
 import json
-import utils as ut
+from expansions_legacy import utils as ut
 
 attr_of_node = ['det', 'neg', 'auxpass', 'aux']
 

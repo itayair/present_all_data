@@ -19,23 +19,6 @@ from nltk.stem import PorterStemmer
 # from transformers import AutoTokenizer, AutoModel
 
 
-# def is_similar_meaning_between_span(span_1, span_2, dict_word_to_lemma, dict_lemma_to_synonyms):
-#     span_1_lemma_lst = from_words_to_lemma_lst(span_1, dict_word_to_lemma)
-#     span_2_lemma_lst = from_words_to_lemma_lst(span_2, dict_word_to_lemma)
-#     for lemma in span_1_lemma_lst:
-#         is_exist = False
-#         if lemma in span_2_lemma_lst:
-#             is_exist = True
-#         else:
-#             for synonym_lemma in dict_lemma_to_synonyms.get(lemma, []):
-#                 if synonym_lemma in span_2_lemma_lst:
-#                     is_exist = True
-#                     break
-#         if not is_exist:
-#             return False
-#     return True
-
-
 def word_contained_in_list_by_edit_distance(word, lst_words_ref):
     for word_ref in lst_words_ref:
         val = nltk.edit_distance(word, word_ref)
@@ -104,8 +87,6 @@ def cluster_phrases_by_similarity_rate(dict_phrase_to_embeds, phrase_list, cos_s
         for phrase, embedding in dict_phrase_to_embeds.items():
             if phrase in already_matched:
                 continue
-            # print("The cosine similarity between " + phrase_list[0] + " and " + phrase + "  is " + str(
-            #     {cos_sim(torch.tensor(phrase_embs[0]), torch.tensor(embedding))}))
             cos_sim_examples = cos_sim(torch.tensor(dict_phrase_to_embeds[span]), torch.tensor(embedding))
             if cos_sim_examples > cos_sim_rate:
                 dict_clustered_spans[span].append(phrase)
@@ -134,23 +115,12 @@ def find_similarity_in_same_length_group(lst_spans_tuple, dict_word_to_lemma, di
     return dict_span_to_similar_spans
 
 
-# def is_span_contained_in_other_span(span_source, span_target):
-#     if len(span_source) >= span_target:
-#         return False
-#     for token in span_source:
-#         if token in span_target:
-#             span_target.remove(token)
-#             continue
-#
-#     if span_target:
-#         return False
-#     return True
-
 def combine_not_clustered_spans_in_clustered_spans(not_clustered_spans,
                                                    clustered_spans,
                                                    dict_word_to_lemma,
                                                    dict_lemma_to_synonyms,
-                                                   common_np_to_group_members_indices, common_span_lst, dict_span_to_lst):
+                                                   common_np_to_group_members_indices, common_span_lst,
+                                                   dict_span_to_lst):
     for label, lst_spans in not_clustered_spans.items():
         for common_span in common_span_lst:
             synonym_span_lst = clustered_spans[common_span]
@@ -158,10 +128,10 @@ def combine_not_clustered_spans_in_clustered_spans(not_clustered_spans,
                 is_contained = False
                 for span_tuple in lst_spans:
                     if len(dict_span_to_lst[span]) < len(span_tuple[1]):
-                        if is_similar_meaning_between_span(dict_span_to_lst[span], span_tuple[1], dict_word_to_lemma, dict_lemma_to_synonyms):
+                        if is_similar_meaning_between_span(dict_span_to_lst[span], span_tuple[1], dict_word_to_lemma,
+                                                           dict_lemma_to_synonyms):
                             is_contained = True
                             break
                 if is_contained:
                     common_np_to_group_members_indices[common_span].add(label)
                     break
-

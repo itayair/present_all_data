@@ -1,5 +1,5 @@
 import itertools
-import sentence_representation as sent_rep
+from streamlit_application import sentence_representation as sent_rep
 
 noun_tags_lst = ['NN', 'NNS', 'WP', 'PRP', 'NNP', 'NNPS']
 pro_noun_tags_lst = ['WP', 'PRP', 'DET', 'NN', 'NNS']
