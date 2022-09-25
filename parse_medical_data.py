@@ -50,8 +50,8 @@ def get_sentence_ans_span_from_format(line):
 def get_examples_from_special_format():
     examples = []
     # file_name = 'covid-treatments.txt'
-    file_name = 'text_files\\sciatica_causes_full.txt'
-    # file_name = 'text_files\\chest_pain_causes.txt'
+    # file_name = 'text_files\\sciatica_causes_full.txt'
+    file_name = 'text_files\\chest_pain_causes.txt'
     # output_file_name = 'output_sciatica_causes_full.txt'
     with open(file_name, 'r', encoding='utf-8') as f:
         lines = f.readlines()

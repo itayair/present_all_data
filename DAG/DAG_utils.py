@@ -156,6 +156,9 @@ def change_DAG_direction(global_np_object_lst, visited=[]):
 def add_descendants_of_node_to_graph(node, global_index_to_similar_longest_np):
     span_to_present = ""
     first_val = True
+    node.np_val = list(node.np_val)
+    # node.np_val = sorted(node.np_val, key=lambda np_val: combine_spans_utils.dict_of_span_to_counter[np_val], reverse=True)
+    node.np_val.sort(key=lambda np_val: combine_spans_utils.dict_span_to_counter.get(np_val, 0), reverse=True)
     for np_val in node.np_val:
         if not first_val:
             span_to_present += " | "
@@ -164,9 +167,10 @@ def add_descendants_of_node_to_graph(node, global_index_to_similar_longest_np):
     label_lst = get_labels_of_children(node.children)
     label_lst = node.label_lst - label_lst
     NP_occurrences = get_frequency_from_labels_lst(global_index_to_similar_longest_np,
-                                                                       label_lst)
-    span_to_present += " NP " + str(NP_occurrences) + " covered by NP " + str(get_frequency_from_labels_lst(global_index_to_similar_longest_np,
-                                                          node.label_lst))
+                                                   label_lst)
+    span_to_present += " NP " + str(NP_occurrences) + " covered by NP " + str(
+        get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+                                      node.label_lst))
     np_val_dict = {span_to_present: {}}
     node.children = sorted(node.children, key=lambda child: get_frequency_from_labels_lst(
         global_index_to_similar_longest_np,
@@ -250,10 +254,9 @@ def update_nodes_frequency(topic_object_lst, global_index_to_similar_longest_np,
         weighted_average_vector /= len(node.np_val)
         node.weighted_average_vector = weighted_average_vector
         node.frequency = get_frequency_from_labels_lst(global_index_to_similar_longest_np,
-                                                                           node.label_lst)
+                                                       node.label_lst)
         visited.append(node)
         update_nodes_frequency(node.children, global_index_to_similar_longest_np, visited)
-
 
 
 def get_labels_of_children(children):

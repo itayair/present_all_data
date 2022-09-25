@@ -29,8 +29,7 @@ def set_cover(dict_noun_lemma_to_example):
     return topic_lst
 
 
-def filter_and_sort_dicts(dict_noun_lemma_to_example, abbreviations_lst, dict_noun_lemma_to_counter, head_lst,
-                          dict_word_to_his_synonym, dict_span_to_topic_entry):
+def filter_and_sort_dicts(dict_noun_lemma_to_example, abbreviations_lst, dict_noun_lemma_to_counter, head_lst):
     dict_noun_lemma_to_example = utils_clustering.get_dict_sorted_and_filtered(dict_noun_lemma_to_example,
                                                                                abbreviations_lst,
                                                                                dict_noun_lemma_to_counter, head_lst)
@@ -67,11 +66,12 @@ def initialize_token_expansions_information(all_valid_nps_lst, token, dict_span_
 
 def convert_examples_to_clustered_data():
     examples = parse_medical_data.get_examples_from_special_format()
-    noun_lst = set()
-    head_lst = set()
-    noun_lemma_lst = set()
-    dict_noun_lemma_to_example = {}
+    dict_noun_lemma_to_noun_words = {}
+    dict_noun_word_to_counter = {}
+    dict_noun_lemma_to_synonyms = {}
     dict_noun_lemma_to_counter = {}
+    dict_noun_lemma_to_example = {}
+    head_lst = set()
     abbreviations_lst = set()
     span_lst = set()
     dict_span_to_counter = {}
@@ -80,11 +80,13 @@ def convert_examples_to_clustered_data():
     dict_span_to_rank = {}
     dict_word_to_lemma = {}
     counter = 0
+    counter_examples = 0
     dict_sentence_to_span_lst = {}
     valid_span_lst = set()
     for biggest_noun_phrase, head_span, all_valid_nps_lst, sentence in examples:
         span = valid_expansion_utils.get_tokens_as_span(biggest_noun_phrase)
         dict_sentence_to_span_lst[sentence] = dict_sentence_to_span_lst.get(sentence, [])
+        counter_examples += 1
         if span in span_lst:
             if span not in dict_sentence_to_span_lst[sentence]:
                 dict_sentence_to_span_lst[sentence].append(span)
@@ -92,7 +94,7 @@ def convert_examples_to_clustered_data():
                     dict_longest_span_to_counter[span] += 1
                     counter += 1
                 for sub_span in all_valid_nps_lst:
-                    dict_span_to_counter[sub_span[1]] = dict_span_to_counter.get(sub_span[1], 0) + 1
+                    dict_span_to_counter[valid_expansion_utils.get_tokens_as_span(sub_span[0])] = dict_span_to_counter.get(valid_expansion_utils.get_tokens_as_span(sub_span[0]), 0) + 1
             continue
         dict_sentence_to_span_lst[sentence].append(span)
         span_lst.add(span)
@@ -107,16 +109,16 @@ def convert_examples_to_clustered_data():
             if word.pos_ in "NOUN":
                 compound_noun = utils_clustering.combine_tied_deps_recursively_and_combine_their_children(word)
                 compound_noun.sort(key=lambda x: x.i)
-                # compound_noun_span = utils.get_tokens_as_span(compound_noun)
-                # compound_noun_span_lemma_lst = []
                 for token in compound_noun:
                     if len(token.text) < 2 or token.dep_ in ['quantmod'] or token.text == '-':
                         continue
                     lemma_word = token.lemma_.lower()
                     if lemma_word in ['sciatica', 'cause', 'causing', 'diagnosing', 'diagnosis', 'pain', 'chest']:
                         continue
-                    # compound_noun_span_lemma_lst.append(lemma_word)
                     if token not in tokens_already_counted:
+                        dict_noun_word_to_counter[token.text.lower()] = dict_noun_word_to_counter.get(token.text.lower(), 0) + 1
+                        dict_noun_lemma_to_noun_words[lemma_word] = dict_noun_lemma_to_noun_words.get(lemma_word, set())
+                        dict_noun_lemma_to_noun_words[lemma_word].add(token.text.lower())
                         tokens_already_counted.add(token)
                         expansions_contain_word = []
                         initialize_token_expansions_information(all_valid_nps_lst, token, dict_span_to_rank,
@@ -124,35 +126,31 @@ def convert_examples_to_clustered_data():
                                                                 dict_noun_lemma_to_example, dict_noun_lemma_to_counter,
                                                                 dict_span_to_topic_entry, lemma_word, span)
                         is_valid_example = True
-                # compound_noun_span_lemma = utils_clustering.get_words_as_span(compound_noun_span_lemma_lst)
-                # noun_lemma_lst.add(compound_noun_span_lemma)
-                # noun_lst.add(compound_noun_span)
         if is_valid_example:
             dict_longest_span_to_counter[span] = 1
             if not valid_span_lst:
                 dict_span_to_counter[span] = dict_span_to_counter.get(span, 0) + 1
                 print("There is longest expansion that isn't in the all_valid_nps_lst")
             for sub_span in all_valid_nps_lst:
-                dict_span_to_counter[sub_span[1]] = dict_span_to_counter.get(sub_span[1], 0) + 1
+                dict_span_to_counter[valid_expansion_utils.get_tokens_as_span(sub_span[0])] = dict_span_to_counter.get(valid_expansion_utils.get_tokens_as_span(sub_span[0]), 0) + 1
             valid_span_lst.add(span)
             counter += 1
     print(counter)
-    dict_word_to_his_synonym = {}
     # dict_noun_lemma_to_counter, dict_noun_lemma_to_example = utils_clustering.synonyms_consolidation(
     #     dict_noun_lemma_to_example,
-    #     dict_noun_lemma_to_counter, dict_word_to_his_synonym, 'wordnet')
+    #     dict_noun_lemma_to_counter, dict_noun_lemma_to_synonyms, 'wordnet')
     dict_noun_lemma_to_counter, dict_noun_lemma_to_example = utils_clustering.synonyms_consolidation(
         dict_noun_lemma_to_example,
-        dict_noun_lemma_to_counter, dict_word_to_his_synonym, 'umls')
+        dict_noun_lemma_to_counter, dict_noun_lemma_to_synonyms, 'umls')
     not_in_head_lst = []
     for key in dict_noun_lemma_to_example:
         if key not in head_lst and len(dict_noun_lemma_to_example[key]) < 2:
             not_in_head_lst.append(key)
     dict_noun_lemma_to_example, dict_noun_lemma_to_counter = filter_and_sort_dicts(dict_noun_lemma_to_example,
                                                                                    abbreviations_lst,
-                                                                                   dict_noun_lemma_to_counter, head_lst,
-                                                                                   dict_word_to_his_synonym,
-                                                                                   dict_span_to_topic_entry)
+                                                                                   dict_noun_lemma_to_counter, head_lst)
     dict_lemma_to_synonyms = utils_clustering.create_dicts_for_words_similarity(dict_word_to_lemma)
+    dict_lemma_to_synonyms.update(dict_noun_lemma_to_synonyms)
     return dict_noun_lemma_to_example, dict_span_to_counter, dict_word_to_lemma, dict_lemma_to_synonyms, \
-           dict_word_to_his_synonym, dict_longest_span_to_counter
+           dict_longest_span_to_counter, dict_noun_lemma_to_synonyms, dict_noun_lemma_to_noun_words, \
+           dict_noun_lemma_to_counter, dict_noun_word_to_counter

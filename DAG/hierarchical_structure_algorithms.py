@@ -65,8 +65,8 @@ def get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, cur
     label_lst = DAG_utils.get_labels_of_children(current_node.children)
     label_lst_minus_children_labels = current_node.label_lst - label_lst
     cos_similarity_val = cos(current_node.weighted_average_vector, main_node.weighted_average_vector)
-    marginal_gain = DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
-                                                                      label_lst_minus_children_labels) * (
+    marginal_gain = (DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+                                                                      label_lst_minus_children_labels)**1.5) * (
                                 cos_similarity_val ** 2)
     return marginal_gain
 

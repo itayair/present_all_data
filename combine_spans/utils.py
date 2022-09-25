@@ -5,7 +5,7 @@ import nltk
 
 
 def load_data_dicts():
-    a_file = open("load_data\\data.pkl", "rb")
+    a_file = open("load_data\\noun_lemma_to_example.pkl", "rb")
     topics_dict = pickle.load(a_file)
     topics_dict = {k: v for k, v in
                    sorted(topics_dict.items(), key=lambda item: len(item[1]),
@@ -13,17 +13,32 @@ def load_data_dicts():
     b_file = open("load_data\\span_counter.pkl", "rb")
     dict_span_to_counter = pickle.load(b_file)
     c_file = open("load_data\\word_to_lemma.pkl", "rb")
-    dict_noun_head_to_lemma = pickle.load(c_file)
-    d_file = open("load_data\\word_to_synonyms.pkl", "rb")
-    dict_noun_head_to_synonyms = pickle.load(d_file)
-    e_file = open("load_data\\topic_to_his_synonym.pkl", "rb")
-    dict_topic_to_synonym = pickle.load(e_file)
-    f_file = open("load_data\\longest_span_to_counter.pkl", "rb")
-    dict_longest_span_to_counter = pickle.load(f_file)
-    return topics_dict, dict_span_to_counter, dict_noun_head_to_lemma, dict_noun_head_to_synonyms, dict_topic_to_synonym, dict_longest_span_to_counter
+    dict_word_to_lemma = pickle.load(c_file)
+    d_file = open("load_data\\lemma_to_synonyms.pkl", "rb")
+    dict_lemma_to_synonyms = pickle.load(d_file)
+    e_file = open("load_data\\longest_span_to_counter.pkl", "rb")
+    dict_longest_span_to_counter = pickle.load(e_file)
+    f_file = open("load_data\\noun_lemma_to_synonyms.pkl", "rb")
+    dict_noun_lemma_to_synonyms = pickle.load(f_file)
+    g_file = open("load_data\\noun_lemma_to_noun_words.pkl", "rb")
+    dict_noun_lemma_to_noun_words = pickle.load(g_file)
+    h_file = open("load_data\\noun_lemma_to_counter.pkl", "rb")
+    dict_noun_lemma_to_counter = pickle.load(h_file)
+    i_file = open("load_data\\noun_word_to_counter.pkl", "rb")
+    dict_noun_word_to_counter = pickle.load(i_file)
+
+    return topics_dict, dict_span_to_counter, dict_word_to_lemma, dict_lemma_to_synonyms, \
+           dict_longest_span_to_counter, dict_noun_lemma_to_synonyms, dict_noun_lemma_to_noun_words, \
+           dict_noun_lemma_to_counter, dict_noun_word_to_counter
 
 
-dict_of_topics, dict_of_span_to_counter, dict_word_to_lemma, dict_lemma_to_synonyms, dict_topic_to_his_synonym, dict_longest_span_to_counter = load_data_dicts()
+dict_of_topics, dict_span_to_counter, dict_word_to_lemma, dict_lemma_to_synonyms, \
+dict_longest_span_to_counter, dict_noun_lemma_to_synonyms, dict_noun_lemma_to_noun_words, dict_noun_lemma_to_counter, \
+dict_noun_word_to_counter = load_data_dicts()
+dict_span_to_counter.update(dict_noun_word_to_counter)
+dict_span_to_counter.update(dict_noun_lemma_to_counter)
+
+
 # dict_of_span_to_counter = {k: v for k, v in
 #                            sorted(dict_of_span_to_counter.items(), key=lambda item: item[1],
 #                                   reverse=True)}
@@ -195,7 +210,7 @@ def get_most_frequent_span(lst_of_spans):
     most_frequent_span_value = -1
     most_frequent_span = None
     for span in lst_of_spans:
-        val = dict_of_span_to_counter.get(span, 0)
+        val = dict_span_to_counter.get(span, 0)
         if val > most_frequent_span_value:
             most_frequent_span_value = val
             most_frequent_span = span

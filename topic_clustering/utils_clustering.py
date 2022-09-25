@@ -23,8 +23,9 @@ def create_dicts_for_words_similarity(dict_word_to_lemma):
         lemma_lst.add(lemma)
     for lemma in lemma_lst:
         synonyms = get_synonyms_by_word(lemma)
+        synonyms = set(synonyms)
         synonyms = [synonym for synonym in synonyms if synonym in lemma_lst]
-        dict_lemma_to_synonyms[lemma] = synonyms
+        dict_lemma_to_synonyms[lemma] = set(synonyms)
     dict_lemma_to_synonyms = {k: v for k, v in
                               sorted(dict_lemma_to_synonyms.items(), key=lambda item: len(item[1]),
                                      reverse=True)}
@@ -150,7 +151,7 @@ def get_dict_sorted_and_filtered(dict_noun_lemma_to_value, abbreviations_lst, di
     return dict_noun_lemma_to_value
 
 
-def synonyms_consolidation(dict_noun_lemma_to_span, dict_noun_lemma_to_counter, dict_word_to_his_synonym,
+def synonyms_consolidation(dict_noun_lemma_to_span, dict_noun_lemma_to_counter, dict_noun_lemma_to_synonyms,
                            synonyms_type='wordnet'):
     dict_noun_lemma_to_span_new = {}
     dict_noun_lemma_to_counter_new = {}
@@ -165,8 +166,8 @@ def synonyms_consolidation(dict_noun_lemma_to_span, dict_noun_lemma_to_counter, 
             continue
         if synonyms_type == 'wordnet':
             for syn in wordnet.synsets(word):
-                for l in syn.lemmas():
-                    synonyms.append(l.name())
+                for lemma in syn.lemmas():
+                    synonyms.append(lemma.name())
         else:
             aliases = umls_loader.umls_loader.get_term_aliases(word)
             for syn in aliases:
@@ -174,8 +175,8 @@ def synonyms_consolidation(dict_noun_lemma_to_span, dict_noun_lemma_to_counter, 
         dict_noun_lemma_to_span_new[word] = []
         dict_noun_lemma_to_span_new[word].extend(dict_noun_lemma_to_span[word])
         dict_noun_lemma_to_counter_new[word] = dict_noun_lemma_to_counter[word]
-        dict_word_to_his_synonym[word] = dict_word_to_his_synonym.get(word, set())
-        dict_word_to_his_synonym[word].add(word)
+        dict_noun_lemma_to_synonyms[word] = dict_noun_lemma_to_synonyms.get(word, set())
+        dict_noun_lemma_to_synonyms[word].add(word)
         synonyms = set(synonyms)
         if synonyms:
             for synonym in synonyms:
@@ -191,7 +192,7 @@ def synonyms_consolidation(dict_noun_lemma_to_span, dict_noun_lemma_to_counter, 
                     # dict_noun_lemma_to_span_new[word].extend(dict_noun_lemma_to_span[synonym])
                     dict_noun_lemma_to_counter_new[word] += dict_noun_lemma_to_counter[synonym]
                     # dict_word_to_his_synonym[synonym] = word
-                    dict_word_to_his_synonym[word].add(synonym)
+                    dict_noun_lemma_to_synonyms[word].add(synonym)
                     already_calculated.append(synonym)
         already_calculated.append(word)
     dict_noun_lemma_to_counter_new = {k: v for k, v in

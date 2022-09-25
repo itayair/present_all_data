@@ -109,7 +109,7 @@ def main():
         topic_synonym_lst = set()
         dict_score_to_collection_of_sub_groups = {}
         dict_span_to_lst = {}
-        for synonym in combine_spans_utils.dict_topic_to_his_synonym[topic]:
+        for synonym in combine_spans_utils.dict_noun_lemma_to_synonyms[topic]:
             topic_synonym_lst.add(synonym)
             dict_span_to_rank[synonym] = 1
         dict_span_to_all_valid_expansions, longest_np_lst, longest_np_total_lst, all_nps_example_lst = \
