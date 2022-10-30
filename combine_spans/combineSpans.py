@@ -122,7 +122,7 @@ def union_common_np_by_DL_model(common_np_to_group_members_indices, dict_span_to
                                                                                             dict_span_to_similar_spans[
                                                                                                 span])
         weighted_average_vector_lst.append(weighted_average_vector)
-    clustering = AgglomerativeClustering(distance_threshold=0.08, n_clusters=None, linkage="average",
+    clustering = AgglomerativeClustering(distance_threshold=0.08, n_clusters=None, linkage="single",
                                          affinity="cosine", compute_full_tree=True).fit(
         torch.stack(weighted_average_vector_lst, dim=0))
     dict_cluster_to_common_spans_lst = {}

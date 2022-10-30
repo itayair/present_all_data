@@ -1,6 +1,6 @@
 from nltk.corpus import wordnet
 
-import umls_loader
+# import umls_loader
 
 tied_deps = ['compound', 'mwe', 'name', 'nummod']
 
@@ -168,10 +168,10 @@ def synonyms_consolidation(dict_noun_lemma_to_span, dict_noun_lemma_to_counter, 
             for syn in wordnet.synsets(word):
                 for lemma in syn.lemmas():
                     synonyms.append(lemma.name())
-        else:
-            aliases = umls_loader.umls_loader.get_term_aliases(word)
-            for syn in aliases:
-                synonyms.append(syn)
+        # else:
+        #     aliases = umls_loader.umls_loader.get_term_aliases(word)
+        #     for syn in aliases:
+        #         synonyms.append(syn)
         dict_noun_lemma_to_span_new[word] = []
         dict_noun_lemma_to_span_new[word].extend(dict_noun_lemma_to_span[word])
         dict_noun_lemma_to_counter_new[word] = dict_noun_lemma_to_counter[word]

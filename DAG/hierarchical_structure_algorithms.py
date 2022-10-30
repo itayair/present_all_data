@@ -62,12 +62,16 @@ def calculate_marginal_gain(x, dist_matrix, S_rep, k, dict_object_to_desc,
 
 
 def get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, current_node, main_node):
-    label_lst = DAG_utils.get_labels_of_children(current_node.children)
-    label_lst_minus_children_labels = current_node.label_lst - label_lst
+    if current_node.score < 2:
+        label_lst = DAG_utils.get_labels_of_children(current_node.children)
+        label_lst_minus_children_labels = current_node.label_lst - label_lst
+        marginal_gain = DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+                                                label_lst_minus_children_labels)
+        return marginal_gain
     cos_similarity_val = cos(current_node.weighted_average_vector, main_node.weighted_average_vector)
     marginal_gain = (DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
-                                                                      label_lst_minus_children_labels)**1.5) * (
-                                cos_similarity_val ** 2)
+                                                             current_node.label_lst)) * (
+                            cos_similarity_val ** 2)
     return marginal_gain
 
 
@@ -77,11 +81,11 @@ def get_value_in_score_format(dist, global_index_to_similar_longest_np, node):
     # labels_children = label_lst - label_lst_minus_children_labels
     leaves_labels = DAG_utils.get_labels_of_leaves(node.children)
     marginal_gain = DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
-                                                                      label_lst_minus_children_labels) ** 2
+                                                            label_lst_minus_children_labels) ** 2
     marginal_gain += DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
-                                                                       leaves_labels) * (node.score - 1)
+                                                             leaves_labels) * (node.score - 1)
     marginal_gain += DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
-                                                                       label_lst - leaves_labels) * (node.score - 1)
+                                                             label_lst - leaves_labels) * (node.score - 1)
     marginal_gain = marginal_gain / (dist + 1)
     return marginal_gain
 
