@@ -61,6 +61,33 @@ def add_NP_to_DAG_bottom_to_up(np_object_to_add, np_object, visited, similar_np_
     return False
 
 
+def create_np_object_from_np_collection(np_collection, dict_span_to_lemmas_lst, labels, span_to_object):
+    tuple_np_lst = []
+    for np in np_collection:
+        tuple_np_lst.append((np, dict_span_to_lemmas_lst[np]))
+    np_object = NounPhrase.NP(tuple_np_lst, labels)
+    for np in np_collection:
+        span_to_object[np] = np_object
+    return np_object
+
+
+def update_np_object(collection_np_object, np_collection, span_to_object, dict_span_to_lemmas_lst, labels):
+    nps_to_update = set()
+    for np in np_collection:
+        np_object = span_to_object.get(np, None)
+        if np_object == collection_np_object:
+            continue
+        if np_object:
+            raise Exception("2 different objects to synonyms")
+        nps_to_update.add(np)
+    if nps_to_update:
+        for np in nps_to_update:
+            span_to_object[np] = collection_np_object
+            collection_np_object.label_lst.update(labels)
+            collection_np_object.np_val.add(np)
+            collection_np_object.np.append(dict_span_to_lemmas_lst[np])
+
+
 def create_DAG_from_top_to_bottom(dict_score_to_collection_of_sub_groups, topic_synonym_lst,
                                   dict_span_to_lemmas_lst,
                                   all_object_np_lst, span_to_object,
@@ -68,6 +95,8 @@ def create_DAG_from_top_to_bottom(dict_score_to_collection_of_sub_groups, topic_
                                   global_dict_label_to_object, topic_object_lst):
     topic_synonyms_tuples = [(synonym, [synonym]) for synonym in topic_synonym_lst]
     topic_object = NounPhrase.NP(topic_synonyms_tuples, set(dict_label_to_spans_group.keys()))
+    for np in topic_synonym_lst:
+        span_to_object[np] = topic_object
     topic_object_lst.append(topic_object)
     for score, np_to_labels_collection in dict_score_to_collection_of_sub_groups.items():
         for np_key, labels in np_to_labels_collection:
@@ -75,56 +104,56 @@ def create_DAG_from_top_to_bottom(dict_score_to_collection_of_sub_groups, topic_
             for np in np_collection:
                 np_object = span_to_object.get(np, None)
                 if np_object:
+                    update_np_object(np_object, np_collection, span_to_object, dict_span_to_lemmas_lst, labels)
                     break
             if np_object:
                 continue
-            tuple_np_lst = []
-            for np in np_collection:
-                span_to_object[np] = np_object
-                tuple_np_lst.append((np, dict_span_to_lemmas_lst[np]))
-            np_object = NounPhrase.NP(tuple_np_lst, labels)
+            np_object = create_np_object_from_np_collection(np_collection, dict_span_to_lemmas_lst, labels,
+                                                            span_to_object)
             similar_np_object = [None]
             add_NP_to_DAG_up_to_bottom(np_object, topic_object, similar_np_object)
             if not similar_np_object[0]:
                 all_object_np_lst.append(np_object)
-    for label, nps in dict_label_to_spans_group.items():
-        for np in nps:
-            np_object = span_to_object.get(np[0], None)
-            if np_object:
-                break
-        if np_object:
-            global_dict_label_to_object[label] = np_object
-            continue
-        has_single_token = False
-        np_object = NounPhrase.NP(nps, [label])
-        for np in nps:
-            if len(np[1]) == 1:
-                has_single_token = True
-                break
-        if has_single_token:
-            topic_object.combine_nodes(np_object)
-            global_dict_label_to_object[label] = topic_object
-            for np in nps:
-                span_to_object[np[0]] = topic_object
-            continue
-        similar_np_object = [None]
-        add_NP_to_DAG_up_to_bottom(np_object, topic_object, similar_np_object)
-        if similar_np_object[0]:
-            np_object = similar_np_object[0]
-        else:
-            all_object_np_lst.append(np_object)
-        global_dict_label_to_object[label] = np_object
-        for np in np_object.np_val:
-            span_to_object[np] = np_object
+    for label, longest_answers_tuple in dict_label_to_spans_group.items():
+        global_dict_label_to_object[label] = span_to_object[longest_answers_tuple[0][0]]
+    # for label, nps in dict_label_to_spans_group.items():
+    #     for np in nps:
+    #         np_object = span_to_object.get(np[0], None)
+    #         if np_object:
+    #             break
+    #     if np_object:
+    #         global_dict_label_to_object[label] = np_object
+    #         continue
+    #     has_single_token = False
+    #     np_object = NounPhrase.NP(nps, [label])
+    #     for np in nps:
+    #         if len(np[1]) == 1:
+    #             has_single_token = True
+    #             break
+    #     if has_single_token:
+    #         topic_object.combine_nodes(np_object)
+    #         global_dict_label_to_object[label] = topic_object
+    #         for np in nps:
+    #             span_to_object[np[0]] = topic_object
+    #         continue
+    #     similar_np_object = [None]
+    #     add_NP_to_DAG_up_to_bottom(np_object, topic_object, similar_np_object)
+    #     if similar_np_object[0]:
+    #         np_object = similar_np_object[0]
+    #     else:
+    #         all_object_np_lst.append(np_object)
+    #     global_dict_label_to_object[label] = np_object
+    #     for np in np_object.np_val:
+    #         span_to_object[np] = np_object
     return topic_object
 
 
-def insert_examples_of_topic_to_DAG(dict_score_to_collection_of_sub_groups, topic_synonym_lst, dict_span_to_lst,
+def insert_examples_of_topic_to_DAG(dict_score_to_collection_of_sub_groups, topic_synonym_lst, dict_span_to_lemmas_lst,
                                     all_object_np_lst, span_to_object, dict_span_to_similar_spans,
                                     dict_label_to_spans_group, global_dict_label_to_object, topic_object_lst,
                                     longest_np_total_lst, longest_np_lst):
     topic_object = create_DAG_from_top_to_bottom(dict_score_to_collection_of_sub_groups, topic_synonym_lst,
-                                                 dict_span_to_lst, all_object_np_lst,
+                                                 dict_span_to_lemmas_lst, all_object_np_lst,
                                                  span_to_object, dict_span_to_similar_spans,
                                                  dict_label_to_spans_group,
                                                  global_dict_label_to_object, topic_object_lst)
@@ -193,9 +222,9 @@ def add_dependency_routh_between_longest_np_to_topic(span_to_object, topic_objec
     for longest_np_span in longest_nps:
         np_object = span_to_object[longest_np_span]
         if np_object in topic_object_lst:
-            np_object.combine_nodes(topic_object)
-            topic_object_lst.remove(topic_object)
-            topic_object = np_object
+            # np_object.combine_nodes(topic_object)
+            # topic_object_lst.remove(topic_object)
+            # topic_object = np_object
             continue
         similar_np_object = [None]
         add_NP_to_DAG_bottom_to_up(topic_object, np_object, set(), similar_np_object)
@@ -274,7 +303,13 @@ def get_labels_of_leaves(children):
     return label_lst
 
 
+counter_error_node = 0
+
+
 def get_leaves_from_DAG(nodes_lst, leaves_lst=set(), visited=set()):  # function for dfs
+    global counter_error_node
+    print(counter_error_node)
+    counter_error_node += 1
     for node in nodes_lst:
         if node not in visited:
             if len(node.children) == 0:

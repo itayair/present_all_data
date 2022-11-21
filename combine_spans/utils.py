@@ -5,26 +5,27 @@ import nltk
 
 
 def load_data_dicts():
-    a_file = open("load_data\\noun_lemma_to_example.pkl", "rb")
+    directory_relative_path = "load_data\\diabetes\\"
+    a_file = open(directory_relative_path + "noun_lemma_to_example.pkl", "rb")
     topics_dict = pickle.load(a_file)
     topics_dict = {k: v for k, v in
                    sorted(topics_dict.items(), key=lambda item: len(item[1]),
                           reverse=True)}
-    b_file = open("load_data\\span_counter.pkl", "rb")
+    b_file = open(directory_relative_path + "span_counter.pkl", "rb")
     dict_span_to_counter = pickle.load(b_file)
-    c_file = open("load_data\\word_to_lemma.pkl", "rb")
+    c_file = open(directory_relative_path + "word_to_lemma.pkl", "rb")
     dict_word_to_lemma = pickle.load(c_file)
-    d_file = open("load_data\\lemma_to_synonyms.pkl", "rb")
+    d_file = open(directory_relative_path + "lemma_to_synonyms.pkl", "rb")
     dict_lemma_to_synonyms = pickle.load(d_file)
-    e_file = open("load_data\\longest_span_to_counter.pkl", "rb")
+    e_file = open(directory_relative_path + "longest_span_to_counter.pkl", "rb")
     dict_longest_span_to_counter = pickle.load(e_file)
-    f_file = open("load_data\\noun_lemma_to_synonyms.pkl", "rb")
+    f_file = open(directory_relative_path + "noun_lemma_to_synonyms.pkl", "rb")
     dict_noun_lemma_to_synonyms = pickle.load(f_file)
-    g_file = open("load_data\\noun_lemma_to_noun_words.pkl", "rb")
+    g_file = open(directory_relative_path + "noun_lemma_to_noun_words.pkl", "rb")
     dict_noun_lemma_to_noun_words = pickle.load(g_file)
-    h_file = open("load_data\\noun_lemma_to_counter.pkl", "rb")
+    h_file = open(directory_relative_path + "noun_lemma_to_counter.pkl", "rb")
     dict_noun_lemma_to_counter = pickle.load(h_file)
-    i_file = open("load_data\\noun_word_to_counter.pkl", "rb")
+    i_file = open(directory_relative_path + "noun_word_to_counter.pkl", "rb")
     dict_noun_word_to_counter = pickle.load(i_file)
 
     return topics_dict, dict_span_to_counter, dict_word_to_lemma, dict_lemma_to_synonyms, \
@@ -191,7 +192,58 @@ def get_non_clustered_group_numbers(label_to_cluster, span_to_group_members, dic
     return dict_label_to_longest_np_without_common_sub_np, common_span_lst
 
 
-def get_dict_spans_group_to_score(span_to_group_members, dict_span_to_rank, dict_span_to_similar_spans):
+def get_most_frequent_span(lst_of_spans):
+    most_frequent_span_value = -1
+    most_frequent_span = None
+    for span in lst_of_spans:
+        val = dict_span_to_counter.get(span, 0)
+        if val > most_frequent_span_value:
+            most_frequent_span_value = val
+            most_frequent_span = span
+    return most_frequent_span
+
+
+def convert_dict_label_to_spans_to_most_frequent_span_to_label(dict_label_to_spans_group):
+    dict_span_to_label = {}
+    for label, tuple_of_spans_lst in dict_label_to_spans_group.items():
+        spans_lst = [tuple_of_span[0] for tuple_of_span in tuple_of_spans_lst]
+        most_frequent_span = get_most_frequent_span(spans_lst)
+        dict_span_to_label[most_frequent_span] = label
+    return dict_span_to_label
+
+
+def update_span_to_group_members_with_longest_answers_dict(span_to_group_members, dict_label_to_spans_group,
+                                                           dict_span_to_similar_spans):
+    dict_longest_answer_to_label_temp = {}
+    for label, tuple_of_spans_lst in dict_label_to_spans_group.items():
+        spans_lst = [tuple_of_span[0] for tuple_of_span in tuple_of_spans_lst]
+        most_frequent_span = get_most_frequent_span(spans_lst)
+        is_common_span = False
+        for span, label_lst in span_to_group_members.items():
+            if label in label_lst:
+                similar_spans_lst = dict_span_to_similar_spans[span]
+                intersection_spans_lst = set(spans_lst).intersection(similar_spans_lst)
+                if intersection_spans_lst:
+                    dict_span_to_similar_spans[span].update(spans_lst)
+                    is_common_span = True
+                    break
+        if not is_common_span:
+            dict_longest_answer_to_label_temp[most_frequent_span] = [label]
+            dict_span_to_similar_spans[most_frequent_span] = set(spans_lst)
+
+    span_to_group_members.update(dict_longest_answer_to_label_temp)
+
+
+
+
+
+
+def get_dict_spans_group_to_score(span_to_group_members, dict_span_to_rank, dict_span_to_similar_spans,
+                                  dict_label_to_spans_group):
+    # dict_span_to_label = convert_dict_label_to_spans_to_most_frequent_span_to_label(dict_label_to_spans_group)
+    # update_span_to_group_members_with_longest_answers_dict(span_to_group_members, dict_span_to_label, dict_span_to_similar_spans)
+    update_span_to_group_members_with_longest_answers_dict(span_to_group_members, dict_label_to_spans_group,
+                                                           dict_span_to_similar_spans)
     dict_score_to_collection_of_sub_groups = {}
     for key, group in span_to_group_members.items():
         average_val = get_average_value(dict_span_to_similar_spans[key], dict_span_to_rank)
@@ -204,14 +256,3 @@ def get_dict_spans_group_to_score(span_to_group_members, dict_span_to_rank, dict
     for score, sub_group_lst in dict_score_to_collection_of_sub_groups.items():
         sub_group_lst.sort(key=lambda tup: len(tup[1]), reverse=True)
     return dict_score_to_collection_of_sub_groups
-
-
-def get_most_frequent_span(lst_of_spans):
-    most_frequent_span_value = -1
-    most_frequent_span = None
-    for span in lst_of_spans:
-        val = dict_span_to_counter.get(span, 0)
-        if val > most_frequent_span_value:
-            most_frequent_span_value = val
-            most_frequent_span = span
-    return most_frequent_span

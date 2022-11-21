@@ -2,6 +2,7 @@ from combine_spans import utils as combine_spans_utils
 from combine_spans import combineSpans
 import DAG.hierarchical_structure_algorithms as hierarchical_structure_algorithms
 import DAG.DAG_utils as DAG_utils
+from topic_clustering import clustered_data_objects as clustered_data_objects
 import networkx as nx
 import collections
 import graphviz
@@ -74,62 +75,103 @@ def initialize_spans_data(all_nps_example_lst, dict_span_to_rank):
     for phrase in all_nps_example_lst:
         dict_idx_to_all_valid_expansions[idx] = []
         for span in phrase:
-            dict_span_to_rank[span[0]] = span[1]
+            # dict_span_to_rank[span[0]] = span[1]
             dict_idx_to_all_valid_expansions[idx].append((span[0], span[2]))
         idx += 1
     return dict_idx_to_all_valid_expansions
 
 
-def get_only_relevant_example(example_list, global_longest_np_lst):
+def get_uncounted_examples(example_list, global_longest_np_lst, dict_global_longest_np_to_all_counted_expansions,
+                           longest_NP_to_global_index, global_index_to_similar_longest_np, dict_span_to_lst,
+                           dict_span_to_rank):
     dict_span_to_all_valid_expansions = {}
     longest_np_lst = []
     longest_np_total_lst = []
     all_nps_example_lst = []
+    dict_uncounted_expansions = {}
+    duplicate_longest_answers = set()
     for example in example_list:
         longest_np_total_lst.append(example[0])
-        if example[0] in global_longest_np_lst:
+        if example[0] in duplicate_longest_answers:
             continue
+        duplicate_longest_answers.add(example[0])
+        if example[0] in global_longest_np_lst:
+            uncounted_expansions = []
+            for item in example[1]:
+                if item[0] in dict_global_longest_np_to_all_counted_expansions[example[0]]:
+                    continue
+                dict_span_to_lst[item[0]] = item[2]
+                dict_span_to_rank[item[0]] = item[1]
+                dict_global_longest_np_to_all_counted_expansions[example[0]].add(item[0])
+                uncounted_expansions.append((item[0], item[2]))
+            if uncounted_expansions:
+                dict_uncounted_expansions[longest_NP_to_global_index[example[0]]] = uncounted_expansions
+            continue
+        dict_global_longest_np_to_all_counted_expansions[
+            example[0]] = dict_global_longest_np_to_all_counted_expansions.get(example[0], set())
+        for item in example[1]:
+            dict_span_to_lst[item[0]] = item[2]
+            dict_span_to_rank[item[0]] = item[1]
+            dict_global_longest_np_to_all_counted_expansions[example[0]].add(item[0])
         global_longest_np_lst.add(example[0])
         dict_span_to_all_valid_expansions[example[0]] = [item[0] for item in example[1]]
         longest_np_lst.append(example[0])
         all_nps_example_lst.append(example[1])
-    return dict_span_to_all_valid_expansions, longest_np_lst, longest_np_total_lst, all_nps_example_lst
+    dict_counted_longest_answers = {}
+    if dict_uncounted_expansions:
+        for key in dict_uncounted_expansions.keys():
+            dict_counted_longest_answers[key] = []
+            for longest_answer in global_index_to_similar_longest_np[key]:
+                dict_counted_longest_answers[key].append((longest_answer, dict_span_to_lst[longest_answer]))
+    return dict_span_to_all_valid_expansions, longest_np_lst, longest_np_total_lst, all_nps_example_lst, \
+           dict_uncounted_expansions, dict_counted_longest_answers
 
 
 def main():
     dict_span_to_rank = {}
+    dict_span_to_lst = {}
     global_dict_label_to_object = {}
     span_to_object = {}
     global_index_to_similar_longest_np = {}
     global_longest_np_lst = set()
+    dict_global_longest_np_to_all_counted_expansions = {}
     topic_object_lst = []
     all_object_np_lst = []
     global_longest_np_index = [0]
+    longest_NP_to_global_index = {}
+    print(combine_spans_utils.dict_noun_lemma_to_synonyms)
     for topic, examples_list in combine_spans_utils.dict_of_topics.items():
-        topic_synonym_lst = set()
-        dict_score_to_collection_of_sub_groups = {}
-        dict_span_to_lst = {}
-        for synonym in combine_spans_utils.dict_noun_lemma_to_synonyms[topic]:
-            topic_synonym_lst.add(synonym)
+        # noun_object = clustered_data_objects.noun_cluster_object(topic,
+        #                                                          combine_spans_utils.dict_noun_lemma_to_synonyms[topic],
+        #                                                          examples_list)
+        topic_synonym_lst = set(combine_spans_utils.dict_noun_lemma_to_synonyms[topic])
+        for synonym in topic_synonym_lst:
             dict_span_to_rank[synonym] = 1
-        dict_span_to_all_valid_expansions, longest_np_lst, longest_np_total_lst, all_nps_example_lst = \
-            get_only_relevant_example(examples_list, global_longest_np_lst)
+        dict_span_to_all_valid_expansions, longest_np_lst, longest_np_total_lst, all_nps_example_lst, \
+        dict_uncounted_expansions, dict_counted_longest_answers = get_uncounted_examples(examples_list,
+                                                                                         global_longest_np_lst,
+                                                                                         dict_global_longest_np_to_all_counted_expansions,
+                                                                                         longest_NP_to_global_index,
+                                                                                         global_index_to_similar_longest_np,
+                                                                                         dict_span_to_lst, dict_span_to_rank)
         dict_idx_to_all_valid_expansions = initialize_spans_data(all_nps_example_lst, dict_span_to_rank)
-        if len(longest_np_lst) == 1:
-            global_longest_np_index[0] += 1
-            global_index_to_similar_longest_np[global_longest_np_index[0]] = [longest_np_lst[0]]
-            dict_label_to_spans_group = {global_longest_np_index[0]:
-                                             [(longest_np_lst[0], dict_idx_to_all_valid_expansions[0][0][1])]}
-            dict_span_to_similar_spans = {longest_np_lst[0]: longest_np_lst[0]}
-        else:
-            label_to_cluster, dict_label_to_spans_group = combineSpans.create_clusters_of_longest_nps(
-                longest_np_lst, dict_idx_to_all_valid_expansions,
-                global_longest_np_index,
-                global_index_to_similar_longest_np)
-            dict_score_to_collection_of_sub_groups, dict_span_to_lst, dict_span_to_similar_spans = \
-                combineSpans.union_nps(label_to_cluster, dict_span_to_rank, dict_label_to_spans_group)
+        # if len(longest_np_lst) == 1:
+        #     global_longest_np_index[0] += 1
+        #     longest_NP_to_global_index[longest_np_lst[0]] = global_longest_np_index[0]
+        #     global_index_to_similar_longest_np[global_longest_np_index[0]] = [longest_np_lst[0]]
+        #     dict_label_to_spans_group = {global_longest_np_index[0]:
+        #                                      [(longest_np_lst[0], dict_idx_to_all_valid_expansions[0][0][1])]}
+        #     dict_span_to_similar_spans = {longest_np_lst[0]: longest_np_lst[0]}
+        # else:
+        label_to_cluster, dict_label_to_spans_group = combineSpans.create_clusters_of_longest_nps(
+            longest_np_lst, dict_idx_to_all_valid_expansions,
+            global_longest_np_index,
+            global_index_to_similar_longest_np, longest_NP_to_global_index, dict_uncounted_expansions,
+            dict_counted_longest_answers)
+        dict_score_to_collection_of_sub_groups, dict_span_to_lemma_lst, dict_span_to_similar_spans = \
+            combineSpans.union_nps(label_to_cluster, dict_span_to_rank, dict_label_to_spans_group)
         DAG_utils.insert_examples_of_topic_to_DAG(dict_score_to_collection_of_sub_groups, topic_synonym_lst,
-                                                  dict_span_to_lst,
+                                                  dict_span_to_lemma_lst,
                                                   all_object_np_lst, span_to_object, dict_span_to_similar_spans,
                                                   dict_label_to_spans_group, global_dict_label_to_object,
                                                   topic_object_lst,
@@ -138,12 +180,13 @@ def main():
     hierarchical_structure_algorithms.DAG_contraction_by_set_cover_algorithm(topic_object_lst,
                                                                              global_dict_label_to_object,
                                                                              global_index_to_similar_longest_np)
+
     DAG_utils.check_symmetric_relation_in_DAG(topic_object_lst)
     DAG_utils.remove_redundant_nodes(topic_object_lst)
     DAG_utils.update_score(topic_object_lst, dict_span_to_rank)
     top_k_topics, already_counted_labels, all_labels = \
         hierarchical_structure_algorithms.extract_top_k_concept_nodes_greedy_algorithm(
-            50, topic_object_lst, global_index_to_similar_longest_np)
+            100, topic_object_lst, global_index_to_similar_longest_np)
     covered_labels = DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
                                                              already_counted_labels)
     top_k_topics = DAG_utils.from_DAG_to_JSON(top_k_topics, global_index_to_similar_longest_np)

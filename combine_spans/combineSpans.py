@@ -104,6 +104,9 @@ def create_data_dicts_for_combine_synonyms(clusters, dict_label_to_spans_group):
         collection_spans = [longest_np_tuple[0] for longest_np_tuple in longest_np_tuple_lst]
         for longest_np_tuple in longest_np_tuple_lst:
             dict_longest_span_to_his_synonyms[longest_np_tuple[0]] = collection_spans
+    for idx, span_tuple_lst in dict_label_to_spans_group.items():
+        for span in span_tuple_lst:
+            dict_span_to_lemmas_lst[span[0]] = span[1]
     span_to_group_members = {k: v for k, v in
                              sorted(span_to_group_members.items(), key=lambda item: len(item[1]),
                                     reverse=True)}
@@ -195,7 +198,7 @@ def combine_non_clustered_spans_in_clustered_spans(not_clustered_spans,
 
 
 def union_nps(label_to_cluster, dict_span_to_rank, dict_label_to_spans_group):
-    dict_span_to_lst, common_np_to_group_members_indices, dict_span_to_similar_spans = union_common_np(
+    dict_span_to_lemma_lst, common_np_to_group_members_indices, dict_span_to_similar_spans = union_common_np(
         label_to_cluster, dict_span_to_rank, dict_label_to_spans_group)
     dict_label_to_longest_np_without_common_sub_np, common_span_lst = ut.get_non_clustered_group_numbers(
         label_to_cluster,
@@ -204,15 +207,16 @@ def union_nps(label_to_cluster, dict_span_to_rank, dict_label_to_spans_group):
     combine_non_clustered_spans_in_clustered_spans(dict_label_to_longest_np_without_common_sub_np,
                                                    dict_span_to_similar_spans,
                                                    common_np_to_group_members_indices, common_span_lst,
-                                                   dict_span_to_lst)
+                                                   dict_span_to_lemma_lst)
     dict_score_to_collection_of_sub_groups = ut.get_dict_spans_group_to_score(common_np_to_group_members_indices,
                                                                               dict_span_to_rank,
-                                                                              dict_span_to_similar_spans)
-    return dict_score_to_collection_of_sub_groups, dict_span_to_lst, dict_span_to_similar_spans
+                                                                              dict_span_to_similar_spans,
+                                                                              dict_label_to_spans_group)
+    return dict_score_to_collection_of_sub_groups, dict_span_to_lemma_lst, dict_span_to_similar_spans
 
 
 def group_hierarchical_clustering_results(clustering, dict_idx_to_all_valid_expansions, global_longest_np_index,
-                                          global_index_to_similar_longest_np):
+                                          global_index_to_similar_longest_np, longest_NP_to_global_index):
     label_to_cluster = {}
     dict_label_to_spans_group = {}
     dict_label_to_global_index = {}
@@ -228,17 +232,34 @@ def group_hierarchical_clustering_results(clustering, dict_idx_to_all_valid_expa
         label_to_cluster[global_val_label].extend(dict_idx_to_all_valid_expansions[idx])
         dict_label_to_spans_group[global_val_label] = dict_label_to_spans_group.get(global_val_label, [])
         dict_label_to_spans_group[global_val_label].append(dict_idx_to_all_valid_expansions[idx][0])
+        longest_NP_to_global_index[dict_idx_to_all_valid_expansions[idx][0][0]] = global_val_label
     return label_to_cluster, dict_label_to_spans_group
 
 
 def create_clusters_of_longest_nps(longest_np_lst, dict_idx_to_all_valid_expansions, global_longest_np_index,
-                                   global_index_to_similar_longest_np):
-    phrase_embeddings = model.encode(longest_np_lst)
-    clustering = AgglomerativeClustering(distance_threshold=0.08, n_clusters=None, linkage="average",
-                                         affinity="cosine", compute_full_tree=True).fit(phrase_embeddings)
-    label_to_cluster, dict_label_to_spans_group = group_hierarchical_clustering_results(
-        clustering, dict_idx_to_all_valid_expansions, global_longest_np_index, global_index_to_similar_longest_np)
-    dict_label_to_spans_group = {k: v for k, v in
-                                 sorted(dict_label_to_spans_group.items(), key=lambda item: len(item[1]),
-                                        reverse=True)}
+                                   global_index_to_similar_longest_np, longest_NP_to_global_index,
+                                   dict_uncounted_expansions, dict_counted_longest_answers):
+    label_to_cluster = {}
+    if len(longest_np_lst) == 0:
+        dict_label_to_spans_group = {}
+    elif len(longest_np_lst) == 1:
+        longest_NP_to_global_index[longest_np_lst[0]] = global_longest_np_index[0]
+        global_index_to_similar_longest_np[global_longest_np_index[0]] = [longest_np_lst[0]]
+        dict_label_to_spans_group = {global_longest_np_index[0]:
+                                         [(longest_np_lst[0], dict_idx_to_all_valid_expansions[0][0][1])]}
+        global_longest_np_index[0] += 1
+        # dict_span_to_similar_spans = {longest_np_lst[0]: longest_np_lst[0]}
+    else:
+        phrase_embeddings = model.encode(longest_np_lst)
+        clustering = AgglomerativeClustering(distance_threshold=0.08, n_clusters=None, linkage="average",
+                                             affinity="cosine", compute_full_tree=True).fit(phrase_embeddings)
+        label_to_cluster, dict_label_to_spans_group = group_hierarchical_clustering_results(
+            clustering, dict_idx_to_all_valid_expansions, global_longest_np_index, global_index_to_similar_longest_np,
+            longest_NP_to_global_index)
+        dict_label_to_spans_group = {k: v for k, v in
+                                     sorted(dict_label_to_spans_group.items(), key=lambda item: len(item[1]),
+                                            reverse=True)}
+    if dict_uncounted_expansions:
+        label_to_cluster.update(dict_uncounted_expansions)
+        dict_label_to_spans_group.update(dict_counted_longest_answers)
     return label_to_cluster, dict_label_to_spans_group

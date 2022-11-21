@@ -161,9 +161,10 @@ def synonyms_consolidation(dict_noun_lemma_to_span, dict_noun_lemma_to_counter, 
     word_lst = dict_noun_lemma_to_span.keys()
     already_calculated = []
     for word in word_lst:
-        synonyms = []
         if word in already_calculated:
             continue
+        synonyms = []
+        # synonyms = dict_noun_lemma_to_synonyms[word]
         if synonyms_type == 'wordnet':
             for syn in wordnet.synsets(word):
                 for lemma in syn.lemmas():
