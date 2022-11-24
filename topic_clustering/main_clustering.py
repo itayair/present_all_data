@@ -68,9 +68,9 @@ def convert_examples_to_clustered_data():
     examples = parse_medical_data.get_examples_from_special_format(False)
     dict_noun_lemma_to_noun_words = {}
     dict_noun_word_to_counter = {}
-    # noun_lemma_to_synonyms_file = open("load_data\\noun_lemma_to_synonyms.pkl", "rb")
-    # dict_noun_lemma_to_synonyms = pickle.load(noun_lemma_to_synonyms_file)
     dict_noun_lemma_to_synonyms = {}
+    # noun_lemma_to_synonyms_file = open("load_data\\meningitis\\noun_lemma_to_synonyms.pkl", "rb")
+    # dict_noun_lemma_to_synonyms = pickle.load(noun_lemma_to_synonyms_file)
     dict_noun_lemma_to_counter = {}
     dict_noun_lemma_to_examples = {}
     head_lst = set()
@@ -107,26 +107,37 @@ def convert_examples_to_clustered_data():
         for word in biggest_noun_phrase:
             if word in tokens_already_counted:
                 continue
-            dict_word_to_lemma[word.text.lower()] = word.lemma_.lower()
+            if not word.lemma_.isupper():
+                lemma_word = word.lemma_.lower()
+            else:
+                lemma_word = word.lemma_
+            dict_word_to_lemma[lemma_word] = lemma_word
             if word.pos_ in "NOUN":
                 compound_noun = utils_clustering.combine_tied_deps_recursively_and_combine_their_children(word)
                 compound_noun.sort(key=lambda x: x.i)
                 for token in compound_noun:
                     if len(token.text) < 2 or token.dep_ in ['quantmod'] or token.text == '-':
                         continue
-                    lemma_word = token.lemma_.lower()
-                    if lemma_word in ['sciatica', 'cause', 'causing', 'diagnosing', 'diagnosis', 'pain', 'chest', 'abortion']:
+                    if token.lemma_.isupper():
+                        lemma_token = token.lemma_
+                        normalized_token = token.text
+                    else:
+                        lemma_token = token.lemma_.lower()
+                        normalized_token = token.text.lower()
+                    if lemma_token in ['sciatica', 'cause', 'causing', 'diagnosing', 'diagnosis',
+                                       'pain', 'chest', 'abortion', 'diabetes', 'diabete', 'jaundice', 'meningitis',
+                                       'pneumonia']:
                         continue
                     if token not in tokens_already_counted:
-                        dict_noun_word_to_counter[token.text.lower()] = dict_noun_word_to_counter.get(token.text.lower(), 0) + 1
-                        dict_noun_lemma_to_noun_words[lemma_word] = dict_noun_lemma_to_noun_words.get(lemma_word, set())
-                        dict_noun_lemma_to_noun_words[lemma_word].add(token.text.lower())
+                        dict_noun_word_to_counter[normalized_token] = dict_noun_word_to_counter.get(normalized_token, 0) + 1
+                        dict_noun_lemma_to_noun_words[lemma_token] = dict_noun_lemma_to_noun_words.get(lemma_token, set())
+                        dict_noun_lemma_to_noun_words[lemma_token].add(normalized_token)
                         tokens_already_counted.add(token)
                         expansions_contain_word = []
                         initialize_token_expansions_information(all_valid_nps_lst, token, dict_span_to_rank,
                                                                 expansions_contain_word,
                                                                 dict_noun_lemma_to_examples, dict_noun_lemma_to_counter,
-                                                                dict_span_to_topic_entry, lemma_word, span)
+                                                                dict_span_to_topic_entry, lemma_token, span)
                         is_valid_example = True
         if is_valid_example:
             dict_longest_span_to_counter[span] = 1
@@ -138,12 +149,12 @@ def convert_examples_to_clustered_data():
             valid_span_lst.add(span)
             counter += 1
     print(counter)
-    dict_noun_lemma_to_counter, dict_noun_lemma_to_examples = utils_clustering.synonyms_consolidation(
-        dict_noun_lemma_to_examples,
-        dict_noun_lemma_to_counter, dict_noun_lemma_to_synonyms, 'wordnet')
     # dict_noun_lemma_to_counter, dict_noun_lemma_to_examples = utils_clustering.synonyms_consolidation(
     #     dict_noun_lemma_to_examples,
-    #     dict_noun_lemma_to_counter, dict_noun_lemma_to_synonyms, 'umls')
+    #     dict_noun_lemma_to_counter, dict_noun_lemma_to_synonyms, 'wordnet')
+    dict_noun_lemma_to_counter, dict_noun_lemma_to_examples = utils_clustering.synonyms_consolidation(
+        dict_noun_lemma_to_examples,
+        dict_noun_lemma_to_counter, dict_noun_lemma_to_synonyms, 'umls')
     not_in_head_lst = []
     for key in dict_noun_lemma_to_examples:
         if key not in head_lst and len(dict_noun_lemma_to_examples[key]) < 2:

@@ -88,16 +88,11 @@ def update_np_object(collection_np_object, np_collection, span_to_object, dict_s
             collection_np_object.np.append(dict_span_to_lemmas_lst[np])
 
 
-def create_DAG_from_top_to_bottom(dict_score_to_collection_of_sub_groups, topic_synonym_lst,
+def create_DAG_from_top_to_bottom(dict_score_to_collection_of_sub_groups,
                                   dict_span_to_lemmas_lst,
                                   all_object_np_lst, span_to_object,
                                   dict_span_to_similar_spans, dict_label_to_spans_group,
-                                  global_dict_label_to_object, topic_object_lst):
-    topic_synonyms_tuples = [(synonym, [synonym]) for synonym in topic_synonym_lst]
-    topic_object = NounPhrase.NP(topic_synonyms_tuples, set(dict_label_to_spans_group.keys()))
-    for np in topic_synonym_lst:
-        span_to_object[np] = topic_object
-    topic_object_lst.append(topic_object)
+                                  global_dict_label_to_object, topic_object):
     for score, np_to_labels_collection in dict_score_to_collection_of_sub_groups.items():
         for np_key, labels in np_to_labels_collection:
             np_collection = dict_span_to_similar_spans[np_key]
@@ -151,15 +146,23 @@ def create_DAG_from_top_to_bottom(dict_score_to_collection_of_sub_groups, topic_
 def insert_examples_of_topic_to_DAG(dict_score_to_collection_of_sub_groups, topic_synonym_lst, dict_span_to_lemmas_lst,
                                     all_object_np_lst, span_to_object, dict_span_to_similar_spans,
                                     dict_label_to_spans_group, global_dict_label_to_object, topic_object_lst,
-                                    longest_np_total_lst, longest_np_lst):
-    topic_object = create_DAG_from_top_to_bottom(dict_score_to_collection_of_sub_groups, topic_synonym_lst,
-                                                 dict_span_to_lemmas_lst, all_object_np_lst,
-                                                 span_to_object, dict_span_to_similar_spans,
-                                                 dict_label_to_spans_group,
-                                                 global_dict_label_to_object, topic_object_lst)
+                                    longest_np_total_lst, longest_np_lst, longest_NP_to_global_index):
+    topic_synonyms_tuples = [(synonym, [synonym]) for synonym in topic_synonym_lst]
+    topic_label_lst = set()
+    for longest_np in longest_np_total_lst:
+        topic_label_lst.add(longest_NP_to_global_index[longest_np])
+    topic_object = NounPhrase.NP(topic_synonyms_tuples, topic_label_lst)
+    for np in topic_synonym_lst:
+        span_to_object[np] = topic_object
+    topic_object_lst.append(topic_object)
     longest_spans_calculated_in_previous_topics = set(longest_np_total_lst) - set(longest_np_lst)
     add_dependency_routh_between_longest_np_to_topic(span_to_object, topic_object_lst,
                                                      longest_spans_calculated_in_previous_topics, topic_object)
+    create_DAG_from_top_to_bottom(dict_score_to_collection_of_sub_groups,
+                                  dict_span_to_lemmas_lst, all_object_np_lst,
+                                  span_to_object, dict_span_to_similar_spans,
+                                  dict_label_to_spans_group,
+                                  global_dict_label_to_object, topic_object)
 
 
 def change_DAG_direction(global_np_object_lst, visited=[]):
@@ -255,6 +258,8 @@ def check_symmetric_relation_in_DAG(nodes_lst, visited=set()):
                 raise Exception("Parent and child isn't consistent")
         for parent in node.parents:
             if node not in parent.children:
+                print(parent.np_val)
+                print(node.np_val)
                 raise Exception("Parent and child isn't consistent")
         check_symmetric_relation_in_DAG(node.children, visited)
 

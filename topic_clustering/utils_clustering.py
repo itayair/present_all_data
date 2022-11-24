@@ -1,6 +1,6 @@
 from nltk.corpus import wordnet
 
-# import umls_loader
+import umls_loader
 
 tied_deps = ['compound', 'mwe', 'name', 'nummod']
 
@@ -25,6 +25,7 @@ def create_dicts_for_words_similarity(dict_word_to_lemma):
         synonyms = get_synonyms_by_word(lemma)
         synonyms = set(synonyms)
         synonyms = [synonym for synonym in synonyms if synonym in lemma_lst]
+        synonyms.append(lemma)
         dict_lemma_to_synonyms[lemma] = set(synonyms)
     dict_lemma_to_synonyms = {k: v for k, v in
                               sorted(dict_lemma_to_synonyms.items(), key=lambda item: len(item[1]),
@@ -169,10 +170,10 @@ def synonyms_consolidation(dict_noun_lemma_to_span, dict_noun_lemma_to_counter, 
             for syn in wordnet.synsets(word):
                 for lemma in syn.lemmas():
                     synonyms.append(lemma.name())
-        # else:
-        #     aliases = umls_loader.umls_loader.get_term_aliases(word)
-        #     for syn in aliases:
-        #         synonyms.append(syn)
+        else:
+            aliases = umls_loader.umls_loader.get_term_aliases(word)
+            for syn in aliases:
+                synonyms.append(syn)
         dict_noun_lemma_to_span_new[word] = []
         dict_noun_lemma_to_span_new[word].extend(dict_noun_lemma_to_span[word])
         dict_noun_lemma_to_counter_new[word] = dict_noun_lemma_to_counter[word]

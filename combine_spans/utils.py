@@ -5,7 +5,7 @@ import nltk
 
 
 def load_data_dicts():
-    directory_relative_path = "load_data\\diabetes\\"
+    directory_relative_path = "load_data\\pneumonia\\"
     a_file = open(directory_relative_path + "noun_lemma_to_example.pkl", "rb")
     topics_dict = pickle.load(a_file)
     topics_dict = {k: v for k, v in
@@ -138,7 +138,7 @@ def get_average_value(spans_lst, dict_span_to_rank):
     for span in spans_lst:
         average_val += dict_span_to_rank[span]
     average_val = average_val / len(spans_lst)
-    return int(average_val)
+    return int(average_val * 10)
 
 
 def create_dict_lemma_word2vec_and_edit_distance():

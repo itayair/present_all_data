@@ -2,10 +2,10 @@ from combine_spans import utils as ut
 from sentence_transformers import SentenceTransformer
 import torch
 from sklearn.cluster import AgglomerativeClustering
-import gensim
-from gensim.models import Word2Vec
-from gensim.test.utils import common_texts
-import gensim.downloader as api
+# import gensim
+# from gensim.models import Word2Vec
+# from gensim.test.utils import common_texts
+# import gensim.downloader as api
 from nltk.stem import PorterStemmer
 
 # ps = PorterStemmer()
@@ -58,6 +58,9 @@ def find_similarity_in_same_length_group(lst_spans_tuple):
             if is_similar:
                 black_list.append(span_tuple_to_compare[0])
                 dict_span_to_similar_spans[span_tuple[0]].add(span_tuple_to_compare[0])
+        similar_spans = dict_span_to_similar_spans[span_tuple[0]]
+        for span in similar_spans:
+            dict_span_to_similar_spans[span] = similar_spans
     return dict_span_to_similar_spans
 
 
@@ -147,21 +150,21 @@ def union_common_np_by_DL_model(common_np_to_group_members_indices, dict_span_to
 
 def combine_similar_spans(span_to_group_members, dict_length_to_span,
                           dict_longest_span_to_his_synonyms):
-    dict_spans = {}
+    dict_span_to_similar_spans = {}
     for idx, spans in dict_length_to_span.items():
-        dict_spans.update(find_similarity_in_same_length_group(spans))
+        dict_span_to_similar_spans.update(find_similarity_in_same_length_group(spans))
     span_to_group_members_new = {}
-    for span, sub_set in dict_spans.items():
+    for span, sub_set in dict_span_to_similar_spans.items():
         span_to_group_members_new[span] = span_to_group_members[span]
         for union_span in sub_set:
             span_to_group_members_new[span].update(span_to_group_members[union_span])
-    for span, synonyms in dict_spans.items():
+    for span, synonyms in dict_span_to_similar_spans.items():
         new_synonyms = set()
         for synonym in synonyms:
             if synonym in dict_longest_span_to_his_synonyms.keys():
                 new_synonyms.update(dict_longest_span_to_his_synonyms[synonym])
         synonyms.update(new_synonyms)
-    return span_to_group_members_new, dict_spans
+    return span_to_group_members_new, dict_span_to_similar_spans
 
 
 def union_common_np(clusters, dict_span_to_rank, dict_label_to_spans_group):

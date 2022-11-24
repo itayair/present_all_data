@@ -6,6 +6,8 @@ from topic_clustering import clustered_data_objects as clustered_data_objects
 import networkx as nx
 import collections
 import graphviz
+import json
+import pickle
 
 g1 = nx.DiGraph()
 
@@ -174,8 +176,8 @@ def main():
                                                   dict_span_to_lemma_lst,
                                                   all_object_np_lst, span_to_object, dict_span_to_similar_spans,
                                                   dict_label_to_spans_group, global_dict_label_to_object,
-                                                  topic_object_lst,
-                                                  longest_np_total_lst, longest_np_lst)
+                                                  topic_object_lst, longest_np_total_lst, longest_np_lst,
+                                                  longest_NP_to_global_index)
     DAG_utils.update_nodes_frequency(topic_object_lst, global_index_to_similar_longest_np)
     hierarchical_structure_algorithms.DAG_contraction_by_set_cover_algorithm(topic_object_lst,
                                                                              global_dict_label_to_object,
@@ -197,7 +199,9 @@ def main():
                                                                      labels_of_topics)
     print("total labels of topics:", total_labels_of_topics)
     print("Covered labels by selected nodes:", covered_labels)
-    print(top_k_topics)
+    # result_file = open("diabetes_output.txt", "wb")
+    with open('pneumonia_output.txt', 'w') as result_file:
+        result_file.write(json.dumps(top_k_topics))
 
 
 main()
