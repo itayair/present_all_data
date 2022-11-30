@@ -1,6 +1,7 @@
 from nltk.corpus import wordnet
-
-import umls_loader
+import requests
+import datetime
+# import umls_loader
 
 tied_deps = ['compound', 'mwe', 'name', 'nummod']
 
@@ -160,46 +161,81 @@ def synonyms_consolidation(dict_noun_lemma_to_span, dict_noun_lemma_to_counter, 
                                sorted(dict_noun_lemma_to_span.items(), key=lambda item: len(item[1]),
                                       reverse=True)}
     word_lst = dict_noun_lemma_to_span.keys()
-    already_calculated = []
-    for word in word_lst:
-        if word in already_calculated:
-            continue
-        synonyms = []
-        # synonyms = dict_noun_lemma_to_synonyms[word]
-        if synonyms_type == 'wordnet':
-            for syn in wordnet.synsets(word):
-                for lemma in syn.lemmas():
-                    synonyms.append(lemma.name())
-        else:
-            aliases = umls_loader.umls_loader.get_term_aliases(word)
-            for syn in aliases:
-                synonyms.append(syn)
+    post_data = ",".join(word_lst)
+    now = datetime.datetime.now()
+    print("Current date and time before function: ")
+    print(now.strftime('%Y-%m-%d %H:%M:%S'))
+    dict_response = requests.post('http://127.0.0.1:5000/', params={"words": post_data})
+    now = datetime.datetime.now()
+    print("Current date and time before function: ")
+    print(now.strftime('%Y-%m-%d %H:%M:%S'))
+    print(dict_response.json())
+    dict_noun_lemma_to_synonyms = dict_response.json()["synonyms"]
+    for word, synonyms in dict_noun_lemma_to_synonyms.items():
         dict_noun_lemma_to_span_new[word] = []
         dict_noun_lemma_to_span_new[word].extend(dict_noun_lemma_to_span[word])
         dict_noun_lemma_to_counter_new[word] = dict_noun_lemma_to_counter[word]
-        dict_noun_lemma_to_synonyms[word] = dict_noun_lemma_to_synonyms.get(word, set())
-        dict_noun_lemma_to_synonyms[word].add(word)
-        synonyms = set(synonyms)
-        if synonyms:
-            for synonym in synonyms:
-                if synonym in already_calculated:
-                    continue
-                if synonym != word and synonym in word_lst:
-                    for spans in dict_noun_lemma_to_span[synonym]:
-                        # new_spans_lst = []
-                        # for span in spans[1]:
-                        #     new_spans_lst.append((span[0].replace(synonym, word), span[1]))
-                        # dict_noun_lemma_to_span_new[word].append((spans[0], new_spans_lst))
-                        dict_noun_lemma_to_span_new[word].append((spans[0], spans[1]))
-                    # dict_noun_lemma_to_span_new[word].extend(dict_noun_lemma_to_span[synonym])
-                    dict_noun_lemma_to_counter_new[word] += dict_noun_lemma_to_counter[synonym]
-                    # dict_word_to_his_synonym[synonym] = word
-                    dict_noun_lemma_to_synonyms[word].add(synonym)
-                    already_calculated.append(synonym)
-        already_calculated.append(word)
+        for synonym in synonyms:
+            for spans in dict_noun_lemma_to_span[synonym]:
+                dict_noun_lemma_to_span_new[word].append((spans[0], spans[1]))
+            dict_noun_lemma_to_counter_new[word] += dict_noun_lemma_to_counter[synonym]
     dict_noun_lemma_to_counter_new = {k: v for k, v in
                                       sorted(dict_noun_lemma_to_counter_new.items(), key=lambda item: item[1])}
     dict_noun_lemma_to_span_new = {k: v for k, v in
                                    sorted(dict_noun_lemma_to_span_new.items(), key=lambda item: len(item[1]),
                                           reverse=True)}
     return dict_noun_lemma_to_counter_new, dict_noun_lemma_to_span_new
+
+# def synonyms_consolidation(dict_noun_lemma_to_span, dict_noun_lemma_to_counter, dict_noun_lemma_to_synonyms,
+#                            synonyms_type='wordnet'):
+#     dict_noun_lemma_to_span_new = {}
+#     dict_noun_lemma_to_counter_new = {}
+#     dict_noun_lemma_to_span = {k: v for k, v in
+#                                sorted(dict_noun_lemma_to_span.items(), key=lambda item: len(item[1]),
+#                                       reverse=True)}
+#     word_lst = dict_noun_lemma_to_span.keys()
+#     already_calculated = []
+#     for word in word_lst:
+#         if word in already_calculated:
+#             continue
+#         synonyms = []
+#         # synonyms = dict_noun_lemma_to_synonyms[word]
+#         if synonyms_type == 'wordnet':
+#             for syn in wordnet.synsets(word):
+#                 for lemma in syn.lemmas():
+#                     synonyms.append(lemma.name())
+#         else:
+#             # aliases = umls_loader.umls_loader.get_term_aliases(word)
+#             # for syn in aliases:
+#             #     synonyms.append(syn)
+#             dict_response = requests.get('http://127.0.0.1:5000/', params={"word": word})
+#             synonyms = dict_response.json()["synonyms"]
+#         dict_noun_lemma_to_span_new[word] = []
+#         dict_noun_lemma_to_span_new[word].extend(dict_noun_lemma_to_span[word])
+#         dict_noun_lemma_to_counter_new[word] = dict_noun_lemma_to_counter[word]
+#         dict_noun_lemma_to_synonyms[word] = dict_noun_lemma_to_synonyms.get(word, set())
+#         dict_noun_lemma_to_synonyms[word].add(word)
+#         synonyms = set(synonyms)
+#         if synonyms:
+#             for synonym in synonyms:
+#                 if synonym in already_calculated:
+#                     continue
+#                 if synonym != word and synonym in word_lst:
+#                     for spans in dict_noun_lemma_to_span[synonym]:
+#                         # new_spans_lst = []
+#                         # for span in spans[1]:
+#                         #     new_spans_lst.append((span[0].replace(synonym, word), span[1]))
+#                         # dict_noun_lemma_to_span_new[word].append((spans[0], new_spans_lst))
+#                         dict_noun_lemma_to_span_new[word].append((spans[0], spans[1]))
+#                     # dict_noun_lemma_to_span_new[word].extend(dict_noun_lemma_to_span[synonym])
+#                     dict_noun_lemma_to_counter_new[word] += dict_noun_lemma_to_counter[synonym]
+#                     # dict_word_to_his_synonym[synonym] = word
+#                     dict_noun_lemma_to_synonyms[word].add(synonym)
+#                     already_calculated.append(synonym)
+#         already_calculated.append(word)
+#     dict_noun_lemma_to_counter_new = {k: v for k, v in
+#                                       sorted(dict_noun_lemma_to_counter_new.items(), key=lambda item: item[1])}
+#     dict_noun_lemma_to_span_new = {k: v for k, v in
+#                                    sorted(dict_noun_lemma_to_span_new.items(), key=lambda item: len(item[1]),
+#                                           reverse=True)}
+#     return dict_noun_lemma_to_counter_new, dict_noun_lemma_to_span_new

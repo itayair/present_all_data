@@ -64,12 +64,29 @@ def initialize_token_expansions_information(all_valid_nps_lst, token, dict_span_
     dict_span_to_topic_entry[span].add(lemma_word)
 
 
+def combine_word_in_upper_case_to_word_in_lower_if_exist(dict_noun_lemma_to_counter, dict_noun_lemma_to_examples, upper_case_noun_lst):
+    entries_to_remove = set()
+    for upper_case_noun_entry in upper_case_noun_lst:
+        lower_case_noun_entry = upper_case_noun_entry.lower()
+        if lower_case_noun_entry in dict_noun_lemma_to_examples and upper_case_noun_entry in dict_noun_lemma_to_examples:
+            entries_to_remove.add(upper_case_noun_entry)
+            upper_case_noun_entry_examples = dict_noun_lemma_to_examples[upper_case_noun_entry]
+            dict_noun_lemma_to_examples[lower_case_noun_entry].extend(upper_case_noun_entry_examples)
+            if lower_case_noun_entry in dict_noun_lemma_to_counter and \
+                    upper_case_noun_entry in dict_noun_lemma_to_counter:
+                dict_noun_lemma_to_counter[lower_case_noun_entry] += dict_noun_lemma_to_counter[upper_case_noun_entry]
+    for entry in entries_to_remove:
+        dict_noun_lemma_to_examples.pop(entry, None)
+        dict_noun_lemma_to_counter.pop(entry, None)
+
+
+
 def convert_examples_to_clustered_data():
     examples = parse_medical_data.get_examples_from_special_format(False)
     dict_noun_lemma_to_noun_words = {}
     dict_noun_word_to_counter = {}
     dict_noun_lemma_to_synonyms = {}
-    # noun_lemma_to_synonyms_file = open("load_data\\meningitis\\noun_lemma_to_synonyms.pkl", "rb")
+    # noun_lemma_to_synonyms_file = open("load_data\\diabetes\\noun_lemma_to_synonyms.pkl", "rb")
     # dict_noun_lemma_to_synonyms = pickle.load(noun_lemma_to_synonyms_file)
     dict_noun_lemma_to_counter = {}
     dict_noun_lemma_to_examples = {}
@@ -84,6 +101,7 @@ def convert_examples_to_clustered_data():
     counter = 0
     counter_examples = 0
     dict_sentence_to_span_lst = {}
+    upper_case_noun_lst = set()
     valid_span_lst = set()
     for biggest_noun_phrase, head_span, all_valid_nps_lst, sentence in examples:
         span = valid_expansion_utils.get_tokens_as_span(biggest_noun_phrase)
@@ -100,7 +118,10 @@ def convert_examples_to_clustered_data():
             continue
         dict_sentence_to_span_lst[sentence].append(span)
         span_lst.add(span)
-        head = head_span.lemma_.lower()
+        if head_span.lemma_.isupper():
+            head = head_span.lemma_
+        else:
+            head = head_span.lemma_.lower()
         head_lst.add(head)
         tokens_already_counted = set()
         is_valid_example = False
@@ -121,6 +142,7 @@ def convert_examples_to_clustered_data():
                     if token.lemma_.isupper():
                         lemma_token = token.lemma_
                         normalized_token = token.text
+                        upper_case_noun_lst.add(normalized_token)
                     else:
                         lemma_token = token.lemma_.lower()
                         normalized_token = token.text.lower()
@@ -149,6 +171,8 @@ def convert_examples_to_clustered_data():
             valid_span_lst.add(span)
             counter += 1
     print(counter)
+    combine_word_in_upper_case_to_word_in_lower_if_exist(dict_noun_lemma_to_counter, dict_noun_lemma_to_examples,
+                                                         upper_case_noun_lst)
     # dict_noun_lemma_to_counter, dict_noun_lemma_to_examples = utils_clustering.synonyms_consolidation(
     #     dict_noun_lemma_to_examples,
     #     dict_noun_lemma_to_counter, dict_noun_lemma_to_synonyms, 'wordnet')
