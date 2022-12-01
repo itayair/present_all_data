@@ -1,37 +1,123 @@
 from nltk.corpus import wordnet
 import requests
+from expansions import valid_expansion_utils
 import datetime
+import json
+
 # import umls_loader
 
 tied_deps = ['compound', 'mwe', 'name', 'nummod']
+query_words = ['sciatica', 'cause', 'causing', 'diagnosing', 'diagnosis',
+               'pain', 'chest', 'abortion', 'diabetes', 'diabete', 'jaundice', 'meningitis',
+               'pneumonia']
+
+noun_collections_lst = []
+dict_span_to_topic_entry = {}
+dict_span_to_rank = {}
+dict_noun_lemma_to_counter = {}
+dict_noun_lemma_to_examples = {}
+dict_noun_lemma_to_noun_words = {}
+dict_noun_word_to_counter = {}
+dict_noun_lemma_to_span = {}
 
 
-def get_synonyms_by_word(word):
-    synonyms = set()
-    for syn in wordnet.synsets(word):
-        for l in syn.lemmas():
-            synonyms.add(l.name())
-    # aliases = umls_loader.umls_loader.get_term_aliases(word)
-    # for syn in aliases:
-    #     synonyms.add(syn)
-    return synonyms
+class AnswersCollection:
+    def __init__(self, all_valid_nps_lst, token):
+        self.dict_span_to_lemma_lst = {}
+        self.dict_span_to_rank = {}
+        self.longest_np = ""
+        self.initialize(token, all_valid_nps_lst)
+
+    def initialize(self, token, all_valid_nps_lst):
+        is_longest_np = True
+        for sub_span in all_valid_nps_lst:
+            if token in sub_span[0]:
+                np_span = valid_expansion_utils.get_tokens_as_span(sub_span[0])
+                lemma_lst = from_tokens_to_lemmas(sub_span[0])
+                self.dict_span_to_lemma_lst[np_span] = lemma_lst
+                if is_longest_np:
+                    self.longest_np = np_span
+                self.dict_span_to_rank[np_span] = sub_span[1]
 
 
-def create_dicts_for_words_similarity(dict_word_to_lemma):
-    dict_lemma_to_synonyms = {}
-    lemma_lst = set()
-    for _, lemma in dict_word_to_lemma.items():
-        lemma_lst.add(lemma)
-    for lemma in lemma_lst:
-        synonyms = get_synonyms_by_word(lemma)
-        synonyms = set(synonyms)
-        synonyms = [synonym for synonym in synonyms if synonym in lemma_lst]
-        synonyms.append(lemma)
-        dict_lemma_to_synonyms[lemma] = set(synonyms)
-    dict_lemma_to_synonyms = {k: v for k, v in
-                              sorted(dict_lemma_to_synonyms.items(), key=lambda item: len(item[1]),
-                                     reverse=True)}
-    return dict_lemma_to_synonyms
+class NounCollections:
+    def __init__(self, noun):
+        self.noun = noun
+        self.answers_collection_lst = []
+
+    def add_answers_collection(self, answers_collection):
+        self.answers_collection_lst.append(answers_collection)
+
+
+def update_recurrent_span(dict_sentence_to_span_lst, sentence, span, dict_longest_span_to_counter, all_valid_nps_lst,
+                          dict_span_to_counter, counter):
+    if span not in dict_sentence_to_span_lst[sentence]:
+        dict_sentence_to_span_lst[sentence].append(span)
+        if span in dict_longest_span_to_counter:
+            dict_longest_span_to_counter[span] += 1
+            counter += 1
+        for sub_span in all_valid_nps_lst:
+            dict_span_to_counter[
+                valid_expansion_utils.get_tokens_as_span(sub_span[0])] = dict_span_to_counter.get(
+                valid_expansion_utils.get_tokens_as_span(sub_span[0]), 0) + 1
+    return counter
+
+
+def update_new_valid_example(span, dict_longest_span_to_counter, all_valid_nps_lst,
+                             dict_span_to_counter,
+                             valid_expansion_utils, counter, valid_span_lst):
+    dict_longest_span_to_counter[span] = 1
+    if not valid_span_lst:
+        dict_span_to_counter[span] = dict_span_to_counter.get(span, 0) + 1
+        print("There is longest expansion that isn't in the all_valid_nps_lst")
+    for sub_span in all_valid_nps_lst:
+        dict_span_to_counter[valid_expansion_utils.get_tokens_as_span(sub_span[0])] = dict_span_to_counter.get(
+            valid_expansion_utils.get_tokens_as_span(sub_span[0]), 0) + 1
+    valid_span_lst.add(span)
+    counter += 1
+    return counter
+
+
+def initialize_token_expansions_information(all_valid_nps_lst, token, lemma_word, span):
+    expansions_contain_word = []
+    answers_collection = AnswersCollection(all_valid_nps_lst, token)
+    noun_collections_lst.append(answers_collection)
+    for sub_span in all_valid_nps_lst:
+        if token in sub_span[0]:
+            np_span = valid_expansion_utils.get_tokens_as_span(sub_span[0])
+            dict_span_to_rank[np_span] = sub_span[1]
+            lemma_lst = from_tokens_to_lemmas(sub_span[0])
+            expansions_contain_word.append((np_span, sub_span[1], lemma_lst))
+    dict_noun_lemma_to_examples[lemma_word] = dict_noun_lemma_to_examples.get(lemma_word, [])
+    dict_noun_lemma_to_examples[lemma_word].append((span, expansions_contain_word))
+    dict_noun_lemma_to_counter[lemma_word] = dict_noun_lemma_to_counter.get(lemma_word, 0)
+    dict_noun_lemma_to_counter[lemma_word] += 1
+    dict_span_to_topic_entry[span] = dict_span_to_topic_entry.get(span, set())
+    dict_span_to_topic_entry[span].add(lemma_word)
+
+
+def add_word_collection_to_data_structures(word, tokens_already_counted,
+                                           all_valid_nps_lst, span):
+    is_valid_example = False
+    if word.pos_ in "NOUN":
+        compound_noun = combine_tied_deps_recursively_and_combine_their_children(word)
+        compound_noun.sort(key=lambda x: x.i)
+        is_valid_example = False
+        for token in compound_noun:
+            if len(token.text) < 2 or token.dep_ in ['quantmod'] or token.text == '-':
+                continue
+            lemma_token = token.lemma_.lower()
+            if token not in tokens_already_counted:
+                dict_noun_word_to_counter[lemma_token] = dict_noun_word_to_counter.get(lemma_token, 0) + 1
+                dict_noun_lemma_to_noun_words[lemma_token] = dict_noun_lemma_to_noun_words.get(lemma_token,
+                                                                                               set())
+                if not dict_noun_lemma_to_noun_words[lemma_token]:
+                    noun_collections = NounCollections(lemma_token)
+                    noun_collections_lst.append(noun_collections)
+                tokens_already_counted.add(token)
+                initialize_token_expansions_information(all_valid_nps_lst, token, lemma_token, span)
+                is_valid_example = True
+    return is_valid_example
 
 
 def print_dendrogram_tree_by_parenthesis(node, num_of_leaves, phrase_list, already_counted):
@@ -153,38 +239,62 @@ def get_dict_sorted_and_filtered(dict_noun_lemma_to_value, abbreviations_lst, di
     return dict_noun_lemma_to_value
 
 
-def synonyms_consolidation(dict_noun_lemma_to_span, dict_noun_lemma_to_counter, dict_noun_lemma_to_synonyms,
+def get_synonyms_by_word(word):
+    synonyms = set()
+    for syn in wordnet.synsets(word):
+        for l in syn.lemmas():
+            synonyms.add(l.name())
+    return synonyms
+
+
+def create_dicts_for_words_similarity(dict_word_to_lemma):
+    dict_lemma_to_synonyms = {}
+    lemma_lst = set()
+    for _, lemma in dict_word_to_lemma.items():
+        lemma_lst.add(lemma)
+    for lemma in lemma_lst:
+        synonyms = get_synonyms_by_word(lemma)
+        synonyms = [synonym for synonym in synonyms if synonym in lemma_lst]
+        synonyms.append(lemma)
+        dict_lemma_to_synonyms[lemma] = set(synonyms)
+    # post_data = json.dumps(list(lemma_lst))
+    # dict_response = requests.post('http://127.0.0.1:5000/create_synonyms_dictionary/', params={"words": post_data})
+    # dict_lemma_to_synonyms_UMLS = dict_response.json()["synonyms"]
+    # dict_lemma_to_synonyms.update(dict_lemma_to_synonyms_UMLS)
+    # dict_lemma_to_synonyms = {k: v for k, v in
+    #                           sorted(dict_lemma_to_synonyms.items(), key=lambda item: len(item[1]),
+    #                                  reverse=True)}
+    return dict_lemma_to_synonyms
+
+
+def synonyms_consolidation(dict_noun_lemma_to_synonyms,
                            synonyms_type='wordnet'):
-    dict_noun_lemma_to_span_new = {}
+    global dict_noun_lemma_to_examples, dict_noun_lemma_to_counter
+    dict_noun_lemma_to_examples_new = {}
     dict_noun_lemma_to_counter_new = {}
-    dict_noun_lemma_to_span = {k: v for k, v in
-                               sorted(dict_noun_lemma_to_span.items(), key=lambda item: len(item[1]),
+    dict_noun_lemma_to_examples = {k: v for k, v in
+                               sorted(dict_noun_lemma_to_examples.items(), key=lambda item: len(item[1]),
                                       reverse=True)}
-    word_lst = dict_noun_lemma_to_span.keys()
-    post_data = ",".join(word_lst)
-    now = datetime.datetime.now()
-    print("Current date and time before function: ")
-    print(now.strftime('%Y-%m-%d %H:%M:%S'))
-    dict_response = requests.post('http://127.0.0.1:5000/', params={"words": post_data})
-    now = datetime.datetime.now()
-    print("Current date and time before function: ")
-    print(now.strftime('%Y-%m-%d %H:%M:%S'))
-    print(dict_response.json())
-    dict_noun_lemma_to_synonyms = dict_response.json()["synonyms"]
+    word_lst = dict_noun_lemma_to_examples.keys()
+    post_data = json.dumps(list(word_lst))
+    dict_response = requests.post('http://127.0.0.1:5000/create_noun_synonyms_dictionary/', params={"words": post_data})
+    output = dict_response.json()["synonyms"]
+    dict_noun_lemma_to_synonyms.update(output)
     for word, synonyms in dict_noun_lemma_to_synonyms.items():
-        dict_noun_lemma_to_span_new[word] = []
-        dict_noun_lemma_to_span_new[word].extend(dict_noun_lemma_to_span[word])
+        dict_noun_lemma_to_examples_new[word] = []
+        dict_noun_lemma_to_examples_new[word].extend(dict_noun_lemma_to_examples[word])
         dict_noun_lemma_to_counter_new[word] = dict_noun_lemma_to_counter[word]
         for synonym in synonyms:
-            for spans in dict_noun_lemma_to_span[synonym]:
-                dict_noun_lemma_to_span_new[word].append((spans[0], spans[1]))
+            for spans in dict_noun_lemma_to_examples[synonym]:
+                dict_noun_lemma_to_examples_new[word].append((spans[0], spans[1]))
             dict_noun_lemma_to_counter_new[word] += dict_noun_lemma_to_counter[synonym]
     dict_noun_lemma_to_counter_new = {k: v for k, v in
                                       sorted(dict_noun_lemma_to_counter_new.items(), key=lambda item: item[1])}
     dict_noun_lemma_to_span_new = {k: v for k, v in
-                                   sorted(dict_noun_lemma_to_span_new.items(), key=lambda item: len(item[1]),
+                                   sorted(dict_noun_lemma_to_examples_new.items(), key=lambda item: len(item[1]),
                                           reverse=True)}
-    return dict_noun_lemma_to_counter_new, dict_noun_lemma_to_span_new
+    dict_noun_lemma_to_examples = dict_noun_lemma_to_span_new
+    dict_noun_lemma_to_counter = dict_noun_lemma_to_counter_new
 
 # def synonyms_consolidation(dict_noun_lemma_to_span, dict_noun_lemma_to_counter, dict_noun_lemma_to_synonyms,
 #                            synonyms_type='wordnet'):

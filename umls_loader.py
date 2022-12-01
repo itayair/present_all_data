@@ -6,6 +6,9 @@ from tqdm import tqdm
 # sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.path.pardir)))
 # os.chdir(os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.path.pardir)))
 
+dict_id_to_similar_concepts = {}
+dict_word_to_id = {}
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -27,6 +30,7 @@ class UMLSLoader(metaclass=Singleton):
     def __init__(self, corpus_dir):
         tqdm.pandas()
         self.umls_df: pd.DataFrame = self.read_df(corpus_dir)
+        self.create_dicts_from_pd_table()
 
     @staticmethod
     def read_df(corpus_dir):
@@ -36,9 +40,21 @@ class UMLSLoader(metaclass=Singleton):
         umls_df['STR'] = umls_df['STR'].str.lower()
         return umls_df
 
+    def create_dicts_from_pd_table(self):
+        indexed_df = self.umls_df.reset_index()
+        for index, row in indexed_df.iterrows():
+            dict_id_to_similar_concepts[row['CUI']] = dict_id_to_similar_concepts.get(row['CUI'], set())
+            dict_id_to_similar_concepts[row['CUI']].add(row['STR'])
+            dict_word_to_id[row['STR']] = row['CUI']
+
     def get_term_aliases(self, term):
-        cuis = self.umls_df[self.umls_df['STR'] == term]['CUI'].unique()
-        return self.umls_df['STR'][self.umls_df['CUI'].isin(cuis)].unique().astype(str)
+        # cuis = self.umls_df[self.umls_df['STR'] == term]['CUI'].unique()
+        # return self.umls_df['STR'][self.umls_df['CUI'].isin(cuis)].unique().astype(str)
+        cuis = dict_word_to_id.get(term, None)
+        if not cuis:
+            return set()
+        else:
+            return dict_id_to_similar_concepts[cuis]
 
     def get_nps(self):
         return self.umls_df['STR'].astype(str), self.umls_df['CUI'].astype(str)

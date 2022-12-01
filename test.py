@@ -6,6 +6,8 @@ from pydantic import BaseModel
 
 router = APIRouter()
 app = FastAPI()
+
+
 # class Item(BaseModel):
 #     word_lst: list
 
@@ -16,21 +18,15 @@ app = FastAPI()
 #     return {"synonyms": word_lst}
 
 
-
-@app.post("/")
-def root(words: str):
-    word_lst = words.split(',')
+@app.post("/create_noun_synonyms_dictionary/")
+def create_noun_synonyms_dictionary(words: str):
+    word_lst = json.loads(words)
     already_calculated = []
     dict_noun_lemma_to_synonyms = {}
     for word in word_lst:
         if word in already_calculated:
             continue
-        aliases = umls_loader.umls_loader.get_term_aliases(word)
-        synonyms = set()
-        for syn in aliases:
-            synonyms.add(syn)
-            # dict_response = requests.get('http://127.0.0.1:5000/', params={"word": word})
-            # synonyms = dict_response.json()["synonyms"]
+        synonyms = umls_loader.umls_loader.get_term_aliases(word)
         dict_noun_lemma_to_synonyms[word] = set()
         dict_noun_lemma_to_synonyms[word].add(word)
         synonyms = set(synonyms)
@@ -44,6 +40,36 @@ def root(words: str):
         already_calculated.append(word)
     return {"synonyms": dict_noun_lemma_to_synonyms}
 
+
+@app.post("/create_synonyms_dictionary/")
+def create_synonyms_dictionary(words: str):
+    word_lst = json.loads(words)
+    dict_lemma_to_synonyms = {}
+    for word in word_lst:
+        synonyms = umls_loader.umls_loader.get_term_aliases(word)
+        dict_lemma_to_synonyms[word] = set()
+        dict_lemma_to_synonyms[word].add(word)
+        synonyms = set(synonyms)
+        if synonyms:
+            for synonym in synonyms:
+                if synonym != word and synonym in word_lst:
+                    dict_lemma_to_synonyms[word].add(synonym)
+    return {"synonyms": dict_lemma_to_synonyms}
+
+
+
+@app.post("/create_abbreviation_dict/")
+def create_synonyms_dictionary(abbreviations: str, compound_lst: str):
+    abbreviations = json.loads(abbreviations)
+    compound_lst = json.loads(compound_lst)
+    dict_abbreviation_to_compound = {}
+    for abbreviation in abbreviations:
+        synonyms = umls_loader.umls_loader.get_term_aliases(abbreviation)
+        if synonyms:
+            for synonym in synonyms:
+                if synonym != abbreviation and synonym in compound_lst:
+                    dict_abbreviation_to_compound[abbreviation].add(synonym)
+    return {"dict_abbreviation_to_compound": dict_abbreviation_to_compound}
 
 # @app.get("/")
 # def root(word: str = "Disc"):
