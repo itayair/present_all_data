@@ -62,11 +62,11 @@ def calculate_marginal_gain(x, dist_matrix, S_rep, k, dict_object_to_desc,
 
 
 def get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, current_node, main_node):
-    if current_node.score < 2:
+    if current_node.score < 20:
         label_lst = DAG_utils.get_labels_of_children(current_node.children)
         label_lst_minus_children_labels = current_node.label_lst - label_lst
         marginal_gain = DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
-                                                label_lst_minus_children_labels)
+                                                                label_lst_minus_children_labels)
         return marginal_gain
     cos_similarity_val = cos(current_node.weighted_average_vector, main_node.weighted_average_vector)
     marginal_gain = (DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
@@ -127,7 +127,7 @@ def compute_value_for_each_node(x, dist_matrix, dict_object_to_desc, dict_node_t
                 visited.append(u)
     total_gain += get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, x, x)
     rep_matrix[hash(x)] = total_gain
-    dict_node_to_rep[list(x.np_val)[0]] = rep_matrix
+    dict_node_to_rep[list(x.span_lst)[0]] = rep_matrix
     return total_gain
 
 
@@ -192,7 +192,10 @@ def set_cover(children, visited_labels, np_object_parent, global_index_to_simila
 def add_longest_nps_to_np_object_children(topic_object, labels, global_dict_label_to_object):
     longest_nps_lst = set()
     for label in labels:
-        longest_nps_lst.add(global_dict_label_to_object[label])
+        try:
+            longest_nps_lst.add(global_dict_label_to_object[label])
+        except:
+            raise Exception("label isn't updated")
     topic_object.add_children(longest_nps_lst)
     for longest_np in longest_nps_lst:
         longest_np.parents.add(topic_object)
@@ -214,6 +217,7 @@ def DAG_contraction_by_set_cover_algorithm(topic_object_lst, global_dict_label_t
     for topic_object in topic_object_lst:
         build_tree_from_DAG(topic_object, global_dict_label_to_object, visited_nodes,
                             global_index_to_similar_longest_np, set())
+        DAG_utils.check_symmetric_relation_in_DAG(topic_object_lst)
     sort_DAG_by_frequency(topic_object_lst)
 
 
@@ -245,7 +249,7 @@ def build_tree_from_DAG(np_object, global_dict_label_to_object, visited_nodes,
         for np_object_child in selected_np_objects:
             visited_nodes.add(np_object_child)
             build_tree_from_DAG(np_object_child, global_dict_label_to_object, visited_nodes,
-                                global_index_to_similar_longest_np, visited_labels)
+                                global_index_to_similar_longest_np, set())
 
 
 def is_ancestor_in_S(v, S, visited):
@@ -298,6 +302,8 @@ def extract_top_k_concept_nodes_greedy_algorithm(k, topic_lst, global_index_to_s
         #     global_index_to_similar_longest_np, uncounted_labels)
         # if uncounted_labels_frequency < 5:
         #     continue
+        if len(uncounted_labels) == 0:
+            continue
         already_counted_labels.update(x.label_lst)
         for key, value in S_rep_new.items():
             S_rep[key] = value

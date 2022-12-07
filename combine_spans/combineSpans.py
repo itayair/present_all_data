@@ -140,11 +140,13 @@ def union_common_np_by_DL_model(common_np_to_group_members_indices, dict_span_to
         if len(similar_common_spans_lst) == 1:
             continue
         new_common_np_to_group_members_indices[similar_common_spans_lst[0]] = set()
-        for common_span in similar_common_spans_lst:
-            for span in similar_common_spans_lst:
-                dict_span_to_similar_spans[common_span].update(dict_span_to_similar_spans[span])
+        all_similar_common_spans = set()
+        for span in similar_common_spans_lst:
+            all_similar_common_spans.update(dict_span_to_similar_spans[span])
+        for span in similar_common_spans_lst:
+            dict_span_to_similar_spans[span] = all_similar_common_spans
             new_common_np_to_group_members_indices[similar_common_spans_lst[0]].update(
-                common_np_to_group_members_indices[common_span])
+                common_np_to_group_members_indices[span])
     return new_common_np_to_group_members_indices
 
 
@@ -176,8 +178,8 @@ def union_common_np(clusters, dict_span_to_rank, dict_label_to_spans_group):
     common_np_to_group_members_indices = \
         create_dict_from_common_np_to_group_members_indices(span_to_group_members,
                                                             dict_span_to_rank, dict_longest_span_to_his_synonyms)
-    common_np_to_group_members_indices = union_common_np_by_DL_model(common_np_to_group_members_indices,
-                                                                     dict_span_to_similar_spans)
+    # common_np_to_group_members_indices = union_common_np_by_DL_model(common_np_to_group_members_indices,
+    #                                                                  dict_span_to_similar_spans)
     return dict_span_to_lemmas_lst, common_np_to_group_members_indices, dict_span_to_similar_spans
 
 

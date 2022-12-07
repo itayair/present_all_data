@@ -3,7 +3,6 @@ import nltk
 from expansions import valid_expansion_utils
 from nltk.corpus import stopwords
 
-nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
 tied_deps = ['compound', 'mwe', 'case', 'mark', 'auxpass', 'name', 'aux']
 tied_couples = [['auxpass', 'nsubjpass']]

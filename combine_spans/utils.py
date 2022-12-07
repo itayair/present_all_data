@@ -5,7 +5,7 @@ import nltk
 
 
 def load_data_dicts():
-    directory_relative_path = "load_data\\diabetes\\"
+    directory_relative_path = "load_data\\sciatica\\"
     a_file = open(directory_relative_path + "noun_lemma_to_example.pkl", "rb")
     topics_dict = pickle.load(a_file)
     topics_dict = {k: v for k, v in
@@ -252,7 +252,7 @@ def get_dict_spans_group_to_score(span_to_group_members, dict_span_to_rank, dict
         dict_score_to_collection_of_sub_groups[average_val].append((key, set(group)))
     dict_score_to_collection_of_sub_groups = {k: v for k, v in
                                               sorted(dict_score_to_collection_of_sub_groups.items(),
-                                                     key=lambda item: item[0])}
+                                                     key=lambda item: item[0], reverse=True)}
     for score, sub_group_lst in dict_score_to_collection_of_sub_groups.items():
         sub_group_lst.sort(key=lambda tup: len(tup[1]), reverse=True)
     return dict_score_to_collection_of_sub_groups

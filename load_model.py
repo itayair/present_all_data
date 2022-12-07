@@ -141,6 +141,7 @@ def main():
     all_object_np_lst = []
     global_longest_np_index = [0]
     longest_NP_to_global_index = {}
+    dict_object_to_global_label = {}
     print(combine_spans_utils.dict_noun_lemma_to_synonyms)
     for topic, examples_list in combine_spans_utils.dict_of_topics.items():
         # noun_object = clustered_data_objects.noun_cluster_object(topic,
@@ -155,10 +156,11 @@ def main():
                                                                                          dict_global_longest_np_to_all_counted_expansions,
                                                                                          longest_NP_to_global_index,
                                                                                          global_index_to_similar_longest_np,
-                                                                                         dict_span_to_lst, dict_span_to_rank)
+                                                                                         dict_span_to_lst,
+                                                                                         dict_span_to_rank)
         dict_idx_to_all_valid_expansions = initialize_spans_data(all_nps_example_lst, dict_span_to_rank)
         # if len(longest_np_lst) == 1:
-        #     global_longest_np_index[0] += 1
+        #     global_longest_np_index[0] += 1s
         #     longest_NP_to_global_index[longest_np_lst[0]] = global_longest_np_index[0]
         #     global_index_to_similar_longest_np[global_longest_np_index[0]] = [longest_np_lst[0]]
         #     dict_label_to_spans_group = {global_longest_np_index[0]:
@@ -177,7 +179,8 @@ def main():
                                                   all_object_np_lst, span_to_object, dict_span_to_similar_spans,
                                                   dict_label_to_spans_group, global_dict_label_to_object,
                                                   topic_object_lst, longest_np_total_lst, longest_np_lst,
-                                                  longest_NP_to_global_index)
+                                                  longest_NP_to_global_index, dict_object_to_global_label)
+        DAG_utils.check_symmetric_relation_in_DAG(topic_object_lst)
     DAG_utils.update_nodes_frequency(topic_object_lst, global_index_to_similar_longest_np)
     hierarchical_structure_algorithms.DAG_contraction_by_set_cover_algorithm(topic_object_lst,
                                                                              global_dict_label_to_object,
@@ -200,7 +203,7 @@ def main():
     print("total labels of topics:", total_labels_of_topics)
     print("Covered labels by selected nodes:", covered_labels)
     # result_file = open("diabetes_output.txt", "wb")
-    with open('pneumonia_output.txt', 'w') as result_file:
+    with open('sciatica_output.txt', 'w') as result_file:
         result_file.write(json.dumps(top_k_topics))
 
 

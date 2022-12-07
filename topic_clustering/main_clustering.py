@@ -6,48 +6,20 @@ import requests
 import pickle
 
 
-def filter_dict_by_lst(dict_noun_lemma_to_examples, dict_noun_lemma_to_counter, topic_lst):
-    dict_noun_lemma_to_examples = {key: dict_noun_lemma_to_examples[key] for key in dict_noun_lemma_to_examples if
-                                   key in topic_lst}
-    dict_noun_lemma_to_counter = {key: dict_noun_lemma_to_counter[key] for key in dict_noun_lemma_to_counter if
-                                  key in topic_lst}
-    return dict_noun_lemma_to_examples, dict_noun_lemma_to_counter
-
-
-def set_cover(dict_noun_lemma_to_examples):
-    covered = set()
-    topic_lst = set()
-    noun_to_spans_lst = []
-    for noun, tuples_span_lst in dict_noun_lemma_to_examples.items():
-        spans_lst = [tuple_span[0] for tuple_span in tuples_span_lst]
-        noun_to_spans_lst.append((noun, set(spans_lst)))
-    print("start")
-    while True:
-        item = max(noun_to_spans_lst, key=lambda s: len(s[1] - covered))
-        if len(item[1] - covered) > 0:
-            covered.update(item[1])
-            topic_lst.add(item[0])
-        else:
-            break
-    return topic_lst
-
-
-# def filter_and_sort_dicts(dict_noun_lemma_to_examples, abbreviations_lst, dict_noun_lemma_to_counter):
-#     dict_noun_lemma_to_examples = utils_clustering.get_dict_sorted_and_filtered(dict_noun_lemma_to_examples,
-#                                                                                 abbreviations_lst,
-#                                                                                 dict_noun_lemma_to_counter, head_lst)
-#     dict_noun_lemma_to_counter = utils_clustering.get_dict_sorted_and_filtered(dict_noun_lemma_to_counter,
-#                                                                                abbreviations_lst,
-#                                                                                dict_noun_lemma_to_counter, head_lst)
-#     # black_list = set()
-#     # for word, counter in dict_noun_lemma_to_counter.items():
-#     #     utils_clustering.is_should_be_removed(dict_noun_lemma_to_counter,
-#     #                                           dict_noun_lemma_to_examples[word], word,
-#     #                                           dict_word_to_his_synonym, black_list, dict_span_to_topic_entry)
-#     # topic_lst = set_cover(dict_noun_lemma_to_examples)
-#     # dict_noun_lemma_to_examples, dict_noun_lemma_to_counter = filter_dict_by_lst(dict_noun_lemma_to_examples,
-#     #                                                                             dict_noun_lemma_to_counter, topic_lst)
-#     return dict_noun_lemma_to_examples, dict_noun_lemma_to_counter
+def filter_and_sort_dicts():
+    # dict_noun_lemma_to_examples = utils_clustering.get_dict_sorted_and_filtered(dict_noun_lemma_to_examples,
+    #                                                                             abbreviations_lst,
+    #                                                                             dict_noun_lemma_to_counter, head_lst)
+    # dict_noun_lemma_to_counter = utils_clustering.get_dict_sorted_and_filtered(dict_noun_lemma_to_counter,
+    #                                                                            abbreviations_lst,
+    #                                                                            dict_noun_lemma_to_counter, head_lst)
+    # black_list = set()
+    # for word, counter in dict_noun_lemma_to_counter.items():
+    #     utils_clustering.is_should_be_removed(dict_noun_lemma_to_counter,
+    #                                           dict_noun_lemma_to_examples[word], word,
+    #                                           dict_word_to_his_synonym, black_list, dict_span_to_topic_entry)
+    topic_lst = utils_clustering.set_cover()
+    utils_clustering.filter_dict_by_lst(topic_lst)
 
 
 def combine_word_in_upper_case_to_word_in_lower_if_exist(dict_noun_lemma_to_counter, dict_noun_lemma_to_examples,
@@ -134,7 +106,7 @@ def find_match_for_abbreviation(abbreviation_lst, dict_noun_compound_to_lst, dic
 
 
 def convert_examples_to_clustered_data():
-    examples = parse_medical_data.get_examples_from_special_format(False)
+    examples = parse_medical_data.get_examples_from_special_format(True)
     dict_noun_lemma_to_synonyms = {}
     # noun_lemma_to_synonyms_file = open("load_data\\diabetes\\noun_lemma_to_synonyms.pkl", "rb")
     # dict_noun_lemma_to_synonyms = pickle.load(noun_lemma_to_synonyms_file)
@@ -156,14 +128,15 @@ def convert_examples_to_clustered_data():
         dict_sentence_to_span_lst[sentence].append(span)
         span_lst.add(span)
         tokens_already_counted = set()
+        lemma_already_counted = set()
         is_valid_example = False
         for word in biggest_noun_phrase:
             if word in tokens_already_counted:
                 continue
-
             lemma_word = word.lemma_.lower()
             dict_word_to_lemma[lemma_word] = lemma_word
             is_valid_example |= utils_clustering.add_word_collection_to_data_structures(word, tokens_already_counted,
+                                                                                        lemma_already_counted,
                                                                                         all_valid_nps_lst, span)
         if is_valid_example:
             counter = utils_clustering.update_new_valid_example(span, dict_longest_span_to_counter, all_valid_nps_lst,
@@ -176,9 +149,7 @@ def convert_examples_to_clustered_data():
     #     dict_noun_lemma_to_examples,
     #     dict_noun_lemma_to_counter, dict_noun_lemma_to_synonyms, 'wordnet')
     utils_clustering.synonyms_consolidation(dict_noun_lemma_to_synonyms, 'umls')
-    # dict_noun_lemma_to_examples, dict_noun_lemma_to_counter = filter_and_sort_dicts(dict_noun_lemma_to_examples,
-    #                                                                                 abbreviations_lst,
-    #                                                                                 dict_noun_lemma_to_counter)
+    filter_and_sort_dicts()
     dict_lemma_to_synonyms = utils_clustering.create_dicts_for_words_similarity(dict_word_to_lemma)
     dict_lemma_to_synonyms.update(dict_noun_lemma_to_synonyms)
     return utils_clustering.dict_noun_lemma_to_examples, dict_span_to_counter, dict_word_to_lemma, dict_lemma_to_synonyms, \
