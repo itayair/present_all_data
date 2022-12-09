@@ -5,7 +5,7 @@ import nltk
 
 
 def load_data_dicts():
-    directory_relative_path = "load_data\\sciatica\\"
+    directory_relative_path = "load_data\\meningitis\\"
     a_file = open(directory_relative_path + "noun_lemma_to_example.pkl", "rb")
     topics_dict = pickle.load(a_file)
     topics_dict = {k: v for k, v in
@@ -178,8 +178,8 @@ def get_weighted_average_vector_of_some_vectors_embeddings(spans_embeddings, com
     return weighted_average_vector
 
 
-def get_non_clustered_group_numbers(label_to_cluster, span_to_group_members, dict_label_to_spans_group):
-    all_group_numbers = set(label_to_cluster.keys())
+def get_non_clustered_group_numbers(span_to_group_members, dict_label_to_longest_nps_group):
+    all_group_numbers = set(dict_label_to_longest_nps_group.keys())
     already_grouped = set()
     common_span_lst = []
     for common_span, group_numbers in span_to_group_members.items():
@@ -188,7 +188,7 @@ def get_non_clustered_group_numbers(label_to_cluster, span_to_group_members, dic
     res_group_numbers = [item for item in all_group_numbers if item not in already_grouped]
     dict_label_to_longest_np_without_common_sub_np = {}
     for num in res_group_numbers:
-        dict_label_to_longest_np_without_common_sub_np[num] = dict_label_to_spans_group[num]
+        dict_label_to_longest_np_without_common_sub_np[num] = dict_label_to_longest_nps_group[num]
     return dict_label_to_longest_np_without_common_sub_np, common_span_lst
 
 
@@ -212,13 +212,14 @@ def convert_dict_label_to_spans_to_most_frequent_span_to_label(dict_label_to_spa
     return dict_span_to_label
 
 
-def update_span_to_group_members_with_longest_answers_dict(span_to_group_members, dict_label_to_spans_group,
+def update_span_to_group_members_with_longest_answers_dict(span_to_group_members, dict_label_to_longest_nps_group,
                                                            dict_span_to_similar_spans):
     dict_longest_answer_to_label_temp = {}
-    for label, tuple_of_spans_lst in dict_label_to_spans_group.items():
-        spans_lst = [tuple_of_span[0] for tuple_of_span in tuple_of_spans_lst]
+    for label, spans_lst in dict_label_to_longest_nps_group.items():
         most_frequent_span = get_most_frequent_span(spans_lst)
         is_common_span = False
+        if most_frequent_span in span_to_group_members:
+            continue
         for span, label_lst in span_to_group_members.items():
             if label in label_lst:
                 similar_spans_lst = dict_span_to_similar_spans[span]
@@ -239,10 +240,10 @@ def update_span_to_group_members_with_longest_answers_dict(span_to_group_members
 
 
 def get_dict_spans_group_to_score(span_to_group_members, dict_span_to_rank, dict_span_to_similar_spans,
-                                  dict_label_to_spans_group):
+                                  dict_label_to_longest_nps_group):
     # dict_span_to_label = convert_dict_label_to_spans_to_most_frequent_span_to_label(dict_label_to_spans_group)
     # update_span_to_group_members_with_longest_answers_dict(span_to_group_members, dict_span_to_label, dict_span_to_similar_spans)
-    update_span_to_group_members_with_longest_answers_dict(span_to_group_members, dict_label_to_spans_group,
+    update_span_to_group_members_with_longest_answers_dict(span_to_group_members, dict_label_to_longest_nps_group,
                                                            dict_span_to_similar_spans)
     dict_score_to_collection_of_sub_groups = {}
     for key, group in span_to_group_members.items():

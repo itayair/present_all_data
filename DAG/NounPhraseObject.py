@@ -97,9 +97,10 @@ class NP:
             #         break
             if not is_already_exist:
                 new_span_lst.append(span_as_tokens)
-        self.list_of_span_as_lemmas_lst.extend(new_span_lst)
-        self.calculate_common_denominators_of_spans(new_span_lst)
-        self.update_top_lemmas_in_spans()
+        if new_span_lst:
+            self.list_of_span_as_lemmas_lst.extend(new_span_lst)
+            self.calculate_common_denominators_of_spans(new_span_lst)
+            self.update_top_lemmas_in_spans()
 
     def update_parents_label(self, np_object, label_lst, visited):
         for parent_object in np_object.parents:
