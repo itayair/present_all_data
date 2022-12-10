@@ -120,7 +120,7 @@ def create_np_object_from_np_collection(np_collection, dict_span_to_lemmas_lst, 
     return np_object
 
 
-def update_np_object(collection_np_object, np_collection, span_to_object, dict_span_to_lemmas_lst, labels):
+def update_np_object(collection_np_object, np_collection, span_to_object, dict_span_to_lemmas_lst, labels, topic_label_lst):
     collection_np_object.label_lst.update(labels)
     nps_to_update = set()
     for np in np_collection:
@@ -128,7 +128,13 @@ def update_np_object(collection_np_object, np_collection, span_to_object, dict_s
         if np_object == collection_np_object:
             continue
         if np_object:
-            continue
+            np_object.combine_nodes(collection_np_object)
+            for span in np_object.span_lst:
+                span_to_object[span] = np_object
+            if collection_np_object in topic_label_lst:
+                topic_label_lst.remove(collection_np_object)
+            collection_np_object = np_object
+            topic_label_lst.add(collection_np_object)
         nps_to_update.add(np)
     for np in nps_to_update:
         span_to_object[np] = collection_np_object
@@ -155,7 +161,8 @@ def create_and_insert_nodes_from_sub_groups_of_spans(dict_score_to_collection_of
                                                      dict_span_to_lemmas_lst,
                                                      all_object_np_lst, span_to_object,
                                                      dict_span_to_similar_spans, dict_label_to_spans_group,
-                                                     global_dict_label_to_object, dict_object_to_global_label):
+                                                     global_dict_label_to_object, dict_object_to_global_label,
+                                                     topic_label_lst):
     np_objet_lst = []
     for score, np_to_labels_collection in dict_score_to_collection_of_sub_groups.items():
         for np_key, labels in np_to_labels_collection:
@@ -164,7 +171,8 @@ def create_and_insert_nodes_from_sub_groups_of_spans(dict_score_to_collection_of
                 np_object = span_to_object.get(np, None)
                 if np_object:
                     # np_object.label_lst.update(labels)
-                    update_np_object(np_object, np_collection, span_to_object, dict_span_to_lemmas_lst, labels)
+                    update_np_object(np_object, np_collection, span_to_object, dict_span_to_lemmas_lst, labels,
+                                     topic_label_lst)
                     break
             if np_object:
                 continue
@@ -173,7 +181,7 @@ def create_and_insert_nodes_from_sub_groups_of_spans(dict_score_to_collection_of
             np_objet_lst.append(np_object)
     np_objet_lst = sorted(np_objet_lst, key=lambda np_object: np_object.length, reverse=True)
     for np_object in np_objet_lst:
-        longest_nps_nodes_lst = get_longest_np_nodes_contain_labels(np_object.label_lst, global_dict_label_to_object,
+        longest_nps_nodes_lst = get_longest_np_nodes_contain_labels(np_object.label_lst.intersection(topic_label_lst), global_dict_label_to_object,
                                                                     np_object, dict_object_to_global_label)
         if not longest_nps_nodes_lst:
             continue
@@ -324,7 +332,8 @@ def insert_examples_of_topic_to_DAG(dict_score_to_collection_of_sub_groups, topi
                                                      dict_span_to_lemmas_lst, all_object_np_lst,
                                                      span_to_object, dict_span_to_similar_spans,
                                                      dict_label_to_spans_group,
-                                                     global_dict_label_to_object, dict_object_to_global_label)
+                                                     global_dict_label_to_object, dict_object_to_global_label,
+                                                     topic_label_lst)
     topic_object = create_and_update_topic_object(topic_synonym_lst, span_to_object, longest_NP_to_global_index)
     add_dependency_routh_between_longest_np_to_topic(span_to_object, topic_object_lst,
                                                      longest_np_total_lst, topic_object)

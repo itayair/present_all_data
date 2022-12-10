@@ -148,8 +148,6 @@ def main():
     global_longest_np_index = [0]
     longest_NP_to_global_index = {}
     dict_object_to_global_label = {}
-    dict_span_to_similar_spans = {}
-    print(combine_spans_utils.dict_noun_lemma_to_synonyms)
     for topic, examples_list in combine_spans_utils.dict_of_topics.items():
         # noun_object = clustered_data_objects.noun_cluster_object(topic,
         #                                                          combine_spans_utils.dict_noun_lemma_to_synonyms[topic],
@@ -211,7 +209,7 @@ def main():
     print("total labels of topics:", total_labels_of_topics)
     print("Covered labels by selected nodes:", covered_labels)
     # result_file = open("diabetes_output.txt", "wb")
-    with open('meningitis_output.txt', 'w') as result_file:
+    with open('diabetes_output.txt', 'w') as result_file:
         result_file.write(json.dumps(top_k_topics))
 
 

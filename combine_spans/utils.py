@@ -5,7 +5,7 @@ import nltk
 
 
 def load_data_dicts():
-    directory_relative_path = "load_data\\meningitis\\"
+    directory_relative_path = "load_data\\diabetes\\"
     a_file = open(directory_relative_path + "noun_lemma_to_example.pkl", "rb")
     topics_dict = pickle.load(a_file)
     topics_dict = {k: v for k, v in

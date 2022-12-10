@@ -68,7 +68,13 @@ def get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, cur
         marginal_gain = DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
                                                                 label_lst_minus_children_labels)
         return marginal_gain
-    cos_similarity_val = cos(current_node.weighted_average_vector, main_node.weighted_average_vector)
+    try:
+        cos_similarity_val = cos(current_node.weighted_average_vector, main_node.weighted_average_vector)
+    except:
+        print("Error in weighted_average_vector")
+        print(current_node.span_lst)
+        print(current_node.list_of_span_as_lemmas_lst)
+        cos_similarity_val = 0.5
     marginal_gain = (DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
                                                              current_node.label_lst)) * (
                             cos_similarity_val ** 2)
