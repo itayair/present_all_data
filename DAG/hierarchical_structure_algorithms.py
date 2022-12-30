@@ -31,18 +31,18 @@ def calculate_dist_from_set_to_vertex(S, v, dist_matrix):
     return min_dist
 
 
-def get_rep_from_group(S, y, dist_matrix, global_index_to_similar_longest_np):
+def get_rep_from_group(S, y, dist_matrix, global_index_to_similar_longest_np, topic_lst):
     dist = calculate_dist_from_set_to_vertex(S, y, dist_matrix)
-    return get_rep(y, dist, global_index_to_similar_longest_np)
+    return get_rep(y, dist, global_index_to_similar_longest_np, topic_lst)
 
 
-def get_rep(y, dist, global_index_to_similar_longest_np, x):
-    rep = get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, y, x)
+def get_rep(y, dist, global_index_to_similar_longest_np, x, topic_lst):
+    rep = get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, y, x, topic_lst)
     return rep
 
 
 def calculate_marginal_gain(x, dist_matrix, S_rep, k, dict_object_to_desc,
-                            global_index_to_similar_longest_np):
+                            global_index_to_similar_longest_np, topic_lst):
     marginal_val = 0
     S_rep_new = {}
     for y in dict_object_to_desc[hash(x)]:
@@ -51,18 +51,18 @@ def calculate_marginal_gain(x, dist_matrix, S_rep, k, dict_object_to_desc,
         else:
             marginal_val_y = S_rep.get(hash(y), 0)
             if x == y:
-                gain_x = get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, x, x)
+                gain_x = get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, x, x, topic_lst)
                 S_rep_new[hash(y)] = gain_x
                 marginal_val += (gain_x - marginal_val_y)
             else:
                 dist = dist_matrix[hash(str(hash(x))) - hash(str(hash(y)))]
-                S_rep_new[hash(y)] = get_rep(y, dist, global_index_to_similar_longest_np, x)
+                S_rep_new[hash(y)] = get_rep(y, dist, global_index_to_similar_longest_np, x, topic_lst)
                 marginal_val += (S_rep_new[hash(y)] - marginal_val_y)
     return marginal_val, S_rep_new
 
 
-def get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, current_node, main_node):
-    if current_node.score < 20:
+def get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, current_node, main_node, topic_lst):
+    if current_node in topic_lst:
         label_lst = DAG_utils.get_labels_of_children(current_node.children)
         label_lst_minus_children_labels = current_node.label_lst - label_lst
         marginal_gain = DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
@@ -105,7 +105,7 @@ def get_value_in_pow_format(dist, global_index_to_similar_longest_np, label_lst_
 
 
 def compute_value_for_each_node(x, dist_matrix, dict_object_to_desc, dict_node_to_rep,
-                                global_index_to_similar_longest_np):
+                                global_index_to_similar_longest_np, topic_lst):
     Q = [x]
     visited = [x]
     dist_matrix[hash(x)] = 0
@@ -125,13 +125,13 @@ def compute_value_for_each_node(x, dist_matrix, dict_object_to_desc, dict_node_t
             if u not in visited:
                 x_u = hash(str(hash(x))) - hash(str(hash(u)))
                 dist_matrix[x_u] = dist_matrix[x_v] + 1
-                x_u_marginal_gain = get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, u, x)
+                x_u_marginal_gain = get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, u, x, topic_lst)
                 rep_matrix[x_u] = x_u_marginal_gain
                 total_gain += x_u_marginal_gain
                 counter += 1
                 Q.append(u)
                 visited.append(u)
-    total_gain += get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, x, x)
+    total_gain += get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, x, x, topic_lst)
     rep_matrix[hash(x)] = total_gain
     dict_node_to_rep[list(x.span_lst)[0]] = rep_matrix
     return total_gain
@@ -282,7 +282,7 @@ def extract_top_k_concept_nodes_greedy_algorithm(k, topic_lst, global_index_to_s
     for node in all_object_np_lst:
         all_labels.update(node.label_lst)
         node.marginal_val = compute_value_for_each_node(node, dist_matrix, dict_object_to_desc, dict_node_to_rep,
-                                                        global_index_to_similar_longest_np)
+                                                        global_index_to_similar_longest_np, topic_lst)
     S = []
     heap_data_structure = all_object_np_lst
     heapq.heapify(heap_data_structure)
@@ -295,7 +295,8 @@ def extract_top_k_concept_nodes_greedy_algorithm(k, topic_lst, global_index_to_s
         if is_ancestor_already_in_S:
             continue
         marginal_val_x, S_rep_new = calculate_marginal_gain(x, dist_matrix, S_rep, k,
-                                                            dict_object_to_desc, global_index_to_similar_longest_np)
+                                                            dict_object_to_desc,
+                                                            global_index_to_similar_longest_np, topic_lst)
         if x.marginal_val > marginal_val_x + 0.1:
             x.marginal_val = marginal_val_x
             heapq.heappush(heap_data_structure, x)

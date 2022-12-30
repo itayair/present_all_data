@@ -4,7 +4,7 @@ from expansions import valid_expansion_utils
 from nltk.corpus import stopwords
 
 stop_words = set(stopwords.words('english'))
-tied_deps = ['compound', 'mwe', 'case', 'mark', 'auxpass', 'name', 'aux']
+tied_deps = ['compound', 'mwe', 'case', 'mark', 'auxpass', 'name', 'aux', 'neg', 'quantmod', 'det']
 tied_couples = [['auxpass', 'nsubjpass']]
 
 dep_type_optional = ['advmod', 'dobj', 'npadvmod', 'nmod', 'nummod', 'conj', 'aux', 'poss', 'nmod:poss',
@@ -19,6 +19,7 @@ low_val_dep = ['neg', 'nmod:poss', 'case', 'mark', 'auxpass', 'aux', 'nummod', '
 med_val_dep = ['nsubjpass', 'advmod', 'npadvmod', 'conj', 'poss', 'nmod:poss', 'xcomp', 'nmod:npmod', 'dobj', 'nmod',
                'amod', 'nsubj', 'acl', 'relcl', 'acl:relcl', 'ccomp', 'advcl']
 max_val_dep = ['compound', 'mwe', 'name']
+neglect_deps = ['neg', 'case', 'mark', 'auxpass', 'aux', 'nummod', 'quantmod', 'cop']
 
 
 def get_tied_couple_by_deps(first_dep, second_dep, children):
@@ -228,22 +229,17 @@ def get_all_valid_sub_np(head, boundary_np_to_the_left):
 
 def get_score(np, head_word):
     val = 0
-    for item in np:
+    for token in np:
         # for word in item[0]:
         #     if word in already_counted:
         #         continue
         #     new_sub_np.append(word)
-        if item == head_word:
+        if token == head_word:
             val += 1
             continue
-        val_to_add = 0
-        if item.text == '-':
+        if token.dep_ in neglect_deps or token.lemma_ in stop_words or token.text == '-':
             continue
-        if item.dep_ in low_val_dep:
-            val_to_add = 0
-        if item.dep_ in med_val_dep or item.dep_ in max_val_dep:
-            val_to_add = 1
-        val += val_to_add
+        val += 1
     return val
 
 
@@ -271,6 +267,7 @@ def get_all_expansions_of_span_from_lst(span_lst):
     sub_np_final_lst_collection = []
     counter_duplication = 0
     all_span_with_more_than_hundred = []
+    from_span_to_all_expansions = {}
     # all_valid_spans_of_all_expansions = set()
     for head_word, sentence_dep_graph, sentence in span_lst:
         counter += 1
@@ -309,11 +306,25 @@ def get_all_expansions_of_span_from_lst(span_lst):
         sub_np_final_spans.sort(key=lambda x: len(x[0]), reverse=True)
         if not sub_np_final_spans:
             continue
+        longest_span = valid_expansion_utils.get_tokens_as_span(sub_np_final_spans[0][0])
+        from_span_to_all_expansions[longest_span] = set()
+        for span_as_lst in sub_np_final_spans:
+            span = valid_expansion_utils.get_tokens_as_span(span_as_lst[0])
+            from_span_to_all_expansions[longest_span].add(span)
         sub_np_final_lst_collection.append((sub_np_final_spans[0][0], head_word, sub_np_final_spans, sentence))
     # print(max_valid_expansions)
-    # file_name = "text_files\\output_all_valid_expansions_result.txt"
-    # with open(file_name, 'w', encoding='utf-8') as f:
-    #     for span in all_valid_spans_of_all_expansions:
-    #         f.write(span + '\n')
+    file_name = ".\output_all_valid_expansions_result.txt"
+    with open(file_name, 'w', encoding='utf-8') as f:
+        for longest_span, collection in from_span_to_all_expansions.items():
+            f.write(longest_span + ': ')
+            idx = 0
+            f.write('[')
+            for span in collection:
+                if idx != 0:
+                    f.write(', ')
+                f.write(span)
+                idx += 1
+            f.write(']')
+            f.write('\n')
     print(counter_duplication)
     return sub_np_final_lst_collection

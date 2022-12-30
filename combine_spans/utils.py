@@ -5,7 +5,7 @@ import nltk
 
 
 def load_data_dicts():
-    directory_relative_path = "load_data\\diabetes\\"
+    directory_relative_path = "load_data\\abortion\\"
     a_file = open(directory_relative_path + "noun_lemma_to_example.pkl", "rb")
     topics_dict = pickle.load(a_file)
     topics_dict = {k: v for k, v in
@@ -100,10 +100,10 @@ def remove_token_if_in_span(token, span):
     return False
 
 
-def is_similar_meaning_between_span(span_1, span_2):
-    span_1_lemma_lst = from_words_to_lemma_lst(span_1)
-    span_2_lemma_lst = from_words_to_lemma_lst(span_2)
+def is_similar_meaning_between_span(span_1_lemma_lst, span_2_lemma_lst):
     not_satisfied = []
+    span_1_lemma_lst = span_1_lemma_lst.copy()
+    span_2_lemma_lst = span_2_lemma_lst.copy()
     for lemma in span_1_lemma_lst:
         is_exist = remove_token_if_in_span(lemma, span_2_lemma_lst)
         if not is_exist:

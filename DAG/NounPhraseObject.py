@@ -133,7 +133,7 @@ class NP:
         for child in np_object.children:
             if child not in self.children:
                 self.children.append(child)
-        self.combined_nodes_lst.add(np_object)
+        # self.combined_nodes_lst.add(np_object)
 
     def __gt__(self, ob2):
         return self.marginal_val < ob2.marginal_val

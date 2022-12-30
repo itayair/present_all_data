@@ -2,7 +2,6 @@ import umls_loader
 # import parse_medical_data
 import json
 from fastapi import FastAPI, APIRouter
-from pydantic import BaseModel
 
 router = APIRouter()
 app = FastAPI()
@@ -52,7 +51,7 @@ def create_synonyms_dictionary(words: str):
         synonyms = set(synonyms)
         if synonyms:
             for synonym in synonyms:
-                if synonym != word and synonym in word_lst:
+                if synonym != word:
                     dict_lemma_to_synonyms[word].add(synonym)
     return {"synonyms": dict_lemma_to_synonyms}
 
@@ -70,6 +69,37 @@ def create_synonyms_dictionary(abbreviations: str, compound_lst: str):
                 if synonym != abbreviation and synonym in compound_lst:
                     dict_abbreviation_to_compound[abbreviation].add(synonym)
     return {"dict_abbreviation_to_compound": dict_abbreviation_to_compound}
+
+
+@app.post("/get_broader_terms/")
+def create_synonyms_dictionary(word: str, relation_type: str):
+    # dict_lemma_to_synonyms = {}
+    # for word in word_lst:
+    broader_term = umls_loader.umls_loader.get_broader_term(word, relation_type)
+    # dict_lemma_to_synonyms[word] = set()
+    # dict_lemma_to_synonyms[word].add(word)
+    # synonyms = set(synonyms)
+    # if synonyms:
+    #     for synonym in synonyms:
+    #         if synonym != word and synonym in word_lst:
+    #             dict_lemma_to_synonyms[word].add(synonym)
+    return {"broader_term": broader_term}
+
+
+@app.post("/get_broader_atoms/")
+def create_synonyms_dictionary(word: str, relation_type: str):
+    # dict_lemma_to_synonyms = {}
+    # for word in word_lst:
+    broader_atom = umls_loader.umls_loader.get_broader_atom(word, relation_type)
+    # dict_lemma_to_synonyms[word] = set()
+    # dict_lemma_to_synonyms[word].add(word)
+    # synonyms = set(synonyms)
+    # if synonyms:
+    #     for synonym in synonyms:
+    #         if synonym != word and synonym in word_lst:
+    #             dict_lemma_to_synonyms[word].add(synonym)
+    return {"broader_atom": broader_atom}
+
 
 # @app.get("/")
 # def root(word: str = "Disc"):

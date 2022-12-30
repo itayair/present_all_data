@@ -105,8 +105,21 @@ def find_match_for_abbreviation(abbreviation_lst, dict_noun_compound_to_lst, dic
     dict_abbreviation_to_elaboration.update(dict_abbreviation_to_compound)
 
 
+def write_to_file_topic_to_collection(spans_lst):
+    file_name = "spans_input.txt"
+    with open(file_name, 'w', encoding='utf-8') as f:
+        f.write('[')
+        idx = 0
+        for span in spans_lst:
+            if idx != 0:
+                f.write(', ')
+            f.write(span)
+            idx += 1
+        f.write(']')
+
+
 def convert_examples_to_clustered_data():
-    examples = parse_medical_data.get_examples_from_special_format(True)
+    examples = parse_medical_data.get_examples_from_special_format(False)
     dict_noun_lemma_to_synonyms = {}
     # noun_lemma_to_synonyms_file = open("load_data\\diabetes\\noun_lemma_to_synonyms.pkl", "rb")
     # dict_noun_lemma_to_synonyms = pickle.load(noun_lemma_to_synonyms_file)
@@ -143,6 +156,7 @@ def convert_examples_to_clustered_data():
                                                                 dict_span_to_counter,
                                                                 valid_expansion_utils, counter, valid_span_lst)
     print(counter)
+    write_to_file_topic_to_collection(span_lst)
     # combine_word_in_upper_case_to_word_in_lower_if_exist(dict_noun_lemma_to_counter, dict_noun_lemma_to_examples,
     #                                                      upper_case_noun_lst)
     # dict_noun_lemma_to_counter, dict_noun_lemma_to_examples = utils_clustering.synonyms_consolidation(

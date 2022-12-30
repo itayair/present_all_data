@@ -66,7 +66,7 @@ def get_tokens_as_span(words):
 
 
 def get_examples_from_json_format():
-    file_name = 'input_data_file\\diabetes.json'
+    file_name = 'input_data_file\\abortion.json'
     f = open(file_name, 'r', encoding='utf-8')
     data = json.load(f)
     examples = []
@@ -104,7 +104,8 @@ def get_examples_in_all_valid_answers_format(examples):
 def get_examples_from_special_format(is_txt_format=False):
     examples = []
     if is_txt_format:
-        file_name = 'text_files\\sciatica_causes_full.txt'
+        file_name = 'text_files\\sciatica_for_illustration.txt'
+        # file_name = 'text_files\\sciatica_causes_full.txt'
         # file_name = 'covid-treatments.txt'
         # file_name = 'text_files\\chest_pain_causes.txt'
         # output_file_name = 'output_sciatica_causes_full.txt'

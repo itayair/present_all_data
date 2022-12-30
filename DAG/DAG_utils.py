@@ -19,7 +19,8 @@ def add_node_between_nodes(parent, child, new_node):
 def is_node_contained_in_another_node(node, ref_node):
     # for span_as_lemmas in node.list_of_span_as_lemmas_lst:
     #     for span_as_lemmas_ref in ref_node.list_of_span_as_lemmas_lst:
-    if combine_spans_utils.is_similar_meaning_between_span(node.common_lemmas_in_spans, ref_node.common_lemmas_in_spans):
+    if combine_spans_utils.is_similar_meaning_between_span(node.common_lemmas_in_spans,
+                                                           ref_node.common_lemmas_in_spans):
         return True
     return False
 
@@ -74,7 +75,8 @@ def add_NP_to_DAG_bottom_to_up(np_object_to_add, np_object, visited, similar_np_
     visited.add(np_object)
     # for span_as_lemmas in np_object_to_add.list_of_span_as_lemmas_lst:
     #     for span_as_lemmas_ref in np_object.list_of_span_as_lemmas_lst:
-    if combine_spans_utils.is_similar_meaning_between_span(np_object_to_add.common_lemmas_in_spans, np_object.common_lemmas_in_spans):
+    if combine_spans_utils.is_similar_meaning_between_span(np_object_to_add.common_lemmas_in_spans,
+                                                           np_object.common_lemmas_in_spans):
         is_contained = True
         if len(np_object_to_add.common_lemmas_in_spans) == len(np_object.common_lemmas_in_spans):
             np_object.combine_nodes(np_object_to_add)
@@ -84,7 +86,8 @@ def add_NP_to_DAG_bottom_to_up(np_object_to_add, np_object, visited, similar_np_
     if is_contained:
         is_added = False
         for parent in np_object.parents:
-            is_added |= add_NP_to_DAG_bottom_to_up(np_object_to_add, parent, visited, similar_np_object, visited_and_added)
+            is_added |= add_NP_to_DAG_bottom_to_up(np_object_to_add, parent, visited, similar_np_object,
+                                                   visited_and_added)
             if similar_np_object[0]:
                 return True
         if not is_added:
@@ -120,7 +123,8 @@ def create_np_object_from_np_collection(np_collection, dict_span_to_lemmas_lst, 
     return np_object
 
 
-def update_np_object(collection_np_object, np_collection, span_to_object, dict_span_to_lemmas_lst, labels, topic_label_lst):
+def update_np_object(collection_np_object, np_collection, span_to_object, dict_span_to_lemmas_lst, labels,
+                     topic_label_lst):
     collection_np_object.label_lst.update(labels)
     nps_to_update = set()
     for np in np_collection:
@@ -181,7 +185,8 @@ def create_and_insert_nodes_from_sub_groups_of_spans(dict_score_to_collection_of
             np_objet_lst.append(np_object)
     np_objet_lst = sorted(np_objet_lst, key=lambda np_object: np_object.length, reverse=True)
     for np_object in np_objet_lst:
-        longest_nps_nodes_lst = get_longest_np_nodes_contain_labels(np_object.label_lst.intersection(topic_label_lst), global_dict_label_to_object,
+        longest_nps_nodes_lst = get_longest_np_nodes_contain_labels(np_object.label_lst.intersection(topic_label_lst),
+                                                                    global_dict_label_to_object,
                                                                     np_object, dict_object_to_global_label)
         if not longest_nps_nodes_lst:
             continue
@@ -200,7 +205,8 @@ def create_and_insert_nodes_from_sub_groups_of_spans(dict_score_to_collection_of
                         global_dict_label_to_object[label] = similar_np_object[0]
                     dict_object_to_global_label[hash(similar_np_object[0])] = \
                         dict_object_to_global_label.get(hash(similar_np_object[0]), set())
-                    dict_object_to_global_label[hash(similar_np_object[0])].update(dict_object_to_global_label[hash(np_object)])
+                    dict_object_to_global_label[hash(similar_np_object[0])].update(
+                        dict_object_to_global_label[hash(np_object)])
                     dict_object_to_global_label.pop(hash(np_object), None)
                 is_combined_with_exist_node = True
                 for span in np_object.span_lst:
@@ -221,6 +227,7 @@ def create_and_insert_nodes_from_sub_groups_of_spans(dict_score_to_collection_of
     #         topic_object = similar_np_object[0]
     # if not is_combined_with_exist_node:
     #     all_object_np_lst.append(topic_object)
+
 
 # def create_DAG_from_top_to_bottom(dict_score_to_collection_of_sub_groups,
 #                                   dict_span_to_lemmas_lst,
@@ -291,7 +298,8 @@ def remove_topic_np_from_np_object(np_object, topic_np):
 
 
 def combine_topic_object(np_object, topic_object):
-    if combine_spans_utils.is_similar_meaning_between_span(topic_object.common_lemmas_in_spans, np_object.common_lemmas_in_spans):
+    if combine_spans_utils.is_similar_meaning_between_span(topic_object.common_lemmas_in_spans,
+                                                           np_object.common_lemmas_in_spans):
         if len(topic_object.common_lemmas_in_spans) == len(np_object.common_lemmas_in_spans):
             np_object.combine_nodes(topic_object)
             return True
@@ -318,10 +326,12 @@ def create_and_update_topic_object(topic_synonym_lst, span_to_object, longest_NP
     topic_object.label_lst = label_lst
     return topic_object
 
+
 def insert_examples_of_topic_to_DAG(dict_score_to_collection_of_sub_groups, topic_synonym_lst, dict_span_to_lemmas_lst,
                                     all_object_np_lst, span_to_object, dict_span_to_similar_spans,
                                     dict_label_to_spans_group, global_dict_label_to_object, topic_object_lst,
-                                    longest_np_total_lst, longest_np_lst, longest_NP_to_global_index, dict_object_to_global_label):
+                                    longest_np_total_lst, longest_np_lst, longest_NP_to_global_index,
+                                    dict_object_to_global_label):
     topic_label_lst = set()
     for longest_np in longest_np_total_lst:
         topic_label_lst.add(longest_NP_to_global_index[longest_np])
@@ -461,24 +471,34 @@ def get_frequency_from_labels_lst(global_index_to_similar_longest_np, label_lst)
     return num_of_labels
 
 
-def update_nodes_frequency(topic_object_lst, global_index_to_similar_longest_np, visited=[]):
+def initialize_node_weighted_vector(node):
+    is_first = True
+    for np in node.span_lst:
+        encoded_input = tokenizer(np, return_tensors='pt')
+        if is_first:
+            weighted_average_vector = medical_model(**encoded_input).last_hidden_state[0, 0, :]
+            is_first = False
+        else:
+            weighted_average_vector += medical_model(**encoded_input).last_hidden_state[0, 0, :]
+    weighted_average_vector /= len(node.span_lst)
+    node.weighted_average_vector = weighted_average_vector
+
+
+def get_represented_vector(span):
+    encoded_input = tokenizer(span, return_tensors='pt')
+    represented_vector = medical_model(**encoded_input).last_hidden_state[0, 0, :]
+    return represented_vector
+
+
+def initialize_nodes_weighted_average_vector(topic_object_lst, global_index_to_similar_longest_np, visited=[]):
     for node in topic_object_lst:
         if node in visited:
             continue
-        is_first = True
-        for np in node.span_lst:
-            encoded_input = tokenizer(np, return_tensors='pt')
-            if is_first:
-                weighted_average_vector = medical_model(**encoded_input).last_hidden_state[0, 0, :]
-                is_first = False
-            else:
-                weighted_average_vector += medical_model(**encoded_input).last_hidden_state[0, 0, :]
-        weighted_average_vector /= len(node.span_lst)
-        node.weighted_average_vector = weighted_average_vector
+        initialize_node_weighted_vector(node)
         node.frequency = get_frequency_from_labels_lst(global_index_to_similar_longest_np,
                                                        node.label_lst)
         visited.append(node)
-        update_nodes_frequency(node.children, global_index_to_similar_longest_np, visited)
+        initialize_nodes_weighted_average_vector(node.children, global_index_to_similar_longest_np, visited)
 
 
 def get_labels_of_children(children):
@@ -538,6 +558,8 @@ def remove_redundant_nodes(nodes_lst):
                         else:
                             raise Exception("Parent and child isn't consistent", parent.span_lst, s.span_lst)
                         s.parents.add(ancestor)
+                    if parent in nodes_lst:
+                        nodes_lst.remove(parent)
                     ignore_lst.append(parent)
                     if parent in s.parents:
                         s.parents.remove(parent)
@@ -550,6 +572,7 @@ def remove_redundant_nodes(nodes_lst):
                 else:
                     ignore_lst.append(parent)
                     s.parents.remove(parent)
+                    parent.children.remove(s)
                     if parent in nodes_lst:
                         nodes_lst.remove(parent)
                     else:

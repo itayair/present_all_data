@@ -117,7 +117,7 @@ def get_tokens_as_span(tokens):
         #     continue
         if idx != 0 and token.text != ',':
             span += ' '
-        span += token.text.lower()
+        span += token.text
         idx += 1
     return span
 
