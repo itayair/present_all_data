@@ -8,9 +8,9 @@ from nltk.corpus import stopwords
 # import umls_loader
 stop_words = set(stopwords.words('english'))
 tied_deps = ['compound', 'mwe', 'name', 'nummod']
-neglect_deps = ['neg', 'case', 'mark', 'auxpass', 'aux', 'nummod', 'quantmod', 'cop']
+neglect_deps = ['neg', 'case', 'mark', 'auxpass', 'aux', 'cop']
 query_words = ['sciatica', 'cause', 'causing', 'diagnosing', 'diagnosis',
-               'pain', 'chest', 'abortion', 'diabetes', 'diabete', 'jaundice', 'meningitis',
+               'pain', 'chest', 'abortion', 'diabetes', 'jaundice', 'meningitis',
                'pneumonia']
 
 noun_collections_lst = []
@@ -136,8 +136,8 @@ def add_word_collection_to_data_structures(word, tokens_already_counted, lemma_a
         is_valid_example = False
         token = word
         # for token in compound_noun:
-        if token.dep_ in ['quantmod'] or token.text == '-':
-            return is_valid_example
+        if token.dep_ in ['quantmod', 'nummod'] or token.text == '-':
+            return False
         lemma_token = token.lemma_.lower()
         if lemma_token in lemma_already_counted:
             return is_valid_example
@@ -265,7 +265,7 @@ def isAbbr(name):
 def from_tokens_to_lemmas(tokens):
     lemma_lst = []
     for token in tokens:
-        if token.dep_ in neglect_deps or token.lemma_ in stop_words or token.text == '-':
+        if token.dep_ in neglect_deps or token.lemma_ in stop_words or token.text in ['-', '/', '//', ',']:
             continue
         lemma_lst.append(token.lemma_.lower())
     return lemma_lst

@@ -156,11 +156,11 @@ def get_all_group_with_intersection_greater_than_X(selected_np_objects, threshol
 common_span_remove_lst = []
 
 
-def remove_unselected_np_objects(parent_np_object, selected_np_objects, visited_nodes):
+def remove_unselected_np_objects(parent_np_object, selected_np_objects):
     # list of unselected children to remove from parent
     remove_lst = []
     for child in parent_np_object.children:
-        if child not in selected_np_objects and child not in visited_nodes:
+        if child not in selected_np_objects:
             remove_lst.append(child)
             try:
                 child.parents.remove(parent_np_object)
@@ -173,9 +173,8 @@ def remove_unselected_np_objects(parent_np_object, selected_np_objects, visited_
         parent_np_object.children.remove(np_object)
 
 
-def set_cover(children, visited_labels, np_object_parent, global_index_to_similar_longest_np):
+def set_cover(children, np_object_parent, global_index_to_similar_longest_np):
     covered = set()
-    covered.update(visited_labels)
     selected_np_objects = []
     counted_labels = set()
     while True:
@@ -187,9 +186,9 @@ def set_cover(children, visited_labels, np_object_parent, global_index_to_simila
             break
         if DAG_utils.get_frequency_from_labels_lst(
                 global_index_to_similar_longest_np, np_object.label_lst - covered) > 1:
-            counted_labels.update(np_object_parent.label_lst.intersection(np_object.label_lst - visited_labels))
+            counted_labels.update(np_object_parent.label_lst.intersection(np_object.label_lst))
             selected_np_objects.append(np_object)
-            covered.update(np_object.label_lst - visited_labels)
+            covered.update(np_object.label_lst)
         else:
             break
     return selected_np_objects, counted_labels
@@ -201,9 +200,13 @@ def add_longest_nps_to_np_object_children(topic_object, labels, global_dict_labe
         try:
             longest_nps_lst.add(global_dict_label_to_object[label])
         except:
-            raise Exception("label isn't updated")
+            print("label isn't updated")
+            print(label)
+            # raise Exception("label isn't updated")
     topic_object.add_children(longest_nps_lst)
     for longest_np in longest_nps_lst:
+        if longest_np == topic_object:
+            continue
         longest_np.parents.add(topic_object)
 
 
@@ -241,13 +244,15 @@ def build_tree_from_DAG(np_object, global_dict_label_to_object, visited_nodes,
         return
     labels_covered_by_children = DAG_utils.get_labels_of_children(np_object.children)
     labels_covered_by_parent = np_object.label_lst - labels_covered_by_children
-    visited_labels.update(labels_covered_by_parent)
-    visited_labels.update(get_labels_from_visited_children(np_object.children, visited_nodes))
-    all_labels = np_object.label_lst - visited_labels
-    unvisited_nodes = set(np_object.children) - visited_nodes
-    selected_np_objects, counted_labels = set_cover(unvisited_nodes, visited_labels, np_object,
+    # visited_labels.update(labels_covered_by_parent)
+    # visited_labels.update(get_labels_from_visited_children(np_object.children, visited_nodes))
+    # visited_labels = set()
+    # visited_labels.update(labels_covered_by_parent)
+    all_labels = np_object.label_lst - labels_covered_by_parent
+    # unvisited_nodes = set(np_object.children) - visited_nodes
+    selected_np_objects, counted_labels = set_cover(set(np_object.children), np_object,
                                                     global_index_to_similar_longest_np)
-    remove_unselected_np_objects(np_object, selected_np_objects, visited_nodes)
+    remove_unselected_np_objects(np_object, selected_np_objects)
     uncounted_labels = all_labels - counted_labels
     visited_labels.update(uncounted_labels)
     add_longest_nps_to_np_object_children(np_object, uncounted_labels, global_dict_label_to_object)

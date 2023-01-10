@@ -39,12 +39,61 @@ class NP:
         self.combined_nodes_lst = set()
         self.weighted_average_vector = None
 
+    def get_average_length_of_lemmas_lst(self):
+        sum_length_lemma_lst = 0
+        for span_as_lemmas_lst in self.list_of_span_as_lemmas_lst:
+            sum_length_lemma_lst += len(span_as_lemmas_lst)
+        return sum_length_lemma_lst / len(self.list_of_span_as_lemmas_lst)
+
+    def does_lemma_lst_contain_lemma(self, lemma_lst, lemma):
+        synonyms = self.dict_key_to_synonyms_keys[lemma]
+        if set(lemma_lst).intersection(set(synonyms)):
+            return True
+        return False
+
+    def get_all_span_as_lemma_lst_contain_common_lemma(self):
+        contain_common_lemma_lst = self.list_of_span_as_lemmas_lst.copy()
+        for common_lemma in self.common_lemmas_in_spans:
+            synonyms = self.dict_key_to_synonyms_keys[common_lemma]
+            new_contain_common_lemma_lst = []
+            for span_as_lemmas_lst in contain_common_lemma_lst:
+                if set(span_as_lemmas_lst).intersection(set(synonyms)):
+                    new_contain_common_lemma_lst.append(span_as_lemmas_lst)
+                contain_common_lemma_lst = new_contain_common_lemma_lst
+        return contain_common_lemma_lst
+
+    def get_best_match(self, average_val):
+        contain_common_lemma_lst = self.get_all_span_as_lemma_lst_contain_common_lemma()
+        self.lemma_to_occurrences_dict = {k: v for k, v in
+                                          sorted(self.lemma_to_occurrences_dict.items(), key=lambda item: item[1],
+                                                 reverse=True)}
+        for lemma, occurrences in self.lemma_to_occurrences_dict.items():
+            is_added = False
+            if lemma in self.common_lemmas_in_spans:
+                continue
+            new_contain_common_lemma_lst = []
+            for lemma_lst in contain_common_lemma_lst:
+                if self.does_lemma_lst_contain_lemma(lemma_lst, lemma):
+                    new_contain_common_lemma_lst.append(lemma_lst)
+                    is_added = True
+            if is_added and (len(new_contain_common_lemma_lst) > 1 or len(self.common_lemmas_in_spans) == 0):
+                self.common_lemmas_in_spans.append(lemma)
+                contain_common_lemma_lst = new_contain_common_lemma_lst
+            if len(self.common_lemmas_in_spans) < average_val * 0.7:
+                break
+        self.length = len(self.common_lemmas_in_spans)
+
     def update_top_lemmas_in_spans(self):
         lemma_to_average_occurrences_dict = {key: value / len(self.list_of_span_as_lemmas_lst)
                                              for key, value in self.lemma_to_occurrences_dict.items()}
         self.common_lemmas_in_spans = [key for key, value in lemma_to_average_occurrences_dict.items() if
-                                       value > 0.5]
+                                       value > 0.7]
         self.length = len(self.common_lemmas_in_spans)
+        average_val = self.get_average_length_of_lemmas_lst()
+        if self.length + 0.5 < average_val:
+            self.get_best_match(average_val)
+            # most_frequent_span = combine_spans_utils.get_most_frequent_span(self.span_lst)
+            # self.common_lemmas_in_spans = combine_spans_utils.dict_span_to_lemma_lst[most_frequent_span]
 
     def get_lemmas_synonyms_in_keys(self, lemma):
         lemmas_keys_lst = list(self.lemma_to_occurrences_dict.keys())
@@ -79,6 +128,8 @@ class NP:
 
     def add_children(self, children):
         for child in children:
+            if child == self:
+                continue
             if child not in self.children:
                 self.children.append(child)
         for child in children:
@@ -113,11 +164,15 @@ class NP:
     def update_children_with_new_parent(self, children, previous_parent):
         for child in children:
             child.parents.remove(previous_parent)
+            if child == self:
+                continue
             child.parents.add(self)
 
     def update_parents_with_new_node(self, parents, previous_node):
         for parent in parents:
             parent.children.remove(previous_node)
+            if self == parent:
+                continue
             if self not in parent.children:
                 parent.children.append(self)
 
@@ -130,9 +185,7 @@ class NP:
         self.update_parents_with_new_node(np_object.parents, np_object)
         self.update_children_with_new_parent(np_object.children, np_object)
         self.parents.update(np_object.parents)
-        for child in np_object.children:
-            if child not in self.children:
-                self.children.append(child)
+        self.add_children(np_object.children)
         # self.combined_nodes_lst.add(np_object)
 
     def __gt__(self, ob2):

@@ -4,10 +4,10 @@ from expansions import valid_expansion_utils
 from nltk.corpus import stopwords
 
 stop_words = set(stopwords.words('english'))
-tied_deps = ['compound', 'mwe', 'case', 'mark', 'auxpass', 'name', 'aux', 'neg', 'quantmod', 'det']
+tied_deps = ['compound', 'mwe', 'case', 'mark', 'auxpass', 'name', 'aux', 'neg', 'det']
 tied_couples = [['auxpass', 'nsubjpass']]
 
-dep_type_optional = ['advmod', 'dobj', 'npadvmod', 'nmod', 'nummod', 'conj', 'aux', 'poss', 'nmod:poss',
+dep_type_optional = ['advmod', 'dobj', 'npadvmod', 'nmod', 'nummod', 'quantmod', 'conj', 'aux', 'poss', 'nmod:poss',
                      'xcomp']  # , 'conj', 'nsubj', 'appos'
 
 acl_to_seq = ['acomp', 'dobj', 'nmod']  # acl and relcl + [[['xcomp'], ['aux']], 'dobj']
@@ -19,7 +19,7 @@ low_val_dep = ['neg', 'nmod:poss', 'case', 'mark', 'auxpass', 'aux', 'nummod', '
 med_val_dep = ['nsubjpass', 'advmod', 'npadvmod', 'conj', 'poss', 'nmod:poss', 'xcomp', 'nmod:npmod', 'dobj', 'nmod',
                'amod', 'nsubj', 'acl', 'relcl', 'acl:relcl', 'ccomp', 'advcl']
 max_val_dep = ['compound', 'mwe', 'name']
-neglect_deps = ['neg', 'case', 'mark', 'auxpass', 'aux', 'nummod', 'quantmod', 'cop']
+neglect_deps = ['neg', 'case', 'mark', 'auxpass', 'aux', 'cop']
 
 
 def get_tied_couple_by_deps(first_dep, second_dep, children):
@@ -44,22 +44,41 @@ def get_tied_couples(children):
     return tied_couples_to_add
 
 
+tied_compound = ['compound', 'mwe', 'name']
+
+
+def is_dep_tied_by_tied_preposition(token):
+    for child in token.children:
+        if child.dep_ in ['case', 'mark']:
+            if child.text.lower() == 'of':
+                return True
+        if child.dep_ in tied_compound:
+            is_dep_tied = is_dep_tied_by_tied_preposition(child)
+            if is_dep_tied:
+                return True
+    return False
+
+
 def combine_tied_deps_recursively_and_combine_their_children(head, boundary_np_to_the_left):
     combined_children_lst = []
     combined_tied_tokens = [head]
     tied_couples_to_add = get_tied_couples(head.children)
     for child in head.children:
-        # if child.text in stop_words:
-        #     continue
         if boundary_np_to_the_left > child.i:
             continue
         if child.dep_ in tied_deps or child in tied_couples_to_add:
-            temp_tokens, temp_children = combine_tied_deps_recursively_and_combine_their_children(child,
-                                                                                                  boundary_np_to_the_left)
+            temp_tokens, temp_children = combine_tied_deps_recursively_and_combine_their_children(
+                child, boundary_np_to_the_left)
             combined_tied_tokens.extend(temp_tokens)
             combined_children_lst.extend(temp_children)
         else:
-            combined_children_lst.append(child)
+            if is_dep_tied_by_tied_preposition(child):
+                temp_tokens, temp_children = combine_tied_deps_recursively_and_combine_their_children(
+                    child, boundary_np_to_the_left)
+                combined_tied_tokens.extend(temp_tokens)
+                combined_children_lst.extend(temp_children)
+            else:
+                combined_children_lst.append(child)
     return combined_tied_tokens, combined_children_lst
 
 
@@ -230,10 +249,6 @@ def get_all_valid_sub_np(head, boundary_np_to_the_left):
 def get_score(np, head_word):
     val = 0
     for token in np:
-        # for word in item[0]:
-        #     if word in already_counted:
-        #         continue
-        #     new_sub_np.append(word)
         if token == head_word:
             val += 1
             continue
@@ -243,7 +258,7 @@ def get_score(np, head_word):
     return val
 
 
-def check_validity_span(np):
+def check_span_validity(np):
     hyphen_lst = []
     idx_lst = []
     for token in np:
@@ -262,13 +277,11 @@ def check_validity_span(np):
 
 
 def get_all_expansions_of_span_from_lst(span_lst):
-    # examples_to_visualize = []
     counter = 0
     sub_np_final_lst_collection = []
     counter_duplication = 0
     all_span_with_more_than_hundred = []
     from_span_to_all_expansions = {}
-    # all_valid_spans_of_all_expansions = set()
     for head_word, sentence_dep_graph, sentence in span_lst:
         counter += 1
         noun_phrase, head_word_in_np_index, boundary_np_to_the_left = valid_expansion_utils.get_np_boundary(
@@ -278,28 +291,17 @@ def get_all_expansions_of_span_from_lst(span_lst):
             continue
         if len(noun_phrase) > 15:
             continue
-        # examples_to_visualize.append(noun_phrase)
-        # all_valid_sub_np = valid_deps.get_all_valid_sub_np(noun_phrase[head_word_in_np_index])
         all_valid_sub_np = get_all_valid_sub_np(noun_phrase[head_word_in_np_index],
                                                 boundary_np_to_the_left)
         sub_np_final_lst = valid_expansion_utils.from_lst_to_sequence(all_valid_sub_np)
         sub_np_final_spans = []
         valid_span_lst = []
         for np in sub_np_final_lst:
-            # length_from_algorithm = len(sub_np)
             np.sort(key=lambda x: x.i)
-            is_valid_np = check_validity_span(np)
+            is_valid_np = check_span_validity(np)
             if not is_valid_np:
                 continue
-            # length_after_remove_duplication = len(new_sub_np)
-            # if length_after_remove_duplication != length_from_algorithm:
-            #     counter_duplication += 1
-            # span = valid_expansion_utils.get_tokens_as_span(new_sub_np)
-            # if span not in valid_span_lst:
-            #     all_valid_spans_of_all_expansions.add(span)
-            #     valid_span_lst.append(span)
             val = get_score(np, head_word)
-            # span = valid_expansion_utils.get_tokens_as_span(new_sub_np)
             sub_np_final_spans.append((np, val))
         if len(valid_span_lst) > 100:
             all_span_with_more_than_hundred.append(noun_phrase)
@@ -312,7 +314,6 @@ def get_all_expansions_of_span_from_lst(span_lst):
             span = valid_expansion_utils.get_tokens_as_span(span_as_lst[0])
             from_span_to_all_expansions[longest_span].add(span)
         sub_np_final_lst_collection.append((sub_np_final_spans[0][0], head_word, sub_np_final_spans, sentence))
-    # print(max_valid_expansions)
     file_name = ".\output_all_valid_expansions_result.txt"
     with open(file_name, 'w', encoding='utf-8') as f:
         for longest_span, collection in from_span_to_all_expansions.items():

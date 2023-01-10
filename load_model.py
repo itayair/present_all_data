@@ -88,7 +88,7 @@ def initialize_spans_data(all_nps_example_lst):
 
 
 def get_uncounted_examples(example_list, global_longest_np_lst, dict_global_longest_np_to_all_counted_expansions,
-                           longest_NP_to_global_index, global_index_to_similar_longest_np, dict_span_to_lst,
+                           longest_NP_to_global_index, global_index_to_similar_longest_np, dict_span_to_lemma_lst,
                            dict_span_to_rank):
     dict_span_to_all_valid_expansions = {}
     longest_np_lst = []
@@ -111,7 +111,7 @@ def get_uncounted_examples(example_list, global_longest_np_lst, dict_global_long
             for item in example[1]:
                 if item[0] in dict_global_longest_np_to_all_counted_expansions[example[0]]:
                     continue
-                dict_span_to_lst[item[0]] = item[2]
+                dict_span_to_lemma_lst[item[0]] = item[2]
                 dict_span_to_rank[item[0]] = item[1]
                 dict_global_longest_np_to_all_counted_expansions[example[0]].add(item[0])
                 uncounted_expansions.add(item[0])
@@ -121,19 +121,13 @@ def get_uncounted_examples(example_list, global_longest_np_lst, dict_global_long
         dict_global_longest_np_to_all_counted_expansions[
             example[0]] = dict_global_longest_np_to_all_counted_expansions.get(example[0], set())
         for item in example[1]:
-            dict_span_to_lst[item[0]] = item[2]
+            dict_span_to_lemma_lst[item[0]] = item[2]
             dict_span_to_rank[item[0]] = item[1]
             dict_global_longest_np_to_all_counted_expansions[example[0]].add(item[0])
         global_longest_np_lst.add(example[0])
         dict_span_to_all_valid_expansions[example[0]] = [item[0] for item in example[1]]
         longest_np_lst.append(example[0])
         all_nps_example_lst.append(example[1])
-    # dict_counted_longest_answers = {}
-    # if dict_uncounted_expansions:
-    #     for key in dict_uncounted_expansions.keys():
-    #         dict_counted_longest_answers[key] = set()
-    #         for longest_answer in global_index_to_similar_longest_np[key]:
-    #             dict_counted_longest_answers[key].add(longest_answer)
     return dict_span_to_all_valid_expansions, longest_np_lst, longest_np_total_lst, all_nps_example_lst, \
            dict_uncounted_expansions, dict_counted_longest_answers
 
@@ -253,7 +247,7 @@ def isCyclic(nodes_lst):
 
 def main():
     dict_span_to_rank = {}
-    dict_span_to_lst = {}
+    dict_span_to_lemma_lst = combine_spans_utils.dict_span_to_lemma_lst
     global_dict_label_to_object = {}
     span_to_object = {}
     global_index_to_similar_longest_np = {}
@@ -265,10 +259,9 @@ def main():
     longest_NP_to_global_index = {}
     dict_object_to_global_label = {}
     counter = 0
+    print(len(combine_spans_utils.dict_of_topics.keys()))
     for topic, examples_list in combine_spans_utils.dict_of_topics.items():
-        # noun_object = clustered_data_objects.noun_cluster_object(topic,
-        #                                                          combine_spans_utils.dict_noun_lemma_to_synonyms[topic],
-        #                                                          examples_list)
+        print(topic)
         topic_synonym_lst = set(combine_spans_utils.dict_noun_lemma_to_synonyms[topic])
         for synonym in topic_synonym_lst:
             dict_span_to_rank[synonym] = 1
@@ -278,17 +271,9 @@ def main():
                                                                                          dict_global_longest_np_to_all_counted_expansions,
                                                                                          longest_NP_to_global_index,
                                                                                          global_index_to_similar_longest_np,
-                                                                                         dict_span_to_lst,
+                                                                                         dict_span_to_lemma_lst,
                                                                                          dict_span_to_rank)
         dict_idx_to_all_valid_expansions, dict_idx_to_longest_np = initialize_spans_data(all_nps_example_lst)
-        # if len(longest_np_lst) == 1:
-        #     global_longest_np_index[0] += 1s
-        #     longest_NP_to_global_index[longest_np_lst[0]] = global_longest_np_index[0]
-        #     global_index_to_similar_longest_np[global_longest_np_index[0]] = [longest_np_lst[0]]
-        #     dict_label_to_spans_group = {global_longest_np_index[0]:
-        #                                      [(longest_np_lst[0], dict_idx_to_all_valid_expansions[0][0][1])]}
-        #     dict_span_to_similar_spans = {longest_np_lst[0]: longest_np_lst[0]}
-        # else:
         label_to_nps_collection, dict_label_to_longest_nps_group = combineSpans.create_clusters_of_longest_nps(
             longest_np_lst, dict_idx_to_all_valid_expansions, dict_idx_to_longest_np,
             global_longest_np_index,
@@ -296,27 +281,26 @@ def main():
             dict_counted_longest_answers)
         dict_score_to_collection_of_sub_groups, dict_span_to_similar_spans = \
             combineSpans.union_nps(label_to_nps_collection, dict_span_to_rank, dict_label_to_longest_nps_group,
-                                   dict_span_to_lst)
+                                   dict_span_to_lemma_lst, span_to_object)
         DAG_utils.insert_examples_of_topic_to_DAG(dict_score_to_collection_of_sub_groups, topic_synonym_lst,
-                                                  dict_span_to_lst,
+                                                  dict_span_to_lemma_lst,
                                                   all_object_np_lst, span_to_object, dict_span_to_similar_spans,
-                                                  dict_label_to_longest_nps_group, global_dict_label_to_object,
-                                                  topic_object_lst, longest_np_total_lst, longest_np_lst,
-                                                  longest_NP_to_global_index, dict_object_to_global_label)
+                                                  global_dict_label_to_object, topic_object_lst, longest_np_total_lst,
+                                                  longest_np_lst, longest_NP_to_global_index,
+                                                  dict_object_to_global_label)
         DAG_utils.check_symmetric_relation_in_DAG(topic_object_lst)
         isCyclic_val = isCyclic(topic_object_lst)
         if isCyclic_val:
-            raise Exception("There is a cyclic in the DAG")
+            print("There is a cyclic in the DAG")
         counter += 1
-
     # nodes_lst = get_all_nodes_from_roots(topic_object_lst)
     # write_to_file_group_of_similar_concepts(nodes_lst)
     # plot_graph(nodes_lst)
     DAG_utils.initialize_nodes_weighted_average_vector(topic_object_lst, global_index_to_similar_longest_np)
-    pickle.dump(topic_object_lst, open("topic_object_lst.p", "wb"))
-    pickle.dump(global_index_to_similar_longest_np, open("global_index_to_similar_longest_np.p", "wb"))
-    pickle.dump(dict_span_to_rank, open("dict_span_to_rank.p", "wb"))
-    pickle.dump(global_dict_label_to_object, open("global_dict_label_to_object.p", "wb"))
+    pickle.dump(topic_object_lst, open("results_disease/diabetes/topic_object_lst.p", "wb"))
+    pickle.dump(global_index_to_similar_longest_np, open("results_disease/diabetes/global_index_to_similar_longest_np.p", "wb"))
+    pickle.dump(dict_span_to_rank, open("results_disease/diabetes/dict_span_to_rank.p", "wb"))
+    pickle.dump(global_dict_label_to_object, open("results_disease/diabetes/global_dict_label_to_object.p", "wb"))
     # hierarchical_structure_algorithms.DAG_contraction_by_set_cover_algorithm(topic_object_lst,
     #                                                                          global_dict_label_to_object,
     #                                                                          global_index_to_similar_longest_np)

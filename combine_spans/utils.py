@@ -5,7 +5,7 @@ import nltk
 
 
 def load_data_dicts():
-    directory_relative_path = "load_data\\abortion\\"
+    directory_relative_path = "load_data\\diabetes\\"
     a_file = open(directory_relative_path + "noun_lemma_to_example.pkl", "rb")
     topics_dict = pickle.load(a_file)
     topics_dict = {k: v for k, v in
@@ -38,7 +38,7 @@ dict_longest_span_to_counter, dict_noun_lemma_to_synonyms, dict_noun_lemma_to_no
 dict_noun_word_to_counter = load_data_dicts()
 dict_span_to_counter.update(dict_noun_word_to_counter)
 dict_span_to_counter.update(dict_noun_lemma_to_counter)
-
+dict_span_to_lemma_lst = {}
 
 # dict_of_span_to_counter = {k: v for k, v in
 #                            sorted(dict_of_span_to_counter.items(), key=lambda item: item[1],
@@ -121,15 +121,15 @@ def is_similar_meaning_between_span(span_1_lemma_lst, span_2_lemma_lst):
     return True
 
 
-def create_dicts_length_to_span_and_span_to_list(span_to_group_members, dict_span_to_lst):
+def create_dicts_length_to_span_and_span_to_list(span_to_group_members):
     dict_length_to_span = {}
     for span, sub_set in span_to_group_members.items():
-        span_as_lst = dict_span_to_lst[span]
+        span_as_lst = dict_span_to_lemma_lst[span]
         if len(span_as_lst) == 1:
             continue
         dict_length_to_span[len(span_as_lst)] = dict_length_to_span.get(len(span_as_lst), [])
         dict_length_to_span[len(span_as_lst)].append((span, span_as_lst))
-        dict_span_to_lst[span] = span_as_lst
+        dict_span_to_lemma_lst[span] = span_as_lst
     return dict_length_to_span
 
 

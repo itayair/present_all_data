@@ -30,6 +30,7 @@ def create_dict_RB_to_objects_lst(dict_RB_to_objects, np_object, visited, relati
         for term in broader_terms_set:
             dict_RB_to_objects[term] = dict_RB_to_objects.get(term, set())
             dict_RB_to_objects[term].add(np_object)
+        break
     for child in np_object.children:
         create_dict_RB_to_objects_lst(dict_RB_to_objects, child, visited)
 
@@ -91,10 +92,10 @@ def from_tokens_to_lemmas(tokens):
 
 
 def initialize_data():
-    topic_objects = pickle.load(open("topic_object_lst.p", "rb"))
-    global_index_to_similar_longest_np = pickle.load(open("global_index_to_similar_longest_np.p", "rb"))
-    dict_span_to_rank = pickle.load(open("dict_span_to_rank.p", "rb"))
-    global_dict_label_to_object = pickle.load(open("global_dict_label_to_object.p", "rb"))
+    topic_objects = pickle.load(open("results_disease/diabetes/topic_object_lst.p", "rb"))
+    global_index_to_similar_longest_np = pickle.load(open("results_disease/diabetes/global_index_to_similar_longest_np.p", "rb"))
+    dict_span_to_rank = pickle.load(open("results_disease/diabetes/dict_span_to_rank.p", "rb"))
+    global_dict_label_to_object = pickle.load(open("results_disease/diabetes/global_dict_label_to_object.p", "rb"))
     visited = set()
     dict_span_to_object = {}
     for np_object in topic_objects:
@@ -154,8 +155,8 @@ def initialize_taxonomic_relations(topic_objects):
     dict_RB_to_objects = {k: v for k, v in
                           sorted(dict_RB_to_objects.items(), key=lambda item: len(item[1]),
                                  reverse=True)}
-    # dict_RB_to_objects = {key: dict_RB_to_objects[key] for key in dict_RB_to_objects if
-    #                       len(dict_RB_to_objects[key]) > 1}
+    dict_RB_to_objects = {key: dict_RB_to_objects[key] for key in dict_RB_to_objects if
+                          len(dict_RB_to_objects[key]) > 1}
     # Filter duplicate relation
     dict_RB_to_objects, dict_span_to_equivalent = filter_duplicate_relation(dict_RB_to_objects)
     return dict_RB_to_objects, dict_span_to_equivalent
@@ -253,11 +254,13 @@ def initialize_nodes_weighted_average_vector(nodes_lst, global_index_to_similar_
 def main():
     topic_objects, global_index_to_similar_longest_np, dict_span_to_rank, \
     global_dict_label_to_object, dict_span_to_object = initialize_data()
+    DAG_utils.update_symmetric_relation_in_DAG(topic_objects)
     dict_RB_to_objects, dict_span_to_equivalent = initialize_taxonomic_relations(topic_objects)
     # Find exist np objects that represent the taxonomic relation
     dict_RB_exist_objects, added_edges, added_taxonomic_relation, covered_labels_by_new_topics = \
         detect_and_update_existing_object_represent_taxonomic_relation(dict_RB_to_objects, dict_span_to_equivalent,
                                                                        dict_span_to_object)
+    DAG_utils.check_symmetric_relation_in_DAG(topic_objects)
     new_taxonomic_np_objects = create_and_add_new_taxonomic_object_to_DAG(dict_RB_exist_objects,
                                                                           dict_RB_to_objects, dict_span_to_equivalent,
                                                                           dict_span_to_rank)
@@ -265,6 +268,7 @@ def main():
     print(len(list(dict_RB_to_objects.keys())))
     covered_by_taxonomic_relation(new_taxonomic_np_objects, added_edges, added_taxonomic_relation,
                                   covered_labels_by_new_topics)
+    DAG_utils.check_symmetric_relation_in_DAG(topic_objects)
     # DAG contraction
     hierarchical_structure_algorithms.DAG_contraction_by_set_cover_algorithm(topic_objects,
                                                                              global_dict_label_to_object,
@@ -290,7 +294,7 @@ def main():
                                                                      labels_of_topics)
     print("total labels of topics:", total_labels_of_topics)
     print("Covered labels by selected nodes:", covered_labels)  # result_file = open("diabetes_output.txt", "wb")
-    with open('abortion_output.txt.txt', 'w') as result_file:
+    with open('diabetes_output.txt.txt', 'w') as result_file:
         result_file.write(json.dumps(top_k_topics))
 
     print("Done")
