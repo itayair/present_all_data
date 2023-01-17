@@ -163,7 +163,8 @@ class NP:
 
     def update_children_with_new_parent(self, children, previous_parent):
         for child in children:
-            child.parents.remove(previous_parent)
+            if previous_parent in child.parents:
+                child.parents.remove(previous_parent)
             if child == self:
                 continue
             child.parents.add(self)
@@ -186,7 +187,7 @@ class NP:
         self.update_children_with_new_parent(np_object.children, np_object)
         self.parents.update(np_object.parents)
         self.add_children(np_object.children)
-        # self.combined_nodes_lst.add(np_object)
+        del np_object
 
     def __gt__(self, ob2):
         return self.marginal_val < ob2.marginal_val

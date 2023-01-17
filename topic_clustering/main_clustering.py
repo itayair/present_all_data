@@ -121,8 +121,6 @@ def write_to_file_topic_to_collection(spans_lst):
 def convert_examples_to_clustered_data():
     examples = parse_medical_data.get_examples_from_special_format(False)
     dict_noun_lemma_to_synonyms = {}
-    # noun_lemma_to_synonyms_file = open("load_data\\diabetes\\noun_lemma_to_synonyms.pkl", "rb")
-    # dict_noun_lemma_to_synonyms = pickle.load(noun_lemma_to_synonyms_file)
     span_lst = set()
     dict_span_to_counter = {}
     dict_longest_span_to_counter = {}
@@ -157,12 +155,7 @@ def convert_examples_to_clustered_data():
                                                                 valid_expansion_utils, counter, valid_span_lst)
     print(counter)
     write_to_file_topic_to_collection(span_lst)
-    # combine_word_in_upper_case_to_word_in_lower_if_exist(dict_noun_lemma_to_counter, dict_noun_lemma_to_examples,
-    #                                                      upper_case_noun_lst)
-    # dict_noun_lemma_to_counter, dict_noun_lemma_to_examples = utils_clustering.synonyms_consolidation(
-    #     dict_noun_lemma_to_examples,
-    #     dict_noun_lemma_to_counter, dict_noun_lemma_to_synonyms, 'wordnet')
-    utils_clustering.synonyms_consolidation(dict_noun_lemma_to_synonyms, 'umls')
+    utils_clustering.synonyms_consolidation(dict_noun_lemma_to_synonyms)
     filter_and_sort_dicts()
     dict_lemma_to_synonyms = utils_clustering.create_dicts_for_words_similarity(dict_word_to_lemma)
     dict_lemma_to_synonyms.update(dict_noun_lemma_to_synonyms)

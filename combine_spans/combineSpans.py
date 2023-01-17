@@ -23,6 +23,8 @@ sapBert_tokenizer = AutoTokenizer.from_pretrained('cambridgeltl/SapBERT-from-Pub
 sapBert_model = AutoModel.from_pretrained('cambridgeltl/SapBERT-from-PubMedBERT-fulltext')
 model = sapBert_model.to(device)
 model = model.eval()
+
+
 # model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
 # model = model.to(device)
 
@@ -218,14 +220,14 @@ def group_hierarchical_clustering_results(clustering, dict_idx_to_all_valid_expa
         global_longest_np_index[0] += 1
     for idx, label in enumerate(clustering.labels_):
         global_val_label = dict_label_to_global_index[int(label)]
-        #longest np clustering
+        # longest np clustering
         global_index_to_similar_longest_np[global_val_label] = global_index_to_similar_longest_np.get(global_val_label,
                                                                                                       set())
         global_index_to_similar_longest_np[global_val_label].add(dict_idx_to_longest_np[idx])
         dict_label_to_longest_nps_group[global_val_label] = dict_label_to_longest_nps_group.get(global_val_label, set())
         dict_label_to_longest_nps_group[global_val_label].add(dict_idx_to_longest_np[idx])
         longest_NP_to_global_index[dict_idx_to_longest_np[idx]] = global_val_label
-        #Collection of nps
+        # Collection of nps
         label_to_nps_collection[global_val_label] = label_to_nps_collection.get(global_val_label, set())
         label_to_nps_collection[global_val_label].update(dict_idx_to_all_valid_expansions[idx])
     return label_to_nps_collection, dict_label_to_longest_nps_group
@@ -241,23 +243,56 @@ def create_clusters_of_longest_nps(longest_np_lst, dict_idx_to_all_valid_expansi
         longest_NP_to_global_index[longest_np_lst[0]] = global_longest_np_index[0]
         global_index_to_similar_longest_np[global_longest_np_index[0]] = [longest_np_lst[0]]
         dict_label_to_longest_nps_group = {global_longest_np_index[0]:
-                                         [longest_np_lst[0]]}
+                                               [longest_np_lst[0]]}
         global_longest_np_index[0] += 1
         # dict_span_to_similar_spans = {longest_np_lst[0]: longest_np_lst[0]}
     else:
-        with torch.no_grad():
-            encoded_input = sapBert_tokenizer(longest_np_lst, return_tensors='pt', padding=True).to(device)
-            phrase_embeddings = model(**encoded_input).last_hidden_state
-            phrase_embeddings = torch.transpose(phrase_embeddings, 0, 1)
-            phrase_embeddings = phrase_embeddings[0].cpu()
-            clustering = AgglomerativeClustering(distance_threshold=0.08, n_clusters=None, linkage="average",
-                                                 affinity="cosine", compute_full_tree=True).fit(phrase_embeddings)
+        encoded_input = sapBert_tokenizer(longest_np_lst, return_tensors='pt', padding=True).to(device)
+        phrase_embeddings = model(**encoded_input).last_hidden_state[0, 0, :].cpu()
+        clustering = AgglomerativeClustering(distance_threshold=0.08, n_clusters=None, linkage="average",
+                                             affinity="cosine", compute_full_tree=True).fit(phrase_embeddings)
         label_to_nps_collection, dict_label_to_longest_nps_group = group_hierarchical_clustering_results(
-            clustering, dict_idx_to_all_valid_expansions, dict_idx_to_longest_np, global_longest_np_index, global_index_to_similar_longest_np,
+            clustering, dict_idx_to_all_valid_expansions, dict_idx_to_longest_np, global_longest_np_index,
+            global_index_to_similar_longest_np,
             longest_NP_to_global_index)
         dict_label_to_longest_nps_group = {k: v for k, v in
-                                     sorted(dict_label_to_longest_nps_group.items(), key=lambda item: len(item[1]),
-                                            reverse=True)}
+                                           sorted(dict_label_to_longest_nps_group.items(),
+                                                  key=lambda item: len(item[1]),
+                                                  reverse=True)}
+    if dict_uncounted_expansions:
+        label_to_nps_collection.update(dict_uncounted_expansions)
+        dict_label_to_longest_nps_group.update(dict_counted_longest_answers)
+    return label_to_nps_collection, dict_label_to_longest_nps_group
+
+
+def create_index_and_collection_for_longest_nps(longest_np_lst, all_nps_example_lst,
+                                                global_longest_np_index, global_index_to_similar_longest_np,
+                                                longest_NP_to_global_index, dict_uncounted_expansions,
+                                                dict_counted_longest_answers):
+    label_to_nps_collection = {}
+    dict_label_to_longest_nps_group = {}
+    if len(longest_np_lst) == 0:
+        dict_label_to_longest_nps_group = {}
+    elif len(longest_np_lst) == 1:
+        longest_NP_to_global_index[longest_np_lst[0]] = global_longest_np_index[0]
+        global_index_to_similar_longest_np[global_longest_np_index[0]] = [longest_np_lst[0]]
+        dict_label_to_longest_nps_group = {global_longest_np_index[0]:
+                                               [longest_np_lst[0]]}
+        global_longest_np_index[0] += 1
+        # dict_span_to_similar_spans = {longest_np_lst[0]: longest_np_lst[0]}
+    else:
+        for phrase in all_nps_example_lst:
+            longest_span = phrase[0][0]
+            all_expansions = []
+            for span in phrase:
+                all_expansions.append(span[0])
+            # longest np clustering
+            global_index_to_similar_longest_np[global_longest_np_index[0]] = [longest_span]
+            longest_NP_to_global_index[longest_span] = global_longest_np_index[0]
+            dict_label_to_longest_nps_group[global_longest_np_index[0]] = [longest_span]
+            # Collection of nps
+            label_to_nps_collection[global_longest_np_index[0]] = all_expansions
+            global_longest_np_index[0] += 1
     if dict_uncounted_expansions:
         label_to_nps_collection.update(dict_uncounted_expansions)
         dict_label_to_longest_nps_group.update(dict_counted_longest_answers)

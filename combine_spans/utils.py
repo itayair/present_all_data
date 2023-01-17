@@ -2,10 +2,13 @@ from nltk.corpus import wordnet
 import pickle
 import torch
 import nltk
+import os
+
+print(os.getcwd())
 
 
 def load_data_dicts():
-    directory_relative_path = "load_data\\diabetes\\"
+    directory_relative_path = "load_data//diabetes//"
     a_file = open(directory_relative_path + "noun_lemma_to_example.pkl", "rb")
     topics_dict = pickle.load(a_file)
     topics_dict = {k: v for k, v in
@@ -39,6 +42,7 @@ dict_noun_word_to_counter = load_data_dicts()
 dict_span_to_counter.update(dict_noun_word_to_counter)
 dict_span_to_counter.update(dict_noun_lemma_to_counter)
 dict_span_to_lemma_lst = {}
+
 
 # dict_of_span_to_counter = {k: v for k, v in
 #                            sorted(dict_of_span_to_counter.items(), key=lambda item: item[1],
@@ -93,9 +97,10 @@ def remove_token_if_in_span(token, span):
         span.remove(token)
         return True
     else:
-        for synonym_lemma in dict_lemma_to_synonyms.get(token, []):
-            if synonym_lemma in span:
-                span.remove(synonym_lemma)
+        synonyms_lst = set(dict_lemma_to_synonyms.get(token, []))
+        for word_lemma in span:
+            if set(dict_lemma_to_synonyms.get(word_lemma, [])).intersection(synonyms_lst):
+                span.remove(word_lemma)
                 return True
     return False
 
@@ -125,8 +130,6 @@ def create_dicts_length_to_span_and_span_to_list(span_to_group_members):
     dict_length_to_span = {}
     for span, sub_set in span_to_group_members.items():
         span_as_lst = dict_span_to_lemma_lst[span]
-        if len(span_as_lst) == 1:
-            continue
         dict_length_to_span[len(span_as_lst)] = dict_length_to_span.get(len(span_as_lst), [])
         dict_length_to_span[len(span_as_lst)].append((span, span_as_lst))
         dict_span_to_lemma_lst[span] = span_as_lst
@@ -136,7 +139,7 @@ def create_dicts_length_to_span_and_span_to_list(span_to_group_members):
 def get_average_value(spans_lst, dict_span_to_rank):
     average_val = 0
     for span in spans_lst:
-        average_val += dict_span_to_rank[span]
+        average_val += dict_span_to_rank.get(span, 2)
     average_val = average_val / len(spans_lst)
     return int(average_val * 10)
 
@@ -233,10 +236,6 @@ def update_span_to_group_members_with_longest_answers_dict(span_to_group_members
             dict_span_to_similar_spans[most_frequent_span] = set(spans_lst)
 
     span_to_group_members.update(dict_longest_answer_to_label_temp)
-
-
-
-
 
 
 def get_dict_spans_group_to_score(span_to_group_members, dict_span_to_rank, dict_span_to_similar_spans,

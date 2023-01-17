@@ -7,10 +7,25 @@ import spacy
 from nltk.corpus import stopwords
 import json
 import torch
+
+# outputs = pipe(sentences)
+# for sentence in outputs:
+#     qanom_sentence_data = sentence['qanom']
+#     for qanom_sentence_predicate in qanom_sentence_data:
+#         for question_data in qanom_sentence_predicate['QAs']:
+#             question = question_data['question']
+#             answers = question_data['answers']
+#             role = question_data['question-role']
+#             contextual_question = question_data['contextual_question']
+#         predicate = qanom_sentence_predicate['predicate']
+#         verb_form = qanom_sentence_predicate['verb_form']
+
+# print(outputs)
 cos = torch.nn.CosineSimilarity(dim=0, eps=1e-08)
 nlp = spacy.load("en_ud_model_sm")
 stop_words = set(stopwords.words('english'))
 neglect_deps = ['neg', 'case', 'mark', 'auxpass', 'aux', 'nummod', 'quantmod', 'cop']
+
 
 
 def create_dict_RB_to_objects_lst(dict_RB_to_objects, np_object, visited, relation_type='RB'):
@@ -18,6 +33,9 @@ def create_dict_RB_to_objects_lst(dict_RB_to_objects, np_object, visited, relati
         return
     visited.add(np_object)
     for span in np_object.span_lst:
+        if not span:
+            continue
+        print(span)
         dict_response = requests.post('http://127.0.0.1:5000/get_broader_terms/',
                                       params={"word": span, "relation_type": relation_type})
         output = dict_response.json()
@@ -93,7 +111,8 @@ def from_tokens_to_lemmas(tokens):
 
 def initialize_data():
     topic_objects = pickle.load(open("results_disease/diabetes/topic_object_lst.p", "rb"))
-    global_index_to_similar_longest_np = pickle.load(open("results_disease/diabetes/global_index_to_similar_longest_np.p", "rb"))
+    global_index_to_similar_longest_np = pickle.load(
+        open("results_disease/diabetes/global_index_to_similar_longest_np.p", "rb"))
     dict_span_to_rank = pickle.load(open("results_disease/diabetes/dict_span_to_rank.p", "rb"))
     global_dict_label_to_object = pickle.load(open("results_disease/diabetes/global_dict_label_to_object.p", "rb"))
     visited = set()
@@ -255,6 +274,8 @@ def main():
     topic_objects, global_index_to_similar_longest_np, dict_span_to_rank, \
     global_dict_label_to_object, dict_span_to_object = initialize_data()
     DAG_utils.update_symmetric_relation_in_DAG(topic_objects)
+    # pred_to_que_nodes_filtered_dict, pred_to_object_dict = qa_nom_in_DAG.get_topics_qa_nom_relations(topic_objects, dict_span_to_object)
+    # qa_nom_in_DAG.create_statements_objects(pred_to_que_nodes_filtered_dict, pred_to_object_dict)
     dict_RB_to_objects, dict_span_to_equivalent = initialize_taxonomic_relations(topic_objects)
     # Find exist np objects that represent the taxonomic relation
     dict_RB_exist_objects, added_edges, added_taxonomic_relation, covered_labels_by_new_topics = \
@@ -294,7 +315,7 @@ def main():
                                                                      labels_of_topics)
     print("total labels of topics:", total_labels_of_topics)
     print("Covered labels by selected nodes:", covered_labels)  # result_file = open("diabetes_output.txt", "wb")
-    with open('diabetes_output.txt.txt', 'w') as result_file:
+    with open('diabetes_output.txt', 'w') as result_file:
         result_file.write(json.dumps(top_k_topics))
 
     print("Done")

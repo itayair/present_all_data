@@ -261,6 +261,7 @@ def main():
     counter = 0
     print(len(combine_spans_utils.dict_of_topics.keys()))
     for topic, examples_list in combine_spans_utils.dict_of_topics.items():
+        print(counter)
         print(topic)
         topic_synonym_lst = set(combine_spans_utils.dict_noun_lemma_to_synonyms[topic])
         for synonym in topic_synonym_lst:
@@ -273,12 +274,13 @@ def main():
                                                                                          global_index_to_similar_longest_np,
                                                                                          dict_span_to_lemma_lst,
                                                                                          dict_span_to_rank)
-        dict_idx_to_all_valid_expansions, dict_idx_to_longest_np = initialize_spans_data(all_nps_example_lst)
-        label_to_nps_collection, dict_label_to_longest_nps_group = combineSpans.create_clusters_of_longest_nps(
-            longest_np_lst, dict_idx_to_all_valid_expansions, dict_idx_to_longest_np,
-            global_longest_np_index,
-            global_index_to_similar_longest_np, longest_NP_to_global_index, dict_uncounted_expansions,
-            dict_counted_longest_answers)
+        label_to_nps_collection, dict_label_to_longest_nps_group = \
+            combineSpans.create_index_and_collection_for_longest_nps(longest_np_lst, all_nps_example_lst,
+                                                                     global_longest_np_index,
+                                                                     global_index_to_similar_longest_np,
+                                                                     longest_NP_to_global_index,
+                                                                     dict_uncounted_expansions,
+                                                                     dict_counted_longest_answers)
         dict_score_to_collection_of_sub_groups, dict_span_to_similar_spans = \
             combineSpans.union_nps(label_to_nps_collection, dict_span_to_rank, dict_label_to_longest_nps_group,
                                    dict_span_to_lemma_lst, span_to_object)
@@ -288,19 +290,27 @@ def main():
                                                   global_dict_label_to_object, topic_object_lst, longest_np_total_lst,
                                                   longest_np_lst, longest_NP_to_global_index,
                                                   dict_object_to_global_label)
-        DAG_utils.check_symmetric_relation_in_DAG(topic_object_lst)
-        isCyclic_val = isCyclic(topic_object_lst)
-        if isCyclic_val:
-            print("There is a cyclic in the DAG")
+        # DAG_utils.check_symmetric_relation_in_DAG(topic_object_lst)
+        # isCyclic_val = isCyclic(topic_object_lst)
+        # if isCyclic_val:
+        #     print("There is a cyclic in the DAG")
         counter += 1
     # nodes_lst = get_all_nodes_from_roots(topic_object_lst)
     # write_to_file_group_of_similar_concepts(nodes_lst)
     # plot_graph(nodes_lst)
     DAG_utils.initialize_nodes_weighted_average_vector(topic_object_lst, global_index_to_similar_longest_np)
-    pickle.dump(topic_object_lst, open("results_disease/diabetes/topic_object_lst.p", "wb"))
-    pickle.dump(global_index_to_similar_longest_np, open("results_disease/diabetes/global_index_to_similar_longest_np.p", "wb"))
-    pickle.dump(dict_span_to_rank, open("results_disease/diabetes/dict_span_to_rank.p", "wb"))
-    pickle.dump(global_dict_label_to_object, open("results_disease/diabetes/global_dict_label_to_object.p", "wb"))
+    all_data_dict = {
+        'topic_object_lst': topic_object_lst,
+        'global_index_to_similar_longest_np': global_index_to_similar_longest_np,
+        'dict_span_to_rank': dict_span_to_rank,
+        'global_dict_label_to_object': global_dict_label_to_object
+    }
+    pickle.dump(all_data_dict, open("results_disease/diabetes/all_data_dict.p", "wb"))
+    # pickle.dump(topic_object_lst, open("results_disease/diabetes/topic_object_lst.p", "wb"))
+    # pickle.dump(global_index_to_similar_longest_np,
+    #             open("results_disease/diabetes/global_index_to_similar_longest_np.p", "wb"))
+    # pickle.dump(dict_span_to_rank, open("results_disease/diabetes/dict_span_to_rank.p", "wb"))
+    # pickle.dump(global_dict_label_to_object, open("results_disease/diabetes/global_dict_label_to_object.p", "wb"))
     # hierarchical_structure_algorithms.DAG_contraction_by_set_cover_algorithm(topic_object_lst,
     #                                                                          global_dict_label_to_object,
     #                                                                          global_index_to_similar_longest_np)

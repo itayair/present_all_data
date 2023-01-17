@@ -65,7 +65,6 @@ def add_NP_to_DAG_bottom_to_up(np_object_to_add, np_object, visited, similar_np_
         if len(np_object_to_add.common_lemmas_in_spans) == len(np_object.common_lemmas_in_spans):
             np_object.combine_nodes(np_object_to_add)
             similar_np_object[0] = np_object
-            np_object_to_add.children = []
             return True
     if is_contained:
         is_added = False
@@ -126,6 +125,7 @@ def update_np_object(collection_np_object, np_collection, span_to_object, dict_s
         collection_np_object.span_lst.add(np)
         collection_np_object.add_unique_lst([dict_span_to_lemmas_lst[np]])
 
+
 #
 # def get_longest_np_nodes_contain_labels(label_lst, global_dict_label_to_object, np_object, dict_object_to_global_label,
 #                                         longest_nps_total_lst):
@@ -162,6 +162,7 @@ def update_global_label_with_its_object(global_dict_label_to_object, np_object, 
     uncounted_global_labels = uncounted_labels.intersection(global_indices_in_np_object)
     for label in uncounted_global_labels:
         global_dict_label_to_object[label] = np_object
+
     dict_object_to_global_label[hash(np_object)] = uncounted_global_labels
 
 
@@ -219,12 +220,13 @@ def create_and_insert_nodes_from_sub_groups_of_spans(dict_score_to_collection_of
                 for span in np_object.span_lst:
                     span_to_object[span] = similar_np_object[0]
                 np_object_temp = similar_np_object[0]
+                if np_object_temp:
+                    break
                 similar_np_object[0] = None
         if not is_combined_with_exist_node:
             all_object_np_lst.append(np_object)
         if np_object_temp not in longest_nps_total_lst and np_object_temp.span_lst.intersection(longest_np_lst):
             longest_nps_total_lst.add(np_object)
-
 
 
 def remove_topic_np_from_np_object(np_object, topic_np):
@@ -252,6 +254,8 @@ def create_and_update_topic_object(topic_synonym_lst, span_to_object, longest_NP
     for np in topic_object.span_lst:
         np_object = span_to_object.get(np, None)
         if np_object:
+            if np_object == topic_object:
+                continue
             is_combined = combine_topic_object(np_object, topic_object)
             if is_combined:
                 topic_object = np_object
@@ -408,26 +412,26 @@ def get_frequency_from_labels_lst(global_index_to_similar_longest_np, label_lst)
     return num_of_labels
 
 
-allocation_counter = 0
-
-
 def initialize_node_weighted_vector(node):
-    global allocation_counter
-    is_first = True
+    # is_first = True
     with torch.no_grad():
-        for np in node.span_lst:
-            encoded_input = tokenizer(np, return_tensors='pt').to(device)
-            allocation_counter += 1
-            if is_first:
-                temp = medical_model(**encoded_input)
-                weighted_average_vector = temp.last_hidden_state[0, 0, :].cpu()
-                is_first = False
-            else:
-                temp = medical_model(**encoded_input)
-                weighted_average_vector += temp.last_hidden_state[0, 0, :].cpu()
-            del temp, encoded_input
-            torch.cuda.empty_cache()
-    weighted_average_vector /= len(node.span_lst)
+        most_frequent_span = combine_spans_utils.get_most_frequent_span(node.span_lst)
+        encoded_input = tokenizer(most_frequent_span, return_tensors='pt').to(device)
+        temp = medical_model(**encoded_input)
+        weighted_average_vector = temp.last_hidden_state[0, 0, :].cpu()
+    #     for np in node.span_lst:
+    #         encoded_input = tokenizer(np, return_tensors='pt').to(device)
+    #         allocation_counter += 1
+    #         if is_first:
+    #             temp = medical_model(**encoded_input)
+    #             weighted_average_vector = temp.last_hidden_state[0, 0, :].cpu()
+    #             is_first = False
+    #         else:
+    #             temp = medical_model(**encoded_input)
+    #             weighted_average_vector += temp.last_hidden_state[0, 0, :].cpu()
+    #         del temp, encoded_input
+    #         torch.cuda.empty_cache()
+    # weighted_average_vector /= len(node.span_lst)
     node.weighted_average_vector = weighted_average_vector
 
 
