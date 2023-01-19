@@ -2,16 +2,18 @@ import nltk
 
 from expansions import valid_expansion_utils
 from nltk.corpus import stopwords
+from spacy import displacy
 
 stop_words = set(stopwords.words('english'))
-tied_deps = ['compound', 'mwe', 'case', 'mark', 'auxpass', 'name', 'aux', 'neg', 'det']
+tied_deps = ['compound', 'mwe', 'case', 'mark', 'auxpass', 'name', 'aux', 'neg', 'det', 'goeswith', 'nummod',
+             'quantmod', 'nmod:npmod']
 tied_couples = [['auxpass', 'nsubjpass']]
 
-dep_type_optional = ['advmod', 'dobj', 'npadvmod', 'nmod', 'nummod', 'quantmod', 'conj', 'aux', 'poss', 'nmod:poss',
+dep_type_optional = ['advmod', 'dobj', 'npadvmod', 'nmod', 'conj', 'aux', 'poss', 'nmod:poss',
                      'xcomp']  # , 'conj', 'nsubj', 'appos'
 
 acl_to_seq = ['acomp', 'dobj', 'nmod']  # acl and relcl + [[['xcomp'], ['aux']], 'dobj']
-others_to_seq = ['quantmod', 'cop']  # 'cc',
+dep_to_seq = ['quantmod', 'cop']  # 'cc',
 combined_with = ['acl', 'relcl', 'acl:relcl', 'ccomp', 'advcl', 'amod']  # +, 'cc'
 couple_to_seq = {'quantmod': ['amod'], 'cop': ['nsubjpass']}  # 'nsubjpass': ['amod'] ,'cc': ['conj', 'nmod']
 
@@ -114,7 +116,48 @@ def initialize_couple_lst(others, couple_lst, lst_children):
                 couple_lst.append([other, token])
 
 
-def remove_conj_if_cc_exist(lst_children):
+def get_couple_seq_if_exist(lst_children):
+    dep_to_seq_lst = []
+    for child in lst_children:
+        if child.dep_ in dep_to_seq:
+            dep_to_seq_lst.append(child)
+    remove_lst = []
+    couple_seq_lst = []
+    for dep_child in dep_to_seq_lst:
+        dep_type = couple_to_seq[dep_child.dep_]
+        remove_lst_temp = []
+        for token in lst_children:
+            if token.dep_ in dep_type:
+                couple_seq_lst.append([dep_child, token])
+                remove_lst_temp = [dep_child, token]
+                break
+        if remove_lst_temp:
+            for token in remove_lst_temp:
+                lst_children.remove(token)
+            remove_lst.extend(remove_lst_temp)
+    return couple_seq_lst
+
+
+def get_appos_if_exist(lst_children):
+    appos_child_lst = []
+    for child in lst_children:
+        if child.dep_ == 'appos':
+            appos_child_lst.append(child)
+    if appos_child_lst:
+        for child in lst_children:
+            if child.dep_ == 'dep':
+                appos_child_lst.append(child)
+        lst_children_copy = lst_children.copy()
+        for child in lst_children_copy:
+            if child in appos_child_lst:
+                lst_children.remove(child)
+        if len(appos_child_lst) == 1:
+            if appos_child_lst[0].pos_ == 'PROPN':
+                return []
+    return appos_child_lst
+
+
+def get_conj_if_cc_exist(lst_children):
     cc_is_exist = False
     cc_child_lst = []
     for child in lst_children:
@@ -128,42 +171,68 @@ def remove_conj_if_cc_exist(lst_children):
         children_dep.sort(key=lambda x: x.i)
         cc_child_lst.sort(key=lambda x: x.i)
         tokens_to_skip = cc_child_lst.copy()
-        tokens_to_add = []
+        conj_tokens_lst = []
         for cc_child in cc_child_lst:
             for child in children_dep:
                 if child.i > cc_child.i:
                     tokens_to_skip.append(child)
-                    tokens_to_add.append([cc_child, child])
+                    conj_tokens_lst.append([cc_child, child])
                     children_dep.remove(child)
                     break
-        return tokens_to_skip, tokens_to_add
-    return [], []
+        for token in tokens_to_skip:
+            lst_children.remove(token)
+        return conj_tokens_lst
+    return []
 
 
-def set_couple_deps(couple_lst, boundary_np_to_the_left, sub_np_lst, head):
-    for couple in couple_lst:
-        sub_np_lst_couple, lst_children_first = combine_tied_deps_recursively_and_combine_their_children(couple[0],
-                                                                                                         boundary_np_to_the_left)
-        sub_np_lst_couple_second, lst_children_second = combine_tied_deps_recursively_and_combine_their_children(
-            couple[1], boundary_np_to_the_left)
-        sub_np_lst_couple.extend(sub_np_lst_couple_second)
-        all_sub_of_sub = []
-        get_children_expansion(all_sub_of_sub, lst_children_first, boundary_np_to_the_left, head)
-        get_children_expansion(all_sub_of_sub, lst_children_second, boundary_np_to_the_left, head)
-        if all_sub_of_sub:
-            sub_np_lst_couple.append(all_sub_of_sub)
-        sub_np_lst.append(sub_np_lst_couple)
+def get_seq_deps(lst_children):
+    seq_dict = {}
+    conj_tokens_lst = get_conj_if_cc_exist(lst_children)
+    if conj_tokens_lst:
+        seq_dict['conj'] = conj_tokens_lst
+    couple_seq_lst = get_couple_seq_if_exist(lst_children)
+    if couple_seq_lst:
+        seq_dict['couple_seq'] = couple_seq_lst
+    appos_child_lst = get_appos_if_exist(lst_children)
+    if appos_child_lst:
+        seq_dict['appos'] = appos_child_lst
+    return seq_dict
+
+
+def get_all_dominated_deps_from_lst(token, deps_collection):
+    deps_collection.append(token)
+    for child_token in token.children:
+        get_all_dominated_deps_from_lst(child_token, deps_collection)
+
+
+def set_couple_deps(seq_dict, boundary_np_to_the_left, sub_np_lst, head):
+    for seq_type, seq_lst in seq_dict.items():
+        if seq_type == 'appos':
+            deps_collection = []
+            for token in seq_lst:
+                get_all_dominated_deps_from_lst(token, deps_collection)
+            sub_np_lst.append(deps_collection)
+            continue
+        for seq in seq_lst:
+            sub_np_lst_seq = []
+            all_sub_of_sub = []
+            for token in seq:
+                sub_np_lst_token, lst_children = \
+                    combine_tied_deps_recursively_and_combine_their_children(token, boundary_np_to_the_left)
+                sub_np_lst_seq.extend(sub_np_lst_token)
+                get_children_expansion(all_sub_of_sub, lst_children, boundary_np_to_the_left, head)
+            if all_sub_of_sub:
+                sub_np_lst_seq.append(all_sub_of_sub)
+            sub_np_lst.append(sub_np_lst_seq)
 
 
 def get_all_valid_sub_special(token, boundary_np_to_the_left):
     sub_np_lst, lst_children = combine_tied_deps_recursively_and_combine_their_children(token, boundary_np_to_the_left)
     complete_children = []
-    lst_to_skip, tokens_to_add = remove_conj_if_cc_exist(lst_children)
+    seq_dict = get_seq_deps(lst_children)
     complete_occurrences = 0
     for child in lst_children:
         if child.text in stop_words:
-            continue
-        if child in lst_to_skip:
             continue
         if child.dep_ in ['dobj', 'advcl', 'nmod']:  # 'cc', 'conj', 'aux', 'auxpass', 'cop', 'nsubjpass'
             all_sub_of_sub = get_all_valid_sub_np(child, boundary_np_to_the_left)
@@ -194,10 +263,8 @@ def get_all_valid_sub_special(token, boundary_np_to_the_left):
             else:
                 new_sub_np_lst.append(item)
         sub_np_lst = new_sub_np_lst + optional_lst
-    couple_lst = []
-    couple_lst.extend(tokens_to_add)
     sub_np_lst_couples = []
-    set_couple_deps(couple_lst, boundary_np_to_the_left, sub_np_lst_couples, [])
+    set_couple_deps(seq_dict, boundary_np_to_the_left, sub_np_lst_couples, [])
     if sub_np_lst_couples:
         sub_np_lst.append(sub_np_lst_couples)
     for child in complete_children:
@@ -208,14 +275,40 @@ def get_all_valid_sub_special(token, boundary_np_to_the_left):
     return sub_np_lst
 
 
-def get_children_expansion(sub_np_lst, lst_children, boundary_np_to_the_left, head):
-    others = []
-    lst_to_skip, tokens_to_add = remove_conj_if_cc_exist(lst_children)
+def get_follow_token(lst_children, token):
     for child in lst_children:
+        if child.i == token.i + 1:
+            return child
+    return None
+
+
+def get_children_expansion(sub_np_lst, lst_children, boundary_np_to_the_left, head):
+    seq_dict = get_seq_deps(lst_children)
+    tokens_to_skip = []
+    for child in lst_children:
+        if child in tokens_to_skip:
+            continue
         if child.text in stop_words:
             continue
-        if child in lst_to_skip:
-            continue
+        is_follow_by_conj_token = False
+        if child.i < len(child.doc) - 3 and child.doc[child.i + 1] in lst_children:
+            if child.doc[child.i + 1].text in ['/', '-', ',']:
+                is_follow_by_conj_token = True
+        if child.text.endswith("-") or child.text.endswith("/") or is_follow_by_conj_token:
+            follow_token = get_follow_token(lst_children, child)
+            if not follow_token:
+                print("follow token not found")
+            else:
+                seq_tokens = [child, follow_token]
+                if is_follow_by_conj_token:
+                    follow_conj_token = get_follow_token(lst_children, follow_token)
+                    if follow_conj_token:
+                        seq_tokens.append(follow_conj_token)
+                        tokens_to_skip.append(follow_conj_token)
+                seq_dict['couple_seq'] = seq_dict.get('couple_seq', [])
+                seq_dict['couple_seq'].append(seq_tokens)
+                tokens_to_skip.append(follow_token)
+                continue
         sub_np = []
         if child.dep_ in dep_type_optional:
             all_sub_of_sub = get_all_valid_sub_np(child, boundary_np_to_the_left)
@@ -228,16 +321,10 @@ def get_children_expansion(sub_np_lst, lst_children, boundary_np_to_the_left, he
                 sub_np.append(all_sub_of_sub)
             if sub_np:
                 sub_np_lst.extend(sub_np)
-        elif child.dep_ in others_to_seq:
-            others.append(child)
         else:
             if child.dep_ not in ['nsubj']:
                 print(child.dep_)
-    couple_lst = []
-    if others:
-        initialize_couple_lst(others, couple_lst, lst_children)
-    couple_lst.extend(tokens_to_add)
-    set_couple_deps(couple_lst, boundary_np_to_the_left, sub_np_lst, head)
+    set_couple_deps(seq_dict, boundary_np_to_the_left, sub_np_lst, head)
 
 
 def get_all_valid_sub_np(head, boundary_np_to_the_left):
@@ -282,8 +369,11 @@ def get_all_expansions_of_span_from_lst(span_lst):
     counter_duplication = 0
     all_span_with_more_than_hundred = []
     from_span_to_all_expansions = {}
+    examples_to_visualize = []
     for head_word, sentence_dep_graph, sentence in span_lst:
         counter += 1
+        # if counter == 1000:
+        #     break
         noun_phrase, head_word_in_np_index, boundary_np_to_the_left = valid_expansion_utils.get_np_boundary(
             head_word.i,
             sentence_dep_graph)
@@ -291,6 +381,7 @@ def get_all_expansions_of_span_from_lst(span_lst):
             continue
         if len(noun_phrase) > 15:
             continue
+        examples_to_visualize.append(noun_phrase)
         all_valid_sub_np = get_all_valid_sub_np(noun_phrase[head_word_in_np_index],
                                                 boundary_np_to_the_left)
         sub_np_final_lst = valid_expansion_utils.from_lst_to_sequence(all_valid_sub_np)
@@ -314,18 +405,19 @@ def get_all_expansions_of_span_from_lst(span_lst):
             span = valid_expansion_utils.get_tokens_as_span(span_as_lst[0])
             from_span_to_all_expansions[longest_span].add(span)
         sub_np_final_lst_collection.append((sub_np_final_spans[0][0], head_word, sub_np_final_spans, sentence))
-    file_name = ".\output_all_valid_expansions_result.txt"
-    with open(file_name, 'w', encoding='utf-8') as f:
-        for longest_span, collection in from_span_to_all_expansions.items():
-            f.write(longest_span + ': ')
-            idx = 0
-            f.write('[')
-            for span in collection:
-                if idx != 0:
-                    f.write(', ')
-                f.write(span)
-                idx += 1
-            f.write(']')
-            f.write('\n')
-    print(counter_duplication)
+    # displacy.serve(examples_to_visualize, style="dep", port=3000)
+    # file_name = ".\output_all_valid_expansions_result.txt"
+    # with open(file_name, 'w', encoding='utf-8') as f:
+    #     for longest_span, collection in from_span_to_all_expansions.items():
+    #         f.write(longest_span + ': ')
+    #         idx = 0
+    #         f.write('[')
+    #         for span in collection:
+    #             if idx != 0:
+    #                 f.write(', ')
+    #             f.write(span)
+    #             idx += 1
+    #         f.write(']')
+    #         f.write('\n')
+    # print(counter_duplication)
     return sub_np_final_lst_collection

@@ -8,7 +8,7 @@ file_name_lemma = "text_files/output_noun_lemma_result.txt"
 dict_noun_lemma_to_examples, dict_span_to_counter, dict_word_to_lemma, dict_lemma_to_synonyms, \
 dict_longest_span_to_counter, dict_noun_lemma_to_synonyms, dict_noun_lemma_to_noun_words, dict_noun_lemma_to_counter, \
 dict_noun_word_to_counter = main_clustering.convert_examples_to_clustered_data()
-directory_relative_path = "load_data\\jaundice\\"
+directory_relative_path = "load_data\\diabetes\\"
 a_file = open(directory_relative_path + "noun_lemma_to_example.pkl", "wb")
 b_file = open(directory_relative_path + "span_counter.pkl", "wb")
 c_file = open(directory_relative_path + "word_to_lemma.pkl", "wb")

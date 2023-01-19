@@ -66,7 +66,7 @@ def get_tokens_as_span(words):
 
 
 def get_examples_from_json_format():
-    file_name = 'input_data_file\\jaundice.json'
+    file_name = 'input_data_file\\diabetes.json'
     f = open(file_name, 'r', encoding='utf-8')
     data = json.load(f)
     examples = []

@@ -7,9 +7,11 @@ import networkx as nx
 import collections
 import graphviz
 import json
+from taxonomy import taxonomies_from_UMLS
 import matplotlib.pyplot as plt
 import pickle
 import sys
+# from qa_nom import qa_nom_in_DAG as qa_nom_in_DAG
 
 sys.setrecursionlimit(10000)
 G = nx.DiGraph()
@@ -245,6 +247,16 @@ def isCyclic(nodes_lst):
     return False
 
 
+def get_all_labels(nodes, labels, visited=set()):
+    if visited is None:
+        visited = set()
+    for node in nodes:
+        if node in visited:
+            continue
+        labels.update(node.label_lst)
+        get_all_labels(node.children, labels, visited)
+
+
 def main():
     dict_span_to_rank = {}
     dict_span_to_lemma_lst = combine_spans_utils.dict_span_to_lemma_lst
@@ -298,14 +310,49 @@ def main():
     # nodes_lst = get_all_nodes_from_roots(topic_object_lst)
     # write_to_file_group_of_similar_concepts(nodes_lst)
     # plot_graph(nodes_lst)
+    # taxonomies_from_UMLS.add_taxonomies_to_DAG_by_UMLS(topic_object_lst, dict_span_to_rank, topic_object_lst)
+    #
+    # DAG_utils.check_symmetric_relation_in_DAG(topic_object_lst)
+    # DAG contraction
+    hierarchical_structure_algorithms.DAG_contraction_by_set_cover_algorithm(topic_object_lst,
+                                                                             global_dict_label_to_object,
+                                                                             global_index_to_similar_longest_np)
     DAG_utils.initialize_nodes_weighted_average_vector(topic_object_lst, global_index_to_similar_longest_np)
-    all_data_dict = {
-        'topic_object_lst': topic_object_lst,
-        'global_index_to_similar_longest_np': global_index_to_similar_longest_np,
-        'dict_span_to_rank': dict_span_to_rank,
-        'global_dict_label_to_object': global_dict_label_to_object
-    }
-    pickle.dump(all_data_dict, open("results_disease/diabetes/all_data_dict.p", "wb"))
+    DAG_utils.check_symmetric_relation_in_DAG(topic_object_lst)
+    DAG_utils.remove_redundant_nodes(topic_object_lst)
+    # qa_nom_in_DAG.add_qanom_to_DAG(topic_object_lst, span_to_object)
+    # nodes_lst = get_all_nodes_from_roots(topic_object_lst)
+    # plot_graph(nodes_lst)
+    DAG_utils.update_score(topic_object_lst, dict_span_to_rank)
+    # initialize_nodes_weighted_average_vector(new_taxonomic_np_objects, global_index_to_similar_longest_np)
+    top_k_topics, already_counted_labels, all_labels = \
+        hierarchical_structure_algorithms.extract_top_k_concept_nodes_greedy_algorithm(
+            100, topic_object_lst, global_index_to_similar_longest_np)
+    # nodes_lst = get_all_nodes_from_roots(top_k_topics)
+    # plot_graph(nodes_lst)
+    top_k_topics_as_json = DAG_utils.from_DAG_to_JSON(top_k_topics, global_index_to_similar_longest_np)
+    top_k_labels = set()
+    get_all_labels(top_k_topics, top_k_labels, visited=set())
+    covered_labels = DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+                                                             top_k_labels)
+    labels_of_topics = set()
+    get_all_labels(topic_object_lst, labels_of_topics, visited=set())
+    total_labels_of_topics = DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+                                                                     labels_of_topics)
+    print("total labels of topics:", total_labels_of_topics)
+    print("Covered labels by selected nodes:", covered_labels)  # result_file = open("diabetes_output.txt", "wb")
+    with open('diabetes_output.txt', 'w') as result_file:
+        result_file.write(json.dumps(top_k_topics_as_json))
+
+    print("Done")
+
+    # all_data_dict = {
+    #     'topic_object_lst': topic_object_lst,
+    #     'global_index_to_similar_longest_np': global_index_to_similar_longest_np,
+    #     'dict_span_to_rank': dict_span_to_rank,
+    #     'global_dict_label_to_object': global_dict_label_to_object
+    # }
+    # pickle.dump(all_data_dict, open("results_disease/diabetes/all_data_dict.p", "wb"))
     # pickle.dump(topic_object_lst, open("results_disease/diabetes/topic_object_lst.p", "wb"))
     # pickle.dump(global_index_to_similar_longest_np,
     #             open("results_disease/diabetes/global_index_to_similar_longest_np.p", "wb"))

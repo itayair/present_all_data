@@ -8,7 +8,7 @@ from nltk.corpus import stopwords
 # import umls_loader
 stop_words = set(stopwords.words('english'))
 tied_deps = ['compound', 'mwe', 'name', 'nummod']
-neglect_deps = ['neg', 'case', 'mark', 'auxpass', 'aux', 'cop']
+neglect_deps = ['neg', 'case', 'mark', 'auxpass', 'aux', 'cop', 'nummod', 'quantmod', 'nmod:npmod']
 query_words = ['sciatica', 'cause', 'causing', 'diagnosing', 'diagnosis',
                'pain', 'chest', 'abortion', 'diabetes', 'jaundice', 'meningitis',
                'pneumonia']
@@ -265,7 +265,8 @@ def isAbbr(name):
 def from_tokens_to_lemmas(tokens):
     lemma_lst = []
     for token in tokens:
-        if token.dep_ in neglect_deps or token.lemma_ in stop_words or token.text in ['-', '/', '//', ',']:
+        if token.dep_ in neglect_deps or token.lemma_ in stop_words or token.text in \
+                ['-', '/', '//', ',', '(', ')', '.', ' ']:
             continue
         lemma_lst.append(token.lemma_.lower())
     return lemma_lst

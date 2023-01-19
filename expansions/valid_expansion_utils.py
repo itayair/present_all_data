@@ -115,10 +115,14 @@ def get_tokens_as_span(tokens):
     for token in tokens:
         if idx == 0 and token.tag_ in ['IN', 'TO']:
             continue
-        if idx != 0 and token.text != ',':
+        if idx != 0 and token.text not in [',', '(', ')', '.', '/'] and not not_space:
             span += ' '
         span += token.text.lower()
         idx += 1
+        if token.text in ['(''/']:
+            not_space = True
+            continue
+        not_space = False
     return span
 
 

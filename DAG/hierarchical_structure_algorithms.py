@@ -226,7 +226,7 @@ def DAG_contraction_by_set_cover_algorithm(topic_object_lst, global_dict_label_t
     for topic_object in topic_object_lst:
         build_tree_from_DAG(topic_object, global_dict_label_to_object, visited_nodes,
                             global_index_to_similar_longest_np, set())
-        DAG_utils.check_symmetric_relation_in_DAG(topic_object_lst)
+        # DAG_utils.check_symmetric_relation_in_DAG(topic_object_lst)
     sort_DAG_by_frequency(topic_object_lst)
 
 

@@ -260,14 +260,13 @@ def create_and_update_topic_object(topic_synonym_lst, span_to_object, longest_NP
             if is_combined:
                 topic_object = np_object
             else:
+                print("something is wrong")
                 remove_topic_np_from_np_object(np_object, np)
-    label_lst = set()
     for np in topic_object.span_lst:
         span_to_object[np] = topic_object
         label = longest_NP_to_global_index.get(np, None)
         if label:
-            label_lst.add(label)
-    topic_object.label_lst = label_lst
+            topic_object.label_lst.add(label)
     return topic_object
 
 
@@ -335,17 +334,14 @@ def add_dependency_routh_between_longest_np_to_topic(span_to_object, topic_objec
         if np_object in visited:
             continue
         if np_object in topic_object_lst:
-            # np_object.combine_nodes(topic_object)
-            # topic_object_lst.remove(topic_object)
-            # topic_object = np_object
             continue
         similar_np_object = [None]
         add_NP_to_DAG_bottom_to_up(topic_object, np_object, visited, similar_np_object, visited_and_added)
         if similar_np_object[0]:
             # raise Exception("There are 2 synonyms topics which aren't detected")
-            if similar_np_object[0] in topic_object_lst:
-                if topic_object in topic_object_lst:
-                    topic_object_lst.remove(topic_object)
+            # if similar_np_object[0] in topic_object_lst:
+            #     if topic_object in topic_object_lst:
+            #         topic_object_lst.remove(topic_object)
             topic_object = similar_np_object[0]
             for span in similar_np_object[0].span_lst:
                 span_to_object[span] = similar_np_object[0]
@@ -376,6 +372,10 @@ def check_symmetric_relation_in_DAG(nodes_lst, visited=set()):
         visited.add(node)
         for child in node.children:
             if node not in child.parents:
+                print("child spans:")
+                print(child.span_lst)
+                print("node spans:")
+                print(node.span_lst)
                 raise Exception("Parent and child isn't consistent")
         for parent in node.parents:
             if node not in parent.children:
@@ -419,6 +419,8 @@ def initialize_node_weighted_vector(node):
         encoded_input = tokenizer(most_frequent_span, return_tensors='pt').to(device)
         temp = medical_model(**encoded_input)
         weighted_average_vector = temp.last_hidden_state[0, 0, :].cpu()
+        del temp, encoded_input
+        torch.cuda.empty_cache()
     #     for np in node.span_lst:
     #         encoded_input = tokenizer(np, return_tensors='pt').to(device)
     #         allocation_counter += 1
@@ -429,7 +431,7 @@ def initialize_node_weighted_vector(node):
     #         else:
     #             temp = medical_model(**encoded_input)
     #             weighted_average_vector += temp.last_hidden_state[0, 0, :].cpu()
-    #         del temp, encoded_input
+    #         del temp, encoded_inputs
     #         torch.cuda.empty_cache()
     # weighted_average_vector /= len(node.span_lst)
     node.weighted_average_vector = weighted_average_vector
