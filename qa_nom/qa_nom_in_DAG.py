@@ -1,6 +1,6 @@
 # import DAG.hierarchical_structure_algorithms as hierarchical_structure_algorithms
 import DAG.NounPhraseObject as NounPhrase
-# import DAG.DAG_utils as DAG_utils
+import DAG.DAG_utils as DAG_utils
 from combine_spans import utils as combine_spans_utils
 import pickle
 from qasem.end_to_end_pipeline import QASemEndToEndPipeline
@@ -11,22 +11,14 @@ import spacy
 import torch
 
 sys.setrecursionlimit(10000)
-# nom_array = ['mutations', 'injection', 'disorder', 'destruction', 'doses', 'treatment', 'resistance', 'secretion',
-#              'function', 'failure', 'loss', 'infection', 'defects', 'impairment', 'variation', 'inflammation',
-#              'combination', 'group', 'stress', 'action', 'change', 'production', 'induction', 'transcription',
-#              'risk', 'transport', 'control', 'process', 'gestation', 'exposure', 'expression', 'deletion',
-#              'depression', 'effect', 'infarction', 'lack', 'intake', 'activity', 'gain', 'death', 'mutant',
-#              'form', 'excess', 'activation', 'age', 'disturbance', 'growth', 'consumption', 'inoculation',
-#              'study', 'sleep', 'disruption', 'regulation', 'inhibitor', 'inactivation', 'ulcer', 'disability', 'use',
-#              'overload', 'release', 'stroke', 'radiation', 'inheritance', 'smoking', 'generation', 'decline',
-#              'immunity', 'variability', 'fractures', 'overweight', 'hypersensitivity', 'association', 'reaction',
-#              'enlargement', 'displacement', 'management', 'operations', 'absence', 'perturbation', 'influence',
-#              'abuse', 'hypothesis', 'rearrangement', 'starvation', 'ingestion', 'aging', 'excretion', 'fibrillation',
-#              'distribution', 'derivative', 'deregulation', 'ligation', 'test', 'programming', 'diversion',
-#              'evacuation', 'perforation', 'responsiveness', 'chaperone', 'pressure', 'work', 'bleeding', 'advertising']
 
 device = 2 if torch.cuda.is_available() else -1
-pipe = QASemEndToEndPipeline(annotation_layers=('qanom'), nominalization_detection_threshold=0.5, contextualize=True,
+# pipe = QASemEndToEndPipeline(qasrl_model="biu-nlp/qanom-seq2seq-model-joint",
+#                              qanom_model="biu-nlp/qanom-seq2seq-model-joint", annotation_layers=('qanom'),
+#                              nominalization_detection_threshold=0.75, contextualize=True,
+#                              device=device)
+pipe = QASemEndToEndPipeline(annotation_layers=('qanom'),
+                             nominalization_detection_threshold=0.7, contextualize=True,
                              device=device)
 
 
@@ -89,12 +81,6 @@ def get_predicate_to_question_and_question_to_nodes_nested_dictionary(span_to_qa
         span_object = dict_span_to_object[span]
         for qanom_object in qanom_object_lst:
             predicate = combine_spans_utils.dict_word_to_lemma.get(qanom_object.predicate, qanom_object.predicate)
-            # if not predicate:
-            #     predicate = combine_spans_utils.dict_word_to_lemma.get(qanom_object.verb_form, None)
-            # if not predicate:
-            #     print("This predicate isn't appeared in the dictionary:")
-            #     print(qanom_object.predicate)
-            #     continue
             predicate_in_topic = False
             if qanom_object.predicate in topic.span_lst:
                 predicate_in_topic = True
@@ -115,24 +101,29 @@ def get_predicate_to_question_and_question_to_nodes_nested_dictionary(span_to_qa
 
 def get_potential_qa_nom(topic_objects):
     span_lst = set()
+    span_to_topic_object = {}
+    visited = set()
     for topic in topic_objects:
         if len(topic.children) < 2:
             continue
         num_of_span = max(min(0.2 * len(topic.children), 5), 2)
         for child in topic.children[:int(num_of_span)]:
-            most_frequent = combine_spans_utils.get_most_frequent_span(child.span_lst)
-            span_lst.add(most_frequent)
+            most_frequent_span = combine_spans_utils.get_most_frequent_span(child.span_lst)
+            span_to_topic_object[most_frequent_span] = span_to_topic_object.get(most_frequent_span, set())
+            span_to_topic_object[most_frequent_span].add(topic)
+            if most_frequent_span in visited:
+                continue
+            span_lst.add(most_frequent_span)
     span_to_qanom_object_lst = get_qanom_objects_for_span_lst(list(span_lst))
     predicate_lst = set()
+    filtered_topics = set()
     for span, qanom_object_lst in span_to_qanom_object_lst.items():
         for qanom_object in qanom_object_lst:
-            predicate_lst.add(qanom_object.predicate)
-    filtered_topics = set()
-    for topic in topic_objects:
-        if topic.span_lst.intersection(predicate_lst):
-            print("nominalization noun:")
-            print(topic.span_lst)
-            filtered_topics.add(topic)
+            predicate_lst.add(combine_spans_utils.dict_word_to_lemma.get(qanom_object.predicate, qanom_object.predicate))
+        topics_mapped_to_span = span_to_topic_object[span]
+        for topic in topics_mapped_to_span:
+            if combine_spans_utils.is_similar_meaning_between_span(topic.common_lemmas_in_spans, predicate_lst):
+                filtered_topics.add(topic)
     return filtered_topics
 
 
@@ -147,8 +138,6 @@ def get_topics_qa_nom_relations(topic_objects, dict_span_to_object):
     for topic in filtered_topics:
         span_lst = []
         span_to_qanom_object_topic_children_lst = {}
-        # if not topic.span_lst.intersection(set(nom_array)):
-        #     continue
         for child in topic.children:
             if child in visited:
                 span = object_to_most_frequent_span[hash(child)]
@@ -162,9 +151,6 @@ def get_topics_qa_nom_relations(topic_objects, dict_span_to_object):
             object_to_most_frequent_span[hash(child)] = span
             span_to_object[span] = child
             span_lst.append(span)
-        # batch_size = 10
-        # for i in range(0, len(span_lst), batch_size):
-        # span_lst_batch = span_lst[i:i + batch_size]
         if not span_lst:
             continue
         span_to_qanom_object_lst_temp = get_qanom_objects_for_span_lst(span_lst)
@@ -174,7 +160,6 @@ def get_topics_qa_nom_relations(topic_objects, dict_span_to_object):
                                                                           dict_span_to_object,
                                                                           pred_to_que_nodes_dict, topic,
                                                                           pred_to_object_dict)
-    # pickle.dump(pred_to_que_nodes_dict, open("qa_nom/pred_to_que_nodes_dict.p", "wb"))
     pred_to_que_nodes_filtered_dict = {}
     for pred, que_to_nodes in pred_to_que_nodes_dict.items():
         for que, nodes in que_to_nodes.items():
@@ -183,10 +168,6 @@ def get_topics_qa_nom_relations(topic_objects, dict_span_to_object):
             pred_to_que_nodes_filtered_dict[pred] = pred_to_que_nodes_filtered_dict.get(pred, {})
             pred_to_que_nodes_filtered_dict[pred][que] = pred_to_que_nodes_filtered_dict[pred].get(que, [])
             pred_to_que_nodes_filtered_dict[pred][que].extend(nodes)
-    # pickle.dump(pred_to_que_nodes_filtered_dict, open("../pred_to_que_nodes_filtered_dict.p", "wb"))
-    # pickle.dump(pred_to_object_dict, open("../pred_to_object_dict.p", "wb"))
-    # pickle.dump(span_to_object, open("span_to_object.p", "wb"))
-    print("Done")
     return pred_to_que_nodes_filtered_dict, pred_to_object_dict
 
 
@@ -212,11 +193,6 @@ def initialize_data():
         initialize_span_to_object_dict(dict_span_to_object, np_object, visited)
     return topic_objects, global_index_to_similar_longest_np, dict_span_to_rank, \
            global_dict_label_to_object, dict_span_to_object
-
-
-# def print_role_que_with_max_nodes(pred_to_que_to_data):
-#     for pred, roles in pred_to_que_to_data.items():
-#         for role, questions in roles.items():
 
 
 def get_answers_from_objects(object_tuple_lst):
@@ -300,7 +276,6 @@ def create_node_for_wh_question(role_to_questions, questions_to_objects, pred_ob
     added_objects = []
     for role, questions in role_to_questions.items():
         wh_question_to_objects = {k: v for k, v in questions_to_objects.items() if k in questions}
-        # question = list(wh_question_to_objects.keys())[0]
         tuple_nodes_lst = union_children(wh_question_to_objects)
         statement, selected_question, new_np_object = from_tuple_nodes_to_np_object(tuple_nodes_lst, questions,
                                                                                     pred_object)
@@ -331,8 +306,3 @@ def add_qanom_to_DAG(topic_objects, dict_span_to_object):
                                                                                        dict_span_to_object)
     dict_span_to_object.update(pred_to_object_dict)
     create_statements_objects(pred_to_que_nodes_filtered_dict, dict_span_to_object)
-    # pickle.dump(topic_objects, open("../results_disease/diabetes/topic_object_lst.p", "wb"))
-    # pickle.dump(global_index_to_similar_longest_np,
-    #             open("../results_disease/diabetes/global_index_to_similar_longest_np.p", "wb"))
-    # pickle.dump(dict_span_to_rank, open("../results_disease/diabetes/dict_span_to_rank.p", "wb"))
-    # pickle.dump(global_dict_label_to_object, open("../results_disease/diabetes/global_dict_label_to_object.p", "wb"))

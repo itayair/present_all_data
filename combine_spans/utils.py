@@ -8,7 +8,7 @@ print(os.getcwd())
 
 
 def load_data_dicts():
-    directory_relative_path = "load_data//diabetes//"
+    directory_relative_path = "load_data//sciatica//"
     a_file = open(directory_relative_path + "noun_lemma_to_example.pkl", "rb")
     topics_dict = pickle.load(a_file)
     topics_dict = {k: v for k, v in
@@ -256,3 +256,95 @@ def get_dict_spans_group_to_score(span_to_group_members, dict_span_to_rank, dict
     for score, sub_group_lst in dict_score_to_collection_of_sub_groups.items():
         sub_group_lst.sort(key=lambda tup: len(tup[1]), reverse=True)
     return dict_score_to_collection_of_sub_groups
+
+
+def get_all_ancestors(node, visited):
+    visited.add(node)
+    for parent in node.parents:
+        if parent in visited:
+            continue
+        get_all_ancestors(parent, visited)
+
+
+def update_all_ancestors_node_was_combined(node, label_lst, visited=set()):
+    for parent in node.parents:
+        if parent in visited:
+            continue
+        visited.add(parent)
+        num_of_labels_before_update = len(parent.label_lst)
+        parent.label_lst.update(label_lst)
+        num_of_labels_after_update = len(parent.label_lst)
+        if num_of_labels_before_update == num_of_labels_after_update:
+            continue
+        update_all_ancestors_node_was_combined(parent, label_lst, visited)
+
+
+def get_all_descendents(node, visited):
+    visited.add(node)
+    for child in node.children:
+        if child in visited:
+            continue
+        get_all_descendents(child, visited)
+
+
+def has_intersection_between_desc_and_anc(node_1, node_2):
+    ancestor_lst = set()
+    get_all_ancestors(node_1, ancestor_lst)
+    descendent_lst = set()
+    get_all_descendents(node_2, descendent_lst)
+    if ancestor_lst.intersection(descendent_lst):
+        return True
+
+
+def is_combine_create_circle(node_1, node_2):
+    has_intersection = has_intersection_between_desc_and_anc(node_1, node_2)
+    if has_intersection:
+        return True
+    has_intersection = has_intersection_between_desc_and_anc(node_2, node_1)
+    if has_intersection:
+        return True
+    return False
+
+
+def ambiguous_descendent_in_equivalent_nodes(node_1, node_2):
+    children_to_remove_from_node_1 = set()
+    children_to_remove_from_node_2 = set()
+    for child_1 in node_1.children:
+        for child_2 in node_2.children:
+            if child_1 in child_2.children:
+                children_to_remove_from_node_1.add(child_1)
+            elif child_2 in child_1.children:
+                children_to_remove_from_node_2.add(child_2)
+    for child in children_to_remove_from_node_1:
+        node_1.children.remove(child)
+        child.parents.remove(node_1)
+    for child in children_to_remove_from_node_2:
+        node_2.children.remove(child)
+        child.parents.remove(node_2)
+
+
+def combine_nodes_lst(np_object_lst, span_to_object, dict_object_to_global_label, global_dict_label_to_object,
+                      combined_nodes_lst=set()):
+    first_element = np_object_lst[0]
+    length = len(np_object_lst)
+    is_combined = False
+    for i in range(1, length):
+        if np_object_lst[i] == first_element:
+            raise Exception("Parent have duplicate node")
+        if is_combine_create_circle(first_element, np_object_lst[i]):
+            continue
+        ambiguous_descendent_in_equivalent_nodes(first_element, np_object_lst[i])
+        combined_nodes_lst.add(np_object_lst[i])
+        first_element.combine_nodes(np_object_lst[i])
+        is_combined = True
+        for span in np_object_lst[i].span_lst:
+            span_to_object[span] = first_element
+        global_label_lst = dict_object_to_global_label.get(hash(np_object_lst[i]), None)
+        if global_label_lst:
+            dict_object_to_global_label[hash(first_element)] = \
+                dict_object_to_global_label.get(hash(first_element), set())
+            for global_label in global_label_lst:
+                global_dict_label_to_object[global_label] = first_element
+            dict_object_to_global_label[hash(first_element)].update(global_label_lst)
+    if is_combined:
+        update_all_ancestors_node_was_combined(first_element, first_element.label_lst)

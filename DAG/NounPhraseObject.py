@@ -171,7 +171,8 @@ class NP:
 
     def update_parents_with_new_node(self, parents, previous_node):
         for parent in parents:
-            parent.children.remove(previous_node)
+            if previous_node in parent.children:
+                parent.children.remove(previous_node)
             if self == parent:
                 continue
             if self not in parent.children:

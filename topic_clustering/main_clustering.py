@@ -119,7 +119,7 @@ def write_to_file_topic_to_collection(spans_lst):
 
 
 def convert_examples_to_clustered_data():
-    examples = parse_medical_data.get_examples_from_special_format(False)
+    examples = parse_medical_data.get_examples_from_special_format(True)
     dict_noun_lemma_to_synonyms = {}
     span_lst = set()
     dict_span_to_counter = {}
@@ -145,7 +145,7 @@ def convert_examples_to_clustered_data():
             if word in tokens_already_counted:
                 continue
             lemma_word = word.lemma_.lower()
-            dict_word_to_lemma[lemma_word] = lemma_word
+            dict_word_to_lemma[word.text.lower()] = lemma_word
             is_valid_example |= utils_clustering.add_word_collection_to_data_structures(word, tokens_already_counted,
                                                                                         lemma_already_counted,
                                                                                         all_valid_nps_lst, span)

@@ -294,7 +294,7 @@ def extract_top_k_concept_nodes_greedy_algorithm(k, topic_lst, global_index_to_s
     already_counted_labels = set()
     S_rep = {}
     counter = 0
-    while len(S) < k and heap_data_structure:
+    while heap_data_structure:
         x = heapq.heappop(heap_data_structure)
         is_ancestor_already_in_S = is_ancestor_in_S(x, S, set())
         if is_ancestor_already_in_S:

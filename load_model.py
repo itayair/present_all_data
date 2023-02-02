@@ -1,17 +1,15 @@
-from combine_spans import utils as combine_spans_utils
+from combine_spans import utils as combine_spans_utils, paraphrase_detection_SAP_BERT
 from combine_spans import combineSpans
 import DAG.hierarchical_structure_algorithms as hierarchical_structure_algorithms
 import DAG.DAG_utils as DAG_utils
-from topic_clustering import clustered_data_objects as clustered_data_objects
 import networkx as nx
 import collections
 import graphviz
 import json
 from taxonomy import taxonomies_from_UMLS
-import matplotlib.pyplot as plt
-import pickle
 import sys
-# from qa_nom import qa_nom_in_DAG as qa_nom_in_DAG
+
+from qa_nom import qa_nom_in_DAG as qa_nom_in_DAG
 
 sys.setrecursionlimit(10000)
 G = nx.DiGraph()
@@ -114,7 +112,7 @@ def get_uncounted_examples(example_list, global_longest_np_lst, dict_global_long
                 if item[0] in dict_global_longest_np_to_all_counted_expansions[example[0]]:
                     continue
                 dict_span_to_lemma_lst[item[0]] = item[2]
-                dict_span_to_rank[item[0]] = item[1]
+                dict_span_to_rank[item[0]] = len(item[2])
                 dict_global_longest_np_to_all_counted_expansions[example[0]].add(item[0])
                 uncounted_expansions.add(item[0])
             if uncounted_expansions:
@@ -124,7 +122,7 @@ def get_uncounted_examples(example_list, global_longest_np_lst, dict_global_long
             example[0]] = dict_global_longest_np_to_all_counted_expansions.get(example[0], set())
         for item in example[1]:
             dict_span_to_lemma_lst[item[0]] = item[2]
-            dict_span_to_rank[item[0]] = item[1]
+            dict_span_to_rank[item[0]] = len(item[2])
             dict_global_longest_np_to_all_counted_expansions[example[0]].add(item[0])
         global_longest_np_lst.add(example[0])
         dict_span_to_all_valid_expansions[example[0]] = [item[0] for item in example[1]]
@@ -147,12 +145,7 @@ def convert_node_to_symbol(spans_lst):
 
 
 def plot_graph(nodes_lst):
-    # for node in nodes_lst:
-    #     label = convert_node_to_symbol(node.span_lst)
-    #     G.add_node(label)
     g = graphviz.Digraph('G', filename='contracted_DAG.gv')
-    # for relation in relation_lst:
-    #     g.edge(relation[1], relation[0])
     for node in nodes_lst:
         node_label = convert_node_to_symbol(node.span_lst)
         g.node(node_label)
@@ -161,8 +154,6 @@ def plot_graph(nodes_lst):
             g.edge(node_label, child_label)
     g.view()
     g.clear()
-    # plt.show()
-    # G.clear()
 
 
 def dfs(visited, node):  # function for dfs
@@ -302,25 +293,32 @@ def main():
                                                   global_dict_label_to_object, topic_object_lst, longest_np_total_lst,
                                                   longest_np_lst, longest_NP_to_global_index,
                                                   dict_object_to_global_label)
-        # DAG_utils.check_symmetric_relation_in_DAG(topic_object_lst)
-        # isCyclic_val = isCyclic(topic_object_lst)
         # if isCyclic_val:
         #     print("There is a cyclic in the DAG")
         counter += 1
     # nodes_lst = get_all_nodes_from_roots(topic_object_lst)
     # write_to_file_group_of_similar_concepts(nodes_lst)
     # plot_graph(nodes_lst)
-    # taxonomies_from_UMLS.add_taxonomies_to_DAG_by_UMLS(topic_object_lst, dict_span_to_rank, topic_object_lst)
-    #
+    # DAG_utils.check_symmetric_relation_in_DAG(topic_object_lst)
+    paraphrase_detection_SAP_BERT.combine_equivalent_nodes_by_semantic_DL_model(topic_object_lst, span_to_object, dict_object_to_global_label, global_dict_label_to_object)
+    print("Done")
+    qa_nom_in_DAG.add_qanom_to_DAG(topic_object_lst, span_to_object)
+    DAG_utils.initialize_nodes_weighted_average_vector(topic_object_lst, global_index_to_similar_longest_np)
+    print("before taxonomic")
+    new_taxonomic_np_objects = taxonomies_from_UMLS.add_taxonomies_to_DAG_by_UMLS(topic_object_lst, dict_span_to_rank,
+                                                                                  span_to_object,
+                                                                                  dict_object_to_global_label,
+                                                                                  global_dict_label_to_object)
+    print("after taxonomic")
     # DAG_utils.check_symmetric_relation_in_DAG(topic_object_lst)
     # DAG contraction
     hierarchical_structure_algorithms.DAG_contraction_by_set_cover_algorithm(topic_object_lst,
                                                                              global_dict_label_to_object,
                                                                              global_index_to_similar_longest_np)
-    DAG_utils.initialize_nodes_weighted_average_vector(topic_object_lst, global_index_to_similar_longest_np)
+    print("after contraction")
     DAG_utils.check_symmetric_relation_in_DAG(topic_object_lst)
     DAG_utils.remove_redundant_nodes(topic_object_lst)
-    # qa_nom_in_DAG.add_qanom_to_DAG(topic_object_lst, span_to_object)
+    print("after remove redundant nodes")
     # nodes_lst = get_all_nodes_from_roots(topic_object_lst)
     # plot_graph(nodes_lst)
     DAG_utils.update_score(topic_object_lst, dict_span_to_rank)
@@ -330,7 +328,8 @@ def main():
             100, topic_object_lst, global_index_to_similar_longest_np)
     # nodes_lst = get_all_nodes_from_roots(top_k_topics)
     # plot_graph(nodes_lst)
-    top_k_topics_as_json = DAG_utils.from_DAG_to_JSON(top_k_topics, global_index_to_similar_longest_np)
+    top_k_topics_as_json = DAG_utils.from_DAG_to_JSON(top_k_topics, global_index_to_similar_longest_np,
+                                                      new_taxonomic_np_objects)
     top_k_labels = set()
     get_all_labels(top_k_topics, top_k_labels, visited=set())
     covered_labels = DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
@@ -341,7 +340,7 @@ def main():
                                                                      labels_of_topics)
     print("total labels of topics:", total_labels_of_topics)
     print("Covered labels by selected nodes:", covered_labels)  # result_file = open("diabetes_output.txt", "wb")
-    with open('diabetes_output.txt', 'w') as result_file:
+    with open('Debug_mode_UMLS_chest_pain.txt', 'w') as result_file:
         result_file.write(json.dumps(top_k_topics_as_json))
 
     print("Done")

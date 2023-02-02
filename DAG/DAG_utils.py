@@ -2,7 +2,7 @@ from combine_spans import utils as combine_spans_utils
 from transformers import AutoTokenizer, AutoModel
 import torch
 import DAG.NounPhraseObject as NounPhrase
-import gc
+import normalize_quantity
 
 device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 tokenizer = AutoTokenizer.from_pretrained('allenai/scibert_scivocab_uncased')
@@ -290,12 +290,20 @@ def insert_examples_of_topic_to_DAG(dict_score_to_collection_of_sub_groups, topi
                                                      longest_np_total_lst, topic_object)
 
 
-def add_descendants_of_node_to_graph(node, global_index_to_similar_longest_np):
+def add_descendants_of_node_to_graph(node, global_index_to_similar_longest_np, new_taxonomic_np_objects):
     span_to_present = ""
     first_val = True
     node.span_lst = list(node.span_lst)
     # node.np_val = sorted(node.np_val, key=lambda np_val: combine_spans_utils.dict_of_span_to_counter[np_val], reverse=True)
     node.span_lst.sort(key=lambda span_lst: combine_spans_utils.dict_span_to_counter.get(span_lst, 0), reverse=True)
+    # for span in node.span_lst:
+    #     if not first_val:
+    #         span_to_present += " | "
+    #     first_val = False
+    #     span_to_present += span
+    span_to_present = normalize_quantity.normalized_quantity_node(node)
+    # if not span_to_present:
+    #     span_to_present = ""
     for span in node.span_lst:
         if not first_val:
             span_to_present += " | "
@@ -308,20 +316,24 @@ def add_descendants_of_node_to_graph(node, global_index_to_similar_longest_np):
     span_to_present += " NP " + str(NP_occurrences) + " covered by NP " + str(
         get_frequency_from_labels_lst(global_index_to_similar_longest_np,
                                       node.label_lst))
+    if node in new_taxonomic_np_objects:
+        span_to_present = "(UMLS) " + span_to_present
     np_val_dict = {span_to_present: {}}
     node.children = sorted(node.children, key=lambda child: get_frequency_from_labels_lst(
         global_index_to_similar_longest_np,
         child.label_lst), reverse=True)
     for child in node.children:
-        np_val_dict[span_to_present].update(add_descendants_of_node_to_graph(child, global_index_to_similar_longest_np))
+        np_val_dict[span_to_present].update(add_descendants_of_node_to_graph(child, global_index_to_similar_longest_np,
+                                                                             new_taxonomic_np_objects))
     return np_val_dict
 
 
-def from_DAG_to_JSON(topic_object_lst, global_index_to_similar_longest_np):
+def from_DAG_to_JSON(topic_object_lst, global_index_to_similar_longest_np, new_taxonomic_np_objects):
     np_val_lst = {}
     topic_object_lst.sort(key=lambda topic_object: topic_object.marginal_val, reverse=True)
     for topic_node in topic_object_lst:
-        np_val_lst.update(add_descendants_of_node_to_graph(topic_node, global_index_to_similar_longest_np))
+        np_val_lst.update(add_descendants_of_node_to_graph(topic_node, global_index_to_similar_longest_np,
+                                                           new_taxonomic_np_objects))
     return np_val_lst
 
 

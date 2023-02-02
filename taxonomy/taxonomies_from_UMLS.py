@@ -2,9 +2,11 @@ import pickle
 import DAG.hierarchical_structure_algorithms as hierarchical_structure_algorithms
 import DAG.NounPhraseObject as NounPhrase
 import DAG.DAG_utils as DAG_utils
+from combine_spans import utils as combine_spans_utils
 import requests
 import spacy
 from nltk.corpus import stopwords
+from topic_clustering import utils_clustering
 import json
 import torch
 
@@ -24,8 +26,9 @@ import torch
 cos = torch.nn.CosineSimilarity(dim=0, eps=1e-08)
 nlp = spacy.load("en_ud_model_sm")
 stop_words = set(stopwords.words('english'))
-neglect_deps = ['neg', 'case', 'mark', 'auxpass', 'aux', 'nummod', 'quantmod', 'cop']
 
+
+# neglect_deps = ['neg', 'case', 'mark', 'auxpass', 'aux', 'nummod', 'quantmod', 'cop']
 
 
 def create_dict_RB_to_objects_lst(dict_RB_to_objects, np_object, visited, relation_type='RB'):
@@ -35,7 +38,6 @@ def create_dict_RB_to_objects_lst(dict_RB_to_objects, np_object, visited, relati
     for span in np_object.span_lst:
         if not span:
             continue
-        print(span)
         dict_response = requests.post('http://127.0.0.1:5000/get_broader_terms/',
                                       params={"word": span, "relation_type": relation_type})
         output = dict_response.json()
@@ -96,17 +98,16 @@ def link_np_object_to_RB_related_nodes(np_object, object_lst, added_edges, added
         covered_labels_by_new_topics.update(np_object_NT.label_lst)
         np_object.add_children([np_object_NT])
         np_object_NT.parents.add(np_object)
-    print(np_object.span_lst)
     update_parents_with_new_labels(np_object, np_object.label_lst)
 
 
-def from_tokens_to_lemmas(tokens):
-    lemma_lst = []
-    for token in tokens:
-        if token.dep_ in neglect_deps or token.lemma_ in stop_words or token.text == '-':
-            continue
-        lemma_lst.append(token.lemma_.lower())
-    return lemma_lst
+# def from_tokens_to_lemmas(tokens):
+#     lemma_lst = []
+#     for token in tokens:
+#         if token.dep_ in neglect_deps or token.lemma_ in stop_words or token.text == '-':
+#             continue
+#         lemma_lst.append(token.lemma_.lower())
+#     return lemma_lst
 
 
 def initialize_data():
@@ -161,7 +162,6 @@ def initialize_taxonomic_relations(topic_objects):
                                  reverse=True)}
     # dict_RB_to_objects = {key: dict_RB_to_objects[key] for key in dict_RB_to_objects if
     #                       len(dict_RB_to_objects[key]) > 1}
-    print(len(list(dict_RB_to_objects.keys())))
     # Filter objects that their parents expressed by the new taxonomic relations
     for key, object_lst in dict_RB_to_objects.items():
         remove_lst = set()
@@ -239,7 +239,7 @@ def create_and_add_new_taxonomic_object_to_DAG(dict_RB_exist_objects, dict_RB_to
         span, represented_vector = get_most_descriptive_span(object_lst, equivalent_span_lst)
         # for span in equivalent_span_lst:
         span_as_doc = nlp(span)
-        lemma_lst = from_tokens_to_lemmas(span_as_doc)
+        lemma_lst = utils_clustering.from_tokens_to_lemmas(span_as_doc)
         span_tuple_lst.append((span, lemma_lst))
         dict_span_to_rank[span] = len(lemma_lst)
         label_lst = set()
@@ -270,19 +270,78 @@ def initialize_nodes_weighted_average_vector(nodes_lst, global_index_to_similar_
                                                                  node.label_lst)
 
 
-def add_taxonomies_to_DAG_by_UMLS(topic_objects, dict_span_to_rank, dict_span_to_object):
-    # DAG_utils.update_symmetric_relation_in_DAG(topic_objects)
+def combine_nodes_by_umls_spans_synonyms_dfs_helper(dict_span_to_object, np_object, visited,
+                                                    dict_object_to_global_label,
+                                                    global_dict_label_to_object):
+    if np_object in visited:
+        return
+    visited.add(np_object)
+    equivalent_object_lst = set()
+    post_data = json.dumps(list(np_object.span_lst))
+    dict_response = requests.post('http://127.0.0.1:5000/create_synonyms_dictionary/',
+                                  params={"words": post_data})
+    output = dict_response.json()
+    synonyms_dict = output['synonyms']
+    synonyms = set()
+    for key, synonyms_lst in synonyms_dict.items():
+        synonyms.update(synonyms_lst)
+    if synonyms:
+        for term in synonyms:
+            equivalent_np_object = dict_span_to_object.get(term, None)
+            if equivalent_np_object:
+                if equivalent_np_object == np_object:
+                    continue
+                equivalent_object_lst.add(equivalent_np_object)
+        if equivalent_object_lst:
+            equivalent_object_lst = [np_object] + list(equivalent_object_lst)
+            combine_nodes_lst = set()
+            combine_spans_utils.combine_nodes_lst(equivalent_object_lst, dict_span_to_object, dict_object_to_global_label,
+                                                  global_dict_label_to_object, combine_nodes_lst)
+            for node in combine_nodes_lst:
+                visited.add(node)
+
+    children_lst = np_object.children.copy()
+    for child in children_lst:
+        combine_nodes_by_umls_spans_synonyms_dfs_helper(dict_span_to_object, child, visited,
+                                                        dict_object_to_global_label,
+                                                        global_dict_label_to_object)
+
+
+def combine_nodes_by_umls_spans_synonyms(dict_span_to_object, dict_object_to_global_label, global_dict_label_to_object,
+                                         topic_objects):
+    visited = set()
+    topic_object_lst = topic_objects.copy()
+    for topic_object in topic_object_lst:
+        if topic_object in visited:
+            topic_objects.remove(topic_object)
+            continue
+        combine_nodes_by_umls_spans_synonyms_dfs_helper(dict_span_to_object, topic_object, visited,
+                                                        dict_object_to_global_label,
+                                                        global_dict_label_to_object)
+
+
+def add_taxonomies_to_DAG_by_UMLS(topic_objects, dict_span_to_rank, dict_span_to_object, dict_object_to_global_label,
+                                  global_dict_label_to_object):
+    combine_nodes_by_umls_spans_synonyms(dict_span_to_object, dict_object_to_global_label, global_dict_label_to_object,
+                                         topic_objects)
+    # print("after synonyms taxonomic")
+    # DAG_utils.check_symmetric_relation_in_DAG(topic_objects)
+    # print("symetric is good after synonyms taxonomic")
+    DAG_utils.update_symmetric_relation_in_DAG(topic_objects)
     dict_RB_to_objects, dict_span_to_equivalent = initialize_taxonomic_relations(topic_objects)
     # Find exist np objects that represent the taxonomic relation
     dict_RB_exist_objects, added_edges, added_taxonomic_relation, covered_labels_by_new_topics = \
         detect_and_update_existing_object_represent_taxonomic_relation(dict_RB_to_objects, dict_span_to_equivalent,
                                                                        dict_span_to_object)
+    print("after update existing objects broader terms taxonomic")
+    DAG_utils.update_symmetric_relation_in_DAG(topic_objects)
+    print("symetric is good after update existing objects broader terms taxonomic")
     DAG_utils.check_symmetric_relation_in_DAG(topic_objects)
     new_taxonomic_np_objects = create_and_add_new_taxonomic_object_to_DAG(dict_RB_exist_objects,
                                                                           dict_RB_to_objects, dict_span_to_equivalent,
                                                                           dict_span_to_rank)
+    print("after update new objects broader terms taxonomic")
     topic_objects.extend(new_taxonomic_np_objects)
-    print(len(list(dict_RB_to_objects.keys())))
     covered_by_taxonomic_relation(new_taxonomic_np_objects, added_edges, added_taxonomic_relation,
                                   covered_labels_by_new_topics)
-
+    return new_taxonomic_np_objects

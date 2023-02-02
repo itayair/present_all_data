@@ -372,7 +372,9 @@ def get_all_expansions_of_span_from_lst(span_lst):
     examples_to_visualize = []
     for head_word, sentence_dep_graph, sentence in span_lst:
         counter += 1
-        # if counter == 1000:
+        # if counter < 1000:
+        #     continue
+        # if counter > 2000:
         #     break
         noun_phrase, head_word_in_np_index, boundary_np_to_the_left = valid_expansion_utils.get_np_boundary(
             head_word.i,
