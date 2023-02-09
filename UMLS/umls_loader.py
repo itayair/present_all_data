@@ -17,11 +17,14 @@ dict_explicit_relation_type_between_terms = {}
 
 def parse_args():
     parser = argparse.ArgumentParser()
+    abs_src = os.getcwd()
+    print(abs_src)
+    abs_src += "../../"
     parser.add_argument('--umls_dict_dir', type=str,
-                        default='C:/Users/iy245/UMLS_ALL/umls-2022AB-metathesaurus-full/2022AB/META/MRCONSO.RRF',
+                        default='../../../UMLS_ALL/umls-2022AB-metathesaurus-full/2022AB/META/MRCONSO.RRF',
                         help="the directory of the umls dictionary corpus")
     parser.add_argument('--umls_relation_dir', type=str,
-                        default='C:/Users/iy245/UMLS_ALL/umls-2022AB-metathesaurus-full/2022AB/META/MRREL.RRF',
+                        default='../../../UMLS_ALL/umls-2022AB-metathesaurus-full/2022AB/META/MRREL.RRF',
                         help="the directory of the umls relation corpus")
     return parser.parse_args()
 

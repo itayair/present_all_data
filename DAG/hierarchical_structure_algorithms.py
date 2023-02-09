@@ -79,6 +79,19 @@ def get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, cur
                                                              current_node.label_lst)) * (
                             cos_similarity_val ** 2)
     return marginal_gain
+    # label_lst = DAG_utils.get_labels_of_children(current_node.children)
+    # label_lst_minus_children_labels = current_node.label_lst - label_lst
+    # node_frequency = DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+    #                                                         label_lst_minus_children_labels)
+    # try:
+    #     cos_similarity_val = cos(current_node.weighted_average_vector, main_node.weighted_average_vector)
+    # except:
+    #     print("Error in weighted_average_vector")
+    #     print(current_node.span_lst)
+    #     print(current_node.list_of_span_as_lemmas_lst)
+    #     cos_similarity_val = 0.5
+    # marginal_gain = node_frequency * (cos_similarity_val ** 2)
+    # return marginal_gain
 
 
 def get_value_in_score_format(dist, global_index_to_similar_longest_np, node):
@@ -125,7 +138,8 @@ def compute_value_for_each_node(x, dist_matrix, dict_object_to_desc, dict_node_t
             if u not in visited:
                 x_u = hash(str(hash(x))) - hash(str(hash(u)))
                 dist_matrix[x_u] = dist_matrix[x_v] + 1
-                x_u_marginal_gain = get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, u, x, topic_lst)
+                x_u_marginal_gain = get_value_by_cosineSimilarity_format(global_index_to_similar_longest_np, u, x,
+                                                                         topic_lst)
                 rep_matrix[x_u] = x_u_marginal_gain
                 total_gain += x_u_marginal_gain
                 counter += 1
@@ -252,6 +266,9 @@ def build_tree_from_DAG(np_object, global_dict_label_to_object, visited_nodes,
     # unvisited_nodes = set(np_object.children) - visited_nodes
     selected_np_objects, counted_labels = set_cover(set(np_object.children), np_object,
                                                     global_index_to_similar_longest_np)
+    unselected_nodes = set(np_object.children) - set(selected_np_objects)
+    np_object.children = selected_np_objects.copy()
+    np_object.children.extend(list(unselected_nodes))
     remove_unselected_np_objects(np_object, selected_np_objects)
     uncounted_labels = all_labels - counted_labels
     visited_labels.update(uncounted_labels)
@@ -323,4 +340,6 @@ def extract_top_k_concept_nodes_greedy_algorithm(k, topic_lst, global_index_to_s
         dist_matrix[hash(k) - hash(x)] = 0
         counter += 1
         dfs_update_marginal_gain([], x, dist_matrix, k)
+        # if counter == 100:
+        #     break
     return S, already_counted_labels, all_labels

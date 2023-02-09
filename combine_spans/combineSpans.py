@@ -2,7 +2,6 @@ from combine_spans import utils as ut
 from sentence_transformers import SentenceTransformer
 import torch
 from sklearn.cluster import AgglomerativeClustering
-from transformers import AutoTokenizer, AutoModel
 # import gensim
 # from gensim.models import Word2Vec
 # from gensim.test.utils import common_texts
@@ -18,11 +17,7 @@ from nltk.stem import PorterStemmer
 # model = SentenceTransformer('fse/word2vec-google-news-300)
 
 # from transformers import AutoTokenizer, AutoModel
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
-sapBert_tokenizer = AutoTokenizer.from_pretrained('cambridgeltl/SapBERT-from-PubMedBERT-fulltext')
-sapBert_model = AutoModel.from_pretrained('cambridgeltl/SapBERT-from-PubMedBERT-fulltext')
-model = sapBert_model.to(device)
-model = model.eval()
+
 
 
 # model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
@@ -100,7 +95,7 @@ def union_common_np_by_DL_model(common_np_to_group_members_indices, dict_span_to
         return common_np_to_group_members_indices
     weighted_average_vector_lst = []
     for span in common_np_to_group_members_indices.keys():
-        spans_embeddings = model.encode(list(dict_span_to_similar_spans[span]))
+        spans_embeddings = ut.model.encode(list(dict_span_to_similar_spans[span]))
         weighted_average_vector = ut.get_weighted_average_vector_of_some_vectors_embeddings(spans_embeddings,
                                                                                             dict_span_to_similar_spans[
                                                                                                 span])
@@ -247,8 +242,8 @@ def create_clusters_of_longest_nps(longest_np_lst, dict_idx_to_all_valid_expansi
         global_longest_np_index[0] += 1
         # dict_span_to_similar_spans = {longest_np_lst[0]: longest_np_lst[0]}
     else:
-        encoded_input = sapBert_tokenizer(longest_np_lst, return_tensors='pt', padding=True).to(device)
-        phrase_embeddings = model(**encoded_input).last_hidden_state[0, 0, :].cpu()
+        encoded_input = ut.sapBert_tokenizer(longest_np_lst, return_tensors='pt', padding=True).to(ut.device)
+        phrase_embeddings = ut.model(**encoded_input).last_hidden_state[0, 0, :].cpu()
         clustering = AgglomerativeClustering(distance_threshold=0.08, n_clusters=None, linkage="average",
                                              affinity="cosine", compute_full_tree=True).fit(phrase_embeddings)
         label_to_nps_collection, dict_label_to_longest_nps_group = group_hierarchical_clustering_results(

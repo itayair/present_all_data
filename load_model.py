@@ -9,7 +9,7 @@ import json
 from taxonomy import taxonomies_from_UMLS
 import sys
 
-from qa_nom import qa_nom_in_DAG as qa_nom_in_DAG
+# from qa_nom import qa_nom_in_DAG as qa_nom_in_DAG
 
 sys.setrecursionlimit(10000)
 G = nx.DiGraph()
@@ -248,12 +248,50 @@ def get_all_labels(nodes, labels, visited=set()):
         get_all_labels(node.children, labels, visited)
 
 
+def update_nodes_labels(nodes_lst, visited=set()):
+    labels_lst = set()
+    for node in nodes_lst:
+        desc_labels = update_nodes_labels(node.children, visited)
+        node.label_lst.update(desc_labels)
+        labels_lst.update(node.label_lst)
+        visited.add(node)
+    return labels_lst
+
+
+def get_all_spans(np_object_lst, all_spans, visited=set()):
+    for np_object in np_object_lst:
+        if np_object in visited:
+            continue
+        all_spans.update(np_object.span_lst)
+        get_all_spans(np_object.children, all_spans)
+
+
+def print_flat_list_to_file(concept_to_occurrences):
+    concept_to_occurrences = {k: v for k, v in sorted(concept_to_occurrences.items(), key=lambda item: item[1], reverse=True)}
+    file_name = "flat_list_for_UI.txt"
+    concept_lst = []
+    with open(file_name, 'w', encoding='utf-8') as f:
+        idx = 0
+        for longest_span, number in concept_to_occurrences.items():
+            concept = longest_span + ': ' + str(number)
+            concept_lst.append(concept)
+            concept = str(idx) + ") " + concept
+            f.write(concept)
+            idx += 1
+            f.write('\n')
+    with open('flat_list_for_UI_as_json.txt', 'w') as result_file:
+        result_file.write(json.dumps(concept_lst))
+
+
+
 def main():
     dict_span_to_rank = {}
     dict_span_to_lemma_lst = combine_spans_utils.dict_span_to_lemma_lst
     global_dict_label_to_object = {}
     span_to_object = {}
     global_index_to_similar_longest_np = {}
+    all_spans = set()
+    span_to_vector = {}
     global_longest_np_lst = set()
     dict_global_longest_np_to_all_counted_expansions = {}
     topic_object_lst = []
@@ -270,13 +308,10 @@ def main():
         for synonym in topic_synonym_lst:
             dict_span_to_rank[synonym] = 1
         dict_span_to_all_valid_expansions, longest_np_lst, longest_np_total_lst, all_nps_example_lst, \
-        dict_uncounted_expansions, dict_counted_longest_answers = get_uncounted_examples(examples_list,
-                                                                                         global_longest_np_lst,
-                                                                                         dict_global_longest_np_to_all_counted_expansions,
-                                                                                         longest_NP_to_global_index,
-                                                                                         global_index_to_similar_longest_np,
-                                                                                         dict_span_to_lemma_lst,
-                                                                                         dict_span_to_rank)
+        dict_uncounted_expansions, dict_counted_longest_answers = \
+            get_uncounted_examples(examples_list, global_longest_np_lst,
+                                   dict_global_longest_np_to_all_counted_expansions, longest_NP_to_global_index,
+                                   global_index_to_similar_longest_np, dict_span_to_lemma_lst, dict_span_to_rank)
         label_to_nps_collection, dict_label_to_longest_nps_group = \
             combineSpans.create_index_and_collection_for_longest_nps(longest_np_lst, all_nps_example_lst,
                                                                      global_longest_np_index,
@@ -293,45 +328,57 @@ def main():
                                                   global_dict_label_to_object, topic_object_lst, longest_np_total_lst,
                                                   longest_np_lst, longest_NP_to_global_index,
                                                   dict_object_to_global_label)
-        # if isCyclic_val:
-        #     print("There is a cyclic in the DAG")
         counter += 1
-    # nodes_lst = get_all_nodes_from_roots(topic_object_lst)
-    # write_to_file_group_of_similar_concepts(nodes_lst)
-    # plot_graph(nodes_lst)
-    # DAG_utils.check_symmetric_relation_in_DAG(topic_object_lst)
-    paraphrase_detection_SAP_BERT.combine_equivalent_nodes_by_semantic_DL_model(topic_object_lst, span_to_object, dict_object_to_global_label, global_dict_label_to_object)
-    print("Done")
-    qa_nom_in_DAG.add_qanom_to_DAG(topic_object_lst, span_to_object)
-    DAG_utils.initialize_nodes_weighted_average_vector(topic_object_lst, global_index_to_similar_longest_np)
-    print("before taxonomic")
+    print(global_longest_np_index)
+    get_all_spans(topic_object_lst, all_spans)
+    all_spans = list(all_spans)
+    DAG_utils.initialize_all_spans_vectors(all_spans, span_to_vector)
+    DAG_utils.initialize_nodes_weighted_average_vector(topic_object_lst, global_index_to_similar_longest_np,
+                                                       span_to_vector)
+    paraphrase_detection_SAP_BERT.combine_equivalent_nodes_by_semantic_DL_model(topic_object_lst, span_to_object,
+                                                                                dict_object_to_global_label,
+                                                                                global_dict_label_to_object, span_to_vector)
+    print("END combine equivalent nodes by DL model")
+    DAG_utils.initialize_nodes_weighted_average_vector(topic_object_lst, global_index_to_similar_longest_np,
+                                                       span_to_vector)
+    # qa_nom_in_DAG.add_qanom_to_DAG(topic_object_lst, span_to_object)
     new_taxonomic_np_objects = taxonomies_from_UMLS.add_taxonomies_to_DAG_by_UMLS(topic_object_lst, dict_span_to_rank,
                                                                                   span_to_object,
                                                                                   dict_object_to_global_label,
-                                                                                  global_dict_label_to_object)
-    print("after taxonomic")
+                                                                                  global_dict_label_to_object,
+                                                                                  span_to_vector)
+    DAG_utils.initialize_nodes_weighted_average_vector(topic_object_lst, global_index_to_similar_longest_np,
+                                                       span_to_vector)
     # DAG_utils.check_symmetric_relation_in_DAG(topic_object_lst)
     # DAG contraction
+    print("before combine parent and children nodes by DL model")
+    paraphrase_detection_SAP_BERT.combine_equivalent_parent_and_children_nodes_by_semantic_DL_model(
+        topic_object_lst.copy(), span_to_object, dict_object_to_global_label, global_dict_label_to_object,
+        topic_object_lst, span_to_vector)
+    update_nodes_labels(topic_object_lst)
+    print("finish combine parent children nodes by DL models")
     hierarchical_structure_algorithms.DAG_contraction_by_set_cover_algorithm(topic_object_lst,
                                                                              global_dict_label_to_object,
                                                                              global_index_to_similar_longest_np)
-    print("after contraction")
-    DAG_utils.check_symmetric_relation_in_DAG(topic_object_lst)
+    print("finish DAG contraction")
     DAG_utils.remove_redundant_nodes(topic_object_lst)
-    print("after remove redundant nodes")
-    # nodes_lst = get_all_nodes_from_roots(topic_object_lst)
-    # plot_graph(nodes_lst)
-    DAG_utils.update_score(topic_object_lst, dict_span_to_rank)
-    # initialize_nodes_weighted_average_vector(new_taxonomic_np_objects, global_index_to_similar_longest_np)
+    update_nodes_labels(topic_object_lst)
+    DAG_utils.initialize_nodes_weighted_average_vector(topic_object_lst, global_index_to_similar_longest_np,
+                                                       span_to_vector)
     top_k_topics, already_counted_labels, all_labels = \
         hierarchical_structure_algorithms.extract_top_k_concept_nodes_greedy_algorithm(
             100, topic_object_lst, global_index_to_similar_longest_np)
-    # nodes_lst = get_all_nodes_from_roots(top_k_topics)
-    # plot_graph(nodes_lst)
+    different_concepts = set()
+    concept_to_occurrences = {}
     top_k_topics_as_json = DAG_utils.from_DAG_to_JSON(top_k_topics, global_index_to_similar_longest_np,
-                                                      new_taxonomic_np_objects)
+                                                      new_taxonomic_np_objects, different_concepts,
+                                                      concept_to_occurrences)
+    print_flat_list_to_file(concept_to_occurrences)
+    print(len(different_concepts))
     top_k_labels = set()
     get_all_labels(top_k_topics, top_k_labels, visited=set())
+    print("Number of different results covered by the k topics:")
+    print(len(top_k_labels))
     covered_labels = DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
                                                              top_k_labels)
     labels_of_topics = set()
@@ -340,50 +387,9 @@ def main():
                                                                      labels_of_topics)
     print("total labels of topics:", total_labels_of_topics)
     print("Covered labels by selected nodes:", covered_labels)  # result_file = open("diabetes_output.txt", "wb")
-    with open('Debug_mode_UMLS_chest_pain.txt', 'w') as result_file:
+    with open('results_disease/debug_all_jaundice.txt', 'w') as result_file:
         result_file.write(json.dumps(top_k_topics_as_json))
-
     print("Done")
-
-    # all_data_dict = {
-    #     'topic_object_lst': topic_object_lst,
-    #     'global_index_to_similar_longest_np': global_index_to_similar_longest_np,
-    #     'dict_span_to_rank': dict_span_to_rank,
-    #     'global_dict_label_to_object': global_dict_label_to_object
-    # }
-    # pickle.dump(all_data_dict, open("results_disease/diabetes/all_data_dict.p", "wb"))
-    # pickle.dump(topic_object_lst, open("results_disease/diabetes/topic_object_lst.p", "wb"))
-    # pickle.dump(global_index_to_similar_longest_np,
-    #             open("results_disease/diabetes/global_index_to_similar_longest_np.p", "wb"))
-    # pickle.dump(dict_span_to_rank, open("results_disease/diabetes/dict_span_to_rank.p", "wb"))
-    # pickle.dump(global_dict_label_to_object, open("results_disease/diabetes/global_dict_label_to_object.p", "wb"))
-    # hierarchical_structure_algorithms.DAG_contraction_by_set_cover_algorithm(topic_object_lst,
-    #                                                                          global_dict_label_to_object,
-    #                                                                          global_index_to_similar_longest_np)
-    # # nodes_lst = get_all_nodes_from_roots(topic_object_lst)
-    # # plot_graph(nodes_lst)
-    # DAG_utils.check_symmetric_relation_in_DAG(topic_object_lst)
-    # DAG_utils.remove_redundant_nodes(topic_object_lst)
-    # DAG_utils.update_score(topic_object_lst, dict_span_to_rank)
-    # top_k_topics, already_counted_labels, all_labels = \
-    #     hierarchical_structure_algorithms.extract_top_k_concept_nodes_greedy_algorithm(
-    #         100, topic_object_lst, global_index_to_similar_longest_np)
-    # covered_labels = DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
-    #                                                          already_counted_labels)
-    #
-    # # nodes_lst = get_all_nodes_from_roots(top_k_topics)
-    # # plot_graph(nodes_lst)
-    # top_k_topics = DAG_utils.from_DAG_to_JSON(top_k_topics, global_index_to_similar_longest_np)
-    # labels_of_topics = set()
-    # for topic_object in topic_object_lst:
-    #     labels_of_topics.update(topic_object.label_lst)
-    # total_labels_of_topics = DAG_utils.get_frequency_from_labels_lst(global_index_to_similar_longest_np,
-    #                                                                  labels_of_topics)
-    # print("total labels of topics:", total_labels_of_topics)
-    # print("Covered labels by selected nodes:", covered_labels)
-    # # result_file = open("diabetes_output.txt", "wb")
-    # with open('abortion_output.txt.txt', 'w') as result_file:
-    #     result_file.write(json.dumps(top_k_topics))
 
 
 main()

@@ -1,14 +1,15 @@
 from combine_spans import utils as combine_spans_utils
+from combine_spans import combineSpans as combine_spans
 from transformers import AutoTokenizer, AutoModel
 import torch
 import DAG.NounPhraseObject as NounPhrase
 import normalize_quantity
 
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
-tokenizer = AutoTokenizer.from_pretrained('allenai/scibert_scivocab_uncased')
-medical_model = AutoModel.from_pretrained('allenai/scibert_scivocab_uncased')
-medical_model = medical_model.to(device)
-medical_model = medical_model.eval()
+# device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+# tokenizer = AutoTokenizer.from_pretrained('allenai/scibert_scivocab_uncased')
+# medical_model = AutoModel.from_pretrained('allenai/scibert_scivocab_uncased')
+# medical_model = medical_model.to(device)
+# medical_model = medical_model.eval()
 
 
 def add_node_between_nodes(parent, child, new_node):
@@ -290,7 +291,8 @@ def insert_examples_of_topic_to_DAG(dict_score_to_collection_of_sub_groups, topi
                                                      longest_np_total_lst, topic_object)
 
 
-def add_descendants_of_node_to_graph(node, global_index_to_similar_longest_np, new_taxonomic_np_objects):
+def add_descendants_of_node_to_graph(node, global_index_to_similar_longest_np, new_taxonomic_np_objects,
+                                     different_concepts, concept_to_occurrences):
     span_to_present = ""
     first_val = True
     node.span_lst = list(node.span_lst)
@@ -304,36 +306,47 @@ def add_descendants_of_node_to_graph(node, global_index_to_similar_longest_np, n
     span_to_present = normalize_quantity.normalized_quantity_node(node)
     # if not span_to_present:
     #     span_to_present = ""
-    for span in node.span_lst:
-        if not first_val:
-            span_to_present += " | "
-        first_val = False
-        span_to_present += span
+    #     for span in node.span_lst: b
+    #         if not first_val:
+    #             span_to_present += " | "
+    #         first_val = False
+    #         span_to_present += span
     label_lst = get_labels_of_children(node.children)
     label_lst = node.label_lst - label_lst
     NP_occurrences = get_frequency_from_labels_lst(global_index_to_similar_longest_np,
                                                    label_lst)
-    span_to_present += " NP " + str(NP_occurrences) + " covered by NP " + str(
-        get_frequency_from_labels_lst(global_index_to_similar_longest_np,
-                                      node.label_lst))
-    if node in new_taxonomic_np_objects:
-        span_to_present = "(UMLS) " + span_to_present
+    covered_occurrences = get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+                                  node.label_lst)
+    if NP_occurrences:
+        if node not in different_concepts:
+            concept_to_occurrences[span_to_present] = NP_occurrences
+        different_concepts.add(node)
+    if covered_occurrences != NP_occurrences:
+        span_to_present += " (" + str(NP_occurrences) + "/ " + str(covered_occurrences) + ")"
+    else:
+        span_to_present += " (" + str(NP_occurrences) + ")"
+    # if node in new_taxonomic_np_objects:
+    #     span_to_present = "(UMLS) " + span_to_present
     np_val_dict = {span_to_present: {}}
     node.children = sorted(node.children, key=lambda child: get_frequency_from_labels_lst(
         global_index_to_similar_longest_np,
         child.label_lst), reverse=True)
     for child in node.children:
         np_val_dict[span_to_present].update(add_descendants_of_node_to_graph(child, global_index_to_similar_longest_np,
-                                                                             new_taxonomic_np_objects))
+                                                                             new_taxonomic_np_objects,
+                                                                             different_concepts,
+                                                                             concept_to_occurrences))
     return np_val_dict
 
 
-def from_DAG_to_JSON(topic_object_lst, global_index_to_similar_longest_np, new_taxonomic_np_objects):
+def from_DAG_to_JSON(topic_object_lst, global_index_to_similar_longest_np, new_taxonomic_np_objects, different_concepts,
+                     concept_to_occurrences):
     np_val_lst = {}
     topic_object_lst.sort(key=lambda topic_object: topic_object.marginal_val, reverse=True)
     for topic_node in topic_object_lst:
         np_val_lst.update(add_descendants_of_node_to_graph(topic_node, global_index_to_similar_longest_np,
-                                                           new_taxonomic_np_objects))
+                                                           new_taxonomic_np_objects, different_concepts,
+                                                           concept_to_occurrences))
     return np_val_lst
 
 
@@ -424,46 +437,91 @@ def get_frequency_from_labels_lst(global_index_to_similar_longest_np, label_lst)
     return num_of_labels
 
 
-def initialize_node_weighted_vector(node):
-    # is_first = True
-    with torch.no_grad():
-        most_frequent_span = combine_spans_utils.get_most_frequent_span(node.span_lst)
-        encoded_input = tokenizer(most_frequent_span, return_tensors='pt').to(device)
-        temp = medical_model(**encoded_input)
-        weighted_average_vector = temp.last_hidden_state[0, 0, :].cpu()
-        del temp, encoded_input
-        torch.cuda.empty_cache()
-    #     for np in node.span_lst:
-    #         encoded_input = tokenizer(np, return_tensors='pt').to(device)
-    #         allocation_counter += 1
-    #         if is_first:
-    #             temp = medical_model(**encoded_input)
-    #             weighted_average_vector = temp.last_hidden_state[0, 0, :].cpu()
-    #             is_first = False
-    #         else:
-    #             temp = medical_model(**encoded_input)
-    #             weighted_average_vector += temp.last_hidden_state[0, 0, :].cpu()
-    #         del temp, encoded_inputs
-    #         torch.cuda.empty_cache()
-    # weighted_average_vector /= len(node.span_lst)
+# def initialize_node_weighted_vector(node):
+#     # is_first = True
+#     with torch.no_grad():
+#         most_frequent_span = combine_spans_utils.get_most_frequent_span(node.span_lst)
+#         encoded_input = tokenizer(most_frequent_span, return_tensors='pt').to(device)
+#         temp = medical_model(**encoded_input)
+#         weighted_average_vector = temp.last_hidden_state[0, 0, :].cpu()
+#         del temp, encoded_input
+#         torch.cuda.empty_cache()
+#     #     for np in node.span_lst:
+#     #         encoded_input = tokenizer(np, return_tensors='pt').to(device)
+#     #         allocation_counter += 1
+#     #         if is_first:
+#     #             temp = medical_model(**encoded_input)
+#     #             weighted_average_vector = temp.last_hidden_state[0, 0, :].cpu()
+#     #             is_first = False
+#     #         else:
+#     #             temp = medical_model(**encoded_input)
+#     #             weighted_average_vector += temp.last_hidden_state[0, 0, :].cpu()
+#     #         del temp, encoded_inputs
+#     #         torch.cuda.empty_cache()
+#     # weighted_average_vector /= len(node.span_lst)
+#     node.weighted_average_vector = weighted_average_vector
+
+
+def initialize_node_weighted_vector(node, span_to_vector):
+    if not node.span_lst:
+        return
+    is_first = True
+    for np in node.span_lst:
+        if is_first:
+            weighted_average_vector = span_to_vector[np]
+            is_first = False
+        else:
+            weighted_average_vector += span_to_vector[np]
+    weighted_average_vector /= len(node.span_lst)
     node.weighted_average_vector = weighted_average_vector
 
 
+def initialize_all_spans_vectors(all_spans, span_to_vector):
+    with torch.no_grad():
+        encoded_input = \
+            combine_spans_utils.sapBert_tokenizer(all_spans, return_tensors='pt', padding=True).to(combine_spans_utils.device)
+        phrase_embeddings = combine_spans_utils.model(**encoded_input).last_hidden_state.cpu()
+        phrase_embeddings = torch.transpose(phrase_embeddings, 0, 1)
+        phrase_embeddings = phrase_embeddings[0, :]
+        del encoded_input
+        torch.cuda.empty_cache()
+    for j in range(len(all_spans)):
+        span_to_vector[all_spans[j]] = phrase_embeddings[j].reshape(-1, 1)
+
+
 def get_represented_vector(span):
-    encoded_input = tokenizer(span, return_tensors='pt')
-    represented_vector = medical_model(**encoded_input).last_hidden_state[0, 0, :]
-    return represented_vector
+    with torch.no_grad():
+        encoded_input = \
+            combine_spans_utils.sapBert_tokenizer(span, return_tensors='pt', padding=True).to(combine_spans_utils.device)
+        phrase_embeddings = combine_spans_utils.model(**encoded_input).last_hidden_state.cpu()
+        phrase_embeddings = torch.transpose(phrase_embeddings, 0, 1)
+        phrase_embeddings = phrase_embeddings[0, :]
+        del encoded_input
+        torch.cuda.empty_cache()
+    return phrase_embeddings.reshape(-1, 1)
 
 
-def initialize_nodes_weighted_average_vector(topic_object_lst, global_index_to_similar_longest_np, visited=[]):
+# def initialize_nodes_weighted_average_vector(topic_object_lst, global_index_to_similar_longest_np, visited=[]):
+#     for node in topic_object_lst:
+#         if node in visited:
+#             continue
+#         initialize_node_weighted_vector(node)
+#         node.frequency = get_frequency_from_labels_lst(global_index_to_similar_longest_np,
+#                                                        node.label_lst)
+#         visited.append(node)
+#         initialize_nodes_weighted_average_vector(node.children, global_index_to_similar_longest_np, visited)
+
+def initialize_nodes_weighted_average_vector(topic_object_lst, global_index_to_similar_longest_np, span_to_vector,
+                                             visited=[]):
     for node in topic_object_lst:
         if node in visited:
             continue
-        initialize_node_weighted_vector(node)
+        initialize_node_weighted_vector(node, span_to_vector)
         node.frequency = get_frequency_from_labels_lst(global_index_to_similar_longest_np,
                                                        node.label_lst)
         visited.append(node)
-        initialize_nodes_weighted_average_vector(node.children, global_index_to_similar_longest_np, visited)
+        initialize_nodes_weighted_average_vector(node.children, global_index_to_similar_longest_np, span_to_vector,
+                                                 visited)
 
 
 def get_labels_of_children(children):

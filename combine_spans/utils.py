@@ -3,12 +3,17 @@ import pickle
 import torch
 import nltk
 import os
-
+from transformers import AutoTokenizer, AutoModel
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+sapBert_tokenizer = AutoTokenizer.from_pretrained('cambridgeltl/SapBERT-from-PubMedBERT-fulltext')
+sapBert_model = AutoModel.from_pretrained('cambridgeltl/SapBERT-from-PubMedBERT-fulltext')
+model = sapBert_model.to(device)
+model = model.eval()
 print(os.getcwd())
 
 
 def load_data_dicts():
-    directory_relative_path = "load_data//sciatica//"
+    directory_relative_path = "load_data//jaundice//"
     a_file = open(directory_relative_path + "noun_lemma_to_example.pkl", "rb")
     topics_dict = pickle.load(a_file)
     topics_dict = {k: v for k, v in
@@ -73,7 +78,7 @@ def from_words_to_lemma_lst(span):
 def word_contained_in_list_by_edit_distance(word, lst_words_ref):
     for word_ref in lst_words_ref:
         val = nltk.edit_distance(word, word_ref)
-        if val / max(len(word), len(word_ref)) <= 0.34:
+        if val / max(len(word), len(word_ref)) <= 0.25:
             return True, word_ref
     return False, None
 
@@ -83,10 +88,10 @@ def compare_edit_distance_of_synonyms(synonyms, token, lemma_ref):
     for synonym in synonyms:
         edit_distance = nltk.edit_distance(synonym, token)
         edit_distance_lemma = nltk.edit_distance(synonym, lemma_ref)
-        if edit_distance / max(len(token), len(synonym)) <= 0.34:
+        if edit_distance / max(len(token), len(synonym)) <= 0.25:
             close_words.add((synonym, token))
             continue
-        if edit_distance_lemma / max(len(lemma_ref), len(synonym)) <= 0.34:
+        if edit_distance_lemma / max(len(lemma_ref), len(synonym)) <= 0.25:
             close_words.add((synonym, lemma_ref))
             continue
     return list(close_words)
@@ -320,26 +325,52 @@ def ambiguous_descendent_in_equivalent_nodes(node_1, node_2):
         child.parents.remove(node_1)
     for child in children_to_remove_from_node_2:
         node_2.children.remove(child)
-        child.parents.remove(node_2)
+        if node_2 in child.parents:
+            child.parents.remove(node_2)
+
+
+def initialize_node_weighted_vector(node, span_to_vector):
+    if not node.span_lst:
+        return
+    is_first = True
+    weighted_average_vector = None
+    for np in node.span_lst:
+        if is_first:
+            weighted_average_vector = span_to_vector[np]
+            is_first = False
+        else:
+            weighted_average_vector += span_to_vector[np]
+    weighted_average_vector /= len(node.span_lst)
+    node.weighted_average_vector = weighted_average_vector
 
 
 def combine_nodes_lst(np_object_lst, span_to_object, dict_object_to_global_label, global_dict_label_to_object,
-                      combined_nodes_lst=set()):
+                      span_to_vector, combined_nodes_lst=set()):
     first_element = np_object_lst[0]
     length = len(np_object_lst)
     is_combined = False
     for i in range(1, length):
-        if np_object_lst[i] == first_element:
+        second_element = np_object_lst[i]
+        if second_element == first_element:
             raise Exception("Parent have duplicate node")
-        if is_combine_create_circle(first_element, np_object_lst[i]):
+        if second_element in first_element.children:
+            remove_node_parents_edge(first_element, second_element)
+            remove_children_which_already_reached(first_element, second_element)
+        elif first_element in second_element.children:
+            remove_node_parents_edge(second_element, first_element)
+            remove_children_which_already_reached(second_element, first_element)
+            second_element = first_element
+            first_element = np_object_lst[i]
+        elif is_combine_create_circle(first_element, second_element):
             continue
-        ambiguous_descendent_in_equivalent_nodes(first_element, np_object_lst[i])
-        combined_nodes_lst.add(np_object_lst[i])
-        first_element.combine_nodes(np_object_lst[i])
+        else:
+            ambiguous_descendent_in_equivalent_nodes(first_element, second_element)
+        combined_nodes_lst.add(second_element)
+        first_element.combine_nodes(second_element)
         is_combined = True
-        for span in np_object_lst[i].span_lst:
+        for span in second_element.span_lst:
             span_to_object[span] = first_element
-        global_label_lst = dict_object_to_global_label.get(hash(np_object_lst[i]), None)
+        global_label_lst = dict_object_to_global_label.get(hash(second_element), None)
         if global_label_lst:
             dict_object_to_global_label[hash(first_element)] = \
                 dict_object_to_global_label.get(hash(first_element), set())
@@ -348,3 +379,70 @@ def combine_nodes_lst(np_object_lst, span_to_object, dict_object_to_global_label
             dict_object_to_global_label[hash(first_element)].update(global_label_lst)
     if is_combined:
         update_all_ancestors_node_was_combined(first_element, first_element.label_lst)
+        initialize_node_weighted_vector(first_element, span_to_vector)
+
+
+def update_ans_with_remove_link(node, label_lst):
+    new_label_lst = node.label_lst - label_lst
+    for child in node.children:
+        new_label_lst.update(child.label_lst)
+    if node.label_lst == new_label_lst:
+        return
+    node.label_lst = new_label_lst
+    for parent in node.parents:
+        update_ans_with_remove_link(parent, label_lst)
+
+
+def remove_node_parents_edge(node, child):
+    parents_remove_lst = set()
+    for parent in child.parents:
+        if parent == node:
+            parents_remove_lst.add(parent)
+            if child in parent.children:
+                parent.children.remove(child)
+            continue
+        if parent in node.children:
+            parent.children.remove(child)
+            parents_remove_lst.add(parent)
+            update_ans_with_remove_link(parent, child.label_lst)
+    for parent in parents_remove_lst:
+        child.parents.remove(parent)
+
+
+def remove_children_which_already_reached(node, combined_node):
+    descendents = set()
+    get_all_descendents(node, descendents)
+    remove_lst = set()
+    for child in combined_node.children:
+        if child in descendents:
+            remove_lst.add(child)
+    for child in remove_lst:
+        if combined_node in child.parents:
+            child.parents.remove(combined_node)
+        combined_node.children.remove(child)
+
+
+def combine_node_with_equivalent_children(node, equivalent_np_object_lst, span_to_object, dict_object_to_global_label,
+                                          global_dict_label_to_object, topic_object_lst, span_to_vector,
+                                          combined_nodes_lst=set()):
+    is_combined = False
+    for child in equivalent_np_object_lst:
+        remove_node_parents_edge(node, child)
+        remove_children_which_already_reached(node, child)
+        combined_nodes_lst.add(child)
+        node.combine_nodes(child)
+        is_combined = True
+        for span in child.span_lst:
+            span_to_object[span] = node
+        if child in topic_object_lst:
+            topic_object_lst.remove(child)
+        global_label_lst = dict_object_to_global_label.get(hash(child), None)
+        if global_label_lst:
+            dict_object_to_global_label[hash(node)] = \
+                dict_object_to_global_label.get(hash(node), set())
+            for global_label in global_label_lst:
+                global_dict_label_to_object[global_label] = node
+            dict_object_to_global_label[hash(node)].update(global_label_lst)
+    if is_combined:
+        update_all_ancestors_node_was_combined(node, node.label_lst)
+        initialize_node_weighted_vector(node, span_to_vector)

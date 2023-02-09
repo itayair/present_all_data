@@ -34,8 +34,12 @@ def normalized_quantity_node(node):
                 surface_to_unit[quant.surface] = quant.unit.name
                 unit_to_quantity_dict[quant.unit.name] = unit_to_quantity_dict.get(quant.unit.name, set())
                 unit_to_quantity_dict[quant.unit.name].add(quant.value)
-    # most_frequent_span = combine_spans_utils.get_most_frequent_span(node.span_lst)
-    if unit_to_quantity_dict:
+    is_valid_normalized = False
+    for explicit_, quantity in unit_to_quantity_dict.items():
+        if len(quantity) > 0.5 * len(node.span_lst) and len(quantity) > 1:
+            is_valid_normalized = True
+            break
+    if is_valid_normalized:
         most_frequent_span = combine_spans_utils.get_most_frequent_span(valid_span_lst)
         surface_lst = span_to_surface_dict[most_frequent_span]
         for surface in surface_lst:
@@ -44,8 +48,9 @@ def normalized_quantity_node(node):
             range_number = from_quantity_to_range(list(quantity_lst))
             normalized_quantity = range_number + " " + unit
             most_frequent_span = most_frequent_span.replace(surface, normalized_quantity)
-        return most_frequent_span
-    return ""
+    else:
+        most_frequent_span = combine_spans_utils.get_most_frequent_span(node.span_lst)
+    return most_frequent_span
 
 
 def get_quantity_for_nodes(object_lst, visited=set()):
@@ -55,7 +60,6 @@ def get_quantity_for_nodes(object_lst, visited=set()):
         normalized_quantity_node(node)
         visited.add(node)
         get_quantity_for_nodes(node.children, visited)
-
 
 # all_data_dict = pickle.load(open("results_disease/diabetes/all_data_dict.p", "rb"))
 # topic_object_lst = all_data_dict['topic_object_lst']

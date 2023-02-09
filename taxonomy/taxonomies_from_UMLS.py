@@ -227,7 +227,7 @@ def get_most_descriptive_span(nodes_lst, span_lst):
 
 # Create and add the new taxonomic relation to the DAG
 def create_and_add_new_taxonomic_object_to_DAG(dict_RB_exist_objects, dict_RB_to_objects,
-                                               dict_span_to_equivalent, dict_span_to_rank):
+                                               dict_span_to_equivalent, dict_span_to_rank, span_to_vector):
     black_lst = set(dict_RB_exist_objects.keys())
     new_taxonomic_np_objects = set()
     for RB, object_lst in dict_RB_to_objects.items():
@@ -237,6 +237,7 @@ def create_and_add_new_taxonomic_object_to_DAG(dict_RB_exist_objects, dict_RB_to
         equivalent_span_lst.add(RB)
         span_tuple_lst = []
         span, represented_vector = get_most_descriptive_span(object_lst, equivalent_span_lst)
+        span_to_vector[span] = represented_vector
         # for span in equivalent_span_lst:
         span_as_doc = nlp(span)
         lemma_lst = utils_clustering.from_tokens_to_lemmas(span_as_doc)
@@ -272,7 +273,7 @@ def initialize_nodes_weighted_average_vector(nodes_lst, global_index_to_similar_
 
 def combine_nodes_by_umls_spans_synonyms_dfs_helper(dict_span_to_object, np_object, visited,
                                                     dict_object_to_global_label,
-                                                    global_dict_label_to_object):
+                                                    global_dict_label_to_object, span_to_vector):
     if np_object in visited:
         return
     visited.add(np_object)
@@ -294,21 +295,21 @@ def combine_nodes_by_umls_spans_synonyms_dfs_helper(dict_span_to_object, np_obje
                 equivalent_object_lst.add(equivalent_np_object)
         if equivalent_object_lst:
             equivalent_object_lst = [np_object] + list(equivalent_object_lst)
-            combine_nodes_lst = set()
+            combined_nodes_lst = set()
             combine_spans_utils.combine_nodes_lst(equivalent_object_lst, dict_span_to_object, dict_object_to_global_label,
-                                                  global_dict_label_to_object, combine_nodes_lst)
-            for node in combine_nodes_lst:
+                                                  global_dict_label_to_object, span_to_vector, combined_nodes_lst)
+            for node in combined_nodes_lst:
                 visited.add(node)
 
     children_lst = np_object.children.copy()
     for child in children_lst:
         combine_nodes_by_umls_spans_synonyms_dfs_helper(dict_span_to_object, child, visited,
                                                         dict_object_to_global_label,
-                                                        global_dict_label_to_object)
+                                                        global_dict_label_to_object, span_to_vector)
 
 
 def combine_nodes_by_umls_spans_synonyms(dict_span_to_object, dict_object_to_global_label, global_dict_label_to_object,
-                                         topic_objects):
+                                         topic_objects, span_to_vector):
     visited = set()
     topic_object_lst = topic_objects.copy()
     for topic_object in topic_object_lst:
@@ -317,13 +318,13 @@ def combine_nodes_by_umls_spans_synonyms(dict_span_to_object, dict_object_to_glo
             continue
         combine_nodes_by_umls_spans_synonyms_dfs_helper(dict_span_to_object, topic_object, visited,
                                                         dict_object_to_global_label,
-                                                        global_dict_label_to_object)
+                                                        global_dict_label_to_object, span_to_vector)
 
 
 def add_taxonomies_to_DAG_by_UMLS(topic_objects, dict_span_to_rank, dict_span_to_object, dict_object_to_global_label,
-                                  global_dict_label_to_object):
+                                  global_dict_label_to_object, span_to_vector):
     combine_nodes_by_umls_spans_synonyms(dict_span_to_object, dict_object_to_global_label, global_dict_label_to_object,
-                                         topic_objects)
+                                         topic_objects, span_to_vector)
     # print("after synonyms taxonomic")
     # DAG_utils.check_symmetric_relation_in_DAG(topic_objects)
     # print("symetric is good after synonyms taxonomic")
@@ -333,14 +334,10 @@ def add_taxonomies_to_DAG_by_UMLS(topic_objects, dict_span_to_rank, dict_span_to
     dict_RB_exist_objects, added_edges, added_taxonomic_relation, covered_labels_by_new_topics = \
         detect_and_update_existing_object_represent_taxonomic_relation(dict_RB_to_objects, dict_span_to_equivalent,
                                                                        dict_span_to_object)
-    print("after update existing objects broader terms taxonomic")
     DAG_utils.update_symmetric_relation_in_DAG(topic_objects)
-    print("symetric is good after update existing objects broader terms taxonomic")
-    DAG_utils.check_symmetric_relation_in_DAG(topic_objects)
     new_taxonomic_np_objects = create_and_add_new_taxonomic_object_to_DAG(dict_RB_exist_objects,
                                                                           dict_RB_to_objects, dict_span_to_equivalent,
-                                                                          dict_span_to_rank)
-    print("after update new objects broader terms taxonomic")
+                                                                          dict_span_to_rank, span_to_vector)
     topic_objects.extend(new_taxonomic_np_objects)
     covered_by_taxonomic_relation(new_taxonomic_np_objects, added_edges, added_taxonomic_relation,
                                   covered_labels_by_new_topics)
