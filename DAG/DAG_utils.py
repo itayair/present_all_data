@@ -303,14 +303,14 @@ def add_descendants_of_node_to_graph(node, global_index_to_similar_longest_np, n
     #         span_to_present += " | "
     #     first_val = False
     #     span_to_present += span
-    span_to_present = normalize_quantity.normalized_quantity_node(node)
-    # if not span_to_present:
-    #     span_to_present = ""
-    #     for span in node.span_lst: b
-    #         if not first_val:
-    #             span_to_present += " | "
-    #         first_val = False
-    #         span_to_present += span
+    # span_to_present = normalize_quantity.normalized_quantity_node(node)
+    if not span_to_present:
+        span_to_present = ""
+        for span in node.span_lst:
+            if not first_val:
+                span_to_present += " | "
+            first_val = False
+            span_to_present += span
     label_lst = get_labels_of_children(node.children)
     label_lst = node.label_lst - label_lst
     NP_occurrences = get_frequency_from_labels_lst(global_index_to_similar_longest_np,

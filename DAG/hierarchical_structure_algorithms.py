@@ -340,6 +340,6 @@ def extract_top_k_concept_nodes_greedy_algorithm(k, topic_lst, global_index_to_s
         dist_matrix[hash(k) - hash(x)] = 0
         counter += 1
         dfs_update_marginal_gain([], x, dist_matrix, k)
-        # if counter == 100:
-        #     break
+        if counter == 100:
+            break
     return S, already_counted_labels, all_labels

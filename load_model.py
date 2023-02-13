@@ -268,7 +268,7 @@ def get_all_spans(np_object_lst, all_spans, visited=set()):
 
 def print_flat_list_to_file(concept_to_occurrences):
     concept_to_occurrences = {k: v for k, v in sorted(concept_to_occurrences.items(), key=lambda item: item[1], reverse=True)}
-    file_name = "flat_list_for_UI.txt"
+    file_name = "flat_list_for_UI_chest_pain.txt"
     concept_lst = []
     with open(file_name, 'w', encoding='utf-8') as f:
         idx = 0
@@ -279,7 +279,7 @@ def print_flat_list_to_file(concept_to_occurrences):
             f.write(concept)
             idx += 1
             f.write('\n')
-    with open('flat_list_for_UI_as_json.txt', 'w') as result_file:
+    with open('flat_list_for_UI_as_json_chest_pain.txt', 'w') as result_file:
         result_file.write(json.dumps(concept_lst))
 
 
@@ -373,7 +373,7 @@ def main():
     top_k_topics_as_json = DAG_utils.from_DAG_to_JSON(top_k_topics, global_index_to_similar_longest_np,
                                                       new_taxonomic_np_objects, different_concepts,
                                                       concept_to_occurrences)
-    print_flat_list_to_file(concept_to_occurrences)
+    # print_flat_list_to_file(concept_to_occurrences)
     print(len(different_concepts))
     top_k_labels = set()
     get_all_labels(top_k_topics, top_k_labels, visited=set())
@@ -387,7 +387,7 @@ def main():
                                                                      labels_of_topics)
     print("total labels of topics:", total_labels_of_topics)
     print("Covered labels by selected nodes:", covered_labels)  # result_file = open("diabetes_output.txt", "wb")
-    with open('results_disease/debug_all_jaundice.txt', 'w') as result_file:
+    with open('results_disease/chest_pain_all_debug.txt', 'w') as result_file:
         result_file.write(json.dumps(top_k_topics_as_json))
     print("Done")
 
