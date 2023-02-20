@@ -1,0 +1,2223 @@
+0) hepatocellular carcinoma: 55
+1) malignancy: 43
+2) pancreatic cancer: 28
+3) cholelithiasis: 26
+4) choledocholithiasis: 26
+5) mirizzi syndrome: 22
+6) hodgkin 's disease: 21
+7) intrahepatic cholestasis: 20
+8) hyperbilirubinaemia: 19
+9) pancreatic head cancer: 19
+10) tumour: 19
+11) hepatitis: 17
+12) biliary atresia: 16
+13) metastatic: 16
+14) chronic pancreatitis: 16
+15) viral hepatitis: 15
+16) biliary obstruction: 14
+17) ligation of the common bile duct: 13
+18) hilar cholangiocarcinoma: 13
+19) hepatitis e virus: 13
+20) atresia: 13
+21) drug: 12
+22) chlorpromazine: 12
+23) ba: 12
+24) g6pd deficiency: 10
+25) hepatopathy: 9
+26) acute hepatitis: 9
+27) pyloric stenosis: 9
+28) cholangitis: 8
+29) liver metastases: 8
+30) amoebic liver abscess: 8
+31) biliary stricture: 8
+32) tuberculous lymphadenitis: 8
+33) septicaemia: 8
+34) stone: 8
+35) cholestasis: 7
+36) obstruction of the common bile duct: 7
+37) common bile duct stones: 7
+38) cholangiocarcinoma: 7
+39) bile duct ligation: 7
+40) acute cholecystitis: 7
+41) hydatid cyst of the liver: 7
+42) pancreatitis: 7
+43) glucose-6 - phosphate dehydrogenase deficiency: 7
+44) extrahepatic obstruction: 7
+45) duodenal ulcer: 7
+46) glucose-6 - phosphate dehydrogenase: 7
+47) bdl: 7
+48) biliary tract disease: 6
+49) benign and malignant diseases causing jaundice and/or cholestasis: 6
+50) unconjugated hyperbilirubinemia: 6
+51) cirrhosis: 6
+52) amyloidosis: 6
+53) gastric cancer: 6
+54) recurrent gastric cancer: 6
+55) cystic fibrosis: 6
+56) lymphoma: 6
+57) hemolysis: 6
+58) urinary tract infection: 6
+59) hyperthyroidism: 6
+60) aneurysm of the hepatic artery as a cause of jaundice: 5
+61) extrahepatic cholangiocarcinoma: 5
+62) choledochocoele: 5
+63) hepatic insufficiency: 5
+64) carcinoma of the gallbladder: 5
+65) pancreatic ductal adenocarcinoma: 5
+66) pancreaticobiliary malignancies: 5
+67) autoimmune pancreatitis: 5
+68) pancreatic tuberculosis: 5
+69) abo incompatibility: 5
+70) bacterial infection: 5
+71) cytomegalovirus: 5
+72) hepatic artery aneurysm: 5
+73) acute myeloid leukemia: 5
+74) multiple myeloma: 5
+75) pancreatic pseudocyst: 5
+76) malaria: 5
+77) g-6 - pd deficiency: 5
+78) hemobilia: 5
+79) fasciola hepatica: 5
+80) neuroblastoma: 5
+81) stricture of the bile duct: 4
+82) malignant biliary obstruction: 4
+83) compression of the common bile duct: 4
+84) sclerosing cholangitis: 4
+85) biliary cystadenoma: 4
+86) polycystic liver disease: 4
+87) carcinoma: 4
+88) metastatic gastric cancer: 4
+89) recurrence and metastasis: 4
+90) a pancreatic head tumor: 4
+91) unresectable pancreatic carcinoma: 4
+92) advanced pancreatic cancer: 4
+93) carcinoma of ampulla of vater: 4
+94) biliary compression: 4
+95) biliary ascariasis: 4
+96) idiopathic fibrosing pancreatitis: 4
+97) sickle cell disease: 4
+98) blood group incompatibility: 4
+99) rh and abo incompatibility: 4
+100) leptospirosis: 4
+101) a pancreatic mass: 4
+102) congenital hypothyroidism: 4
+103) myeloid sarcoma: 4
+104) a case report: 4
+105) impaction of a pancreatic stone in the papilla: 4
+106) portal cavernoma: 4
+107) oral contraceptives: 4
+108) phenylbutazone: 4
+109) graves ' disease: 4
+110) typhoid fever: 4
+111) patient: 4
+112) clot: 4
+113) tuberculous lymphadenitis as a cause of obstructive jaundice: 3
+114) malignant biliary stenosis: 3
+115) extrahepatic biliary atresia( ehba): 3
+116) double ligation of the bile duct: 3
+117) primary neurofibroma of the common bile duct: 3
+118) benign neoplasms of the extrahepatic bile ducts: 3
+119) cancer of extrahepatic bile duct: 3
+120) the low bile duct: 3
+121) vanishing bile duct syndrome: 3
+122) a foreign body in the bile duct: 3
+123) limy bile: 3
+124) neonatal hepatitis: 3
+125) unresectable hcc: 3
+126) constitutional hepatic dysfunction: 3
+127) amyloidosis of the liver: 3
+128) lymph node metastasis: 3
+129) metastatic breast cancer: 3
+130) pancreatic head tumor secondary to multiple myeloma: 3
+131) metastatic melanoma: 3
+132) carcinoma of the biliary system: 3
+133) the local recurrence of gastric cancer: 3
+134) tuberculous biliary stenosis: 3
+135) miliary tuberculosis: 3
+136) anomalies of the biliary tract: 3
+137) acute pancreatitis: 3
+138) isolated pancreatic tuberculosis: 3
+139) heterotopic pancreas: 3
+140) pyruvate kinase deficiency: 3
+141) hemolytic disease: 3
+142) hemolytic disease of the newborn: 3
+143) rh incompatibility: 3
+144) infection: 3
+145) bacterial infection in young infants: 3
+146) acute infection: 3
+147) clonorchiasis: 3
+148) lobar pneumonia: 3
+149) acute lymphoblastic leukemia: 3
+150) fusidic acid: 3
+151) breast feeding: 3
+152) maternal milk: 3
+153) case report and review of the literature: 3
+154) neoplastic obstruction: 3
+155) an imbalance between bilirubin production and elimination: 3
+156) falciparum malaria: 3
+157) internal hernia: 3
+158) foramen of winslow hernia: 3
+159) a foreign body: 3
+160) periampullary tumors: 3
+161) gilbert 's syndrome: 3
+162) afferent loop obstruction: 3
+163) lithiasis: 3
+164) pancreatic plasmacytoma: 3
+165) pruritus: 3
+166) ticlopidine: 3
+167) methyltestosterone therapy: 3
+168) portal biliopathy: 3
+169) ulcerative colitis: 3
+170) hemoblastosis: 3
+171) largactil: 3
+172) lh: 3
+173) nhl: 3
+174) obstruction: 3
+175) neuromas of the bile ducts as a cause of jaundice: 2
+176) idiopathic fibrosing pancreatitis as a cause of jaundice: 2
+177) lemmel 's syndrome as a rare cause of obstructive jaundice: 2
+178) non - parasitic hepatic cysts causing obstructive jaundice: 2
+179) tumors causing obstructive jaundice: 2
+180) a right artery pseudoaneurysm caused jaundice: 2
+181) acute renal failure complicating obstructive jaundice: 2
+182) multiple myeloma of the liver presenting as non - obstructive jaundice: 2
+183) ruptured abdominal aortic aneurysm causing obstructive jaundice: 2
+184) intrahepatic cholestasis of drug origin: 2
+185) stricture of the common bile duct: 2
+186) biliary atresia and neonatal hepatitis syndrome: 2
+187) distal biliary obstruction: 2
+188) neoplastic obstruction of the hepatic hilus: 2
+189) neonatal cholestasis: 2
+190) the common bile duct: 2
+191) common bile duct stones and gallbladder stones: 2
+192) compression of the intrapancreatic portion of the bile duct: 2
+193) the compression of the bile duct by a pseudocyst: 2
+194) common bile duct cancer: 2
+195) the common bile duct hematoma: 2
+196) schwannoma of common bile duct: 2
+197) spontaneous perforation of the common bile duct: 2
+198) all patients choledocholithiasis: 2
+199) cholelithiasis as a cause of jaundice in the neonatal period: 2
+200) gallstone ileus: 2
+201) myeloid sarcoma of the extrahepatic bile ducts: 2
+202) hepatocellular carcinoma with bile duct tumor thrombus: 2
+203) unresectable tumors of the pancreas and biliary tree: 2
+204) bile - plug syndrome: 2
+205) alcoholic hepatitis: 2
+206) chemical hepatitis: 2
+207) unresectable hepatocellular carcinoma: 2
+208) intraductal hepatocellular carcinoma: 2
+209) small hepatocellular carcinoma: 2
+210) malignancy at the liver hilum: 2
+211) rupture of a hydatid cyst of the hepatic dome into the biliary tract: 2
+212) solitary nonparasitic cyst of the liver: 2
+213) benign hepatic cysts: 2
+214) an elevated conjugated bilirubin: 2
+215) multiple hepatic metastases: 2
+216) hepatic lymph node metastasis: 2
+217) lymphatic remetastasis from the hepatic metastasis of rectosigmoid cancer: 2
+218) alcoholic liver disease: 2
+219) fatty liver of pregnancy: 2
+220) fatty liver: 2
+221) enzymatic deficiencies of the liver: 2
+222) portal hypertension: 2
+223) parenchymal hepatic diseases: 2
+224) pancreatic metastasis: 2
+225) metastasis of lung cancer: 2
+226) intraductal metastasis of lung cancer: 2
+227) retroperitoneal metastasis: 2
+228) vaginal cancer and retroperitoneal metastasis: 2
+229) metastatic renal cell carcinoma: 2
+230) secondary syphilis: 2
+231) secondary sclerosing cholangitis: 2
+232) metastases from nonbiliary and nonpancreatic cancers: 2
+233) inoperable pancreatic head cancer: 2
+234) tumors of the pancreas: 2
+235) pancreatic and periampullary malignancy: 2
+236) presumed pancreatic malignancy: 2
+237) small cell lung carcinoma: 2
+238) a primary cystic duct carcinoma: 2
+239) colorectal and gastric cancers: 2
+240) gastric adenocarcinoma: 2
+241) pulmonary adenocarcinoma: 2
+242) prostate cancer: 2
+243) periampullar carcinoma: 2
+244) unresectable cancer: 2
+245) advanced cancer: 2
+246) inoperable malignancies: 2
+247) various inoperable malignancies: 2
+248) hepatic malignancy: 2
+249) a hepatobiliary malignancy: 2
+250) an unresectable malignant tumor: 2
+251) extrinsic biliary compression: 2
+252) biliary lithiasis: 2
+253) biliary tumor thrombi: 2
+254) biliary fascioliasis: 2
+255) spontaneous biliary perforation: 2
+256) pancrea: 2
+257) chronic pancreatitis with pseudocyst: 2
+258) definitive aip: 2
+259) a mass of the head of the pancreas: 2
+260) a tuberculous mass in the head of the pancreas: 2
+261) inflammatory pancreatic disease: 2
+262) multiple stones in the cystic duct: 2
+263) cavernous transformation of the portal vein: 2
+264) ovarian non - hodgkin 's lymphoma: 2
+265) burkitt 's lymphoma: 2
+266) dlbcl: 2
+267) hs: 2
+268) abo isoimmunization: 2
+269) intravascular hemolysis: 2
+270) maternal - fetal abo incompatibility: 2
+271) unconjugated bilirubin: 2
+272) radiation - induced hepatic duct stricture: 2
+273) tuberculous: 2
+274) pericholedochal tuberculous lymphadenitis: 2
+275) abdominal tuberculosis: 2
+276) anti - tuberculous drugs: 2
+277) severe bacterial infection in infants: 2
+278) severe bacterial infection: 2
+279) gram - negative bacterial infections: 2
+280) paracoccidioidomycosis: 2
+281) enzyme deficiency: 2
+282) galactosemia: 2
+283) hydatid cyst of the pancreatic head: 2
+284) diseases causing jaundice: 2
+285) langerhans cell histiocytosis: 2
+286) acute leukemia: 2
+287) lump: 2
+288) a duodenal diverticulum: 2
+289) amoxicillin and clavulanic acid: 2
+290) malignant hilar obstruction of various etiologies: 2
+291) chronic duodenal ulcer disease: 2
+292) breast milk: 2
+293) breast milk jaundice: 2
+294) chlorpromazine therapy: 2
+295) captopril: 2
+296) fosinopril: 2
+297) benign diseases: 2
+298) author 's transl: 2
+299) gilbert 's syndrome as a cause of jaundice: 2
+300) novobiocin: 2
+301) thyrotoxicosis: 2
+302) congenital myxedema: 2
+303) a carcinoid tumor originating from the ampulla of vater: 2
+304) renal cyst: 2
+305) migrated tumour fragments: 2
+306) changes in bilirubin metabolism: 2
+307) morgagni hernia: 2
+308) cdh: 2
+309) lymphadenitis: 2
+310) a stroke: 2
+311) intracranial hemorrhage: 2
+312) malignant melanoma: 2
+313) afferent loop syndrome presenting as jaundice: 2
+314) resorption of an hematoma: 2
+315) a hematoma in the cbd: 2
+316) aaa: 2
+317) fascioliasis: 2
+318) epstein - barr virus: 2
+319) duodenal obstruction: 2
+320) review of the literature: 2
+321) methimazole: 2
+322) carbimazole: 2
+323) the gastrointestinal tract: 2
+324) shell splinter: 2
+325) cbd: 2
+326) stone in cbd: 2
+327) copper poisoning: 2
+328) esophageal varices: 2
+329) pseudoaneurysm of the gastroduodenal artery: 2
+330) tumor growth: 2
+331) kawasaki 's disease: 2
+332) promazine: 2
+333) the spontaneous fragmentation of an oestrogen implant: 2
+334) oxyphenisatin: 2
+335) retention: 2
+336) immunization: 2
+337) hc: 2
+338) antibodies of maternal origin: 2
+339) pregnanediol: 2
+340) kaposi sarcoma of the ampulla of vater: 2
+341) adenomyoma located at the ampulla: 2
+342) intracholedochal blood clot: 2
+343) acute appendicitis: 2
+344) ichthyobacterium seriolicida: 2
+345) a pancreatic hemangioma: 2
+346) legionnaires ' disease: 2
+347) hps: 2
+348) cholangiohydatidosis: 2
+349) sbp: 2
+350) hdn: 2
+351) cbdl: 2
+352) ms: 2
+353) hemorrhagic cholecystitis: 2
+354) defects in transporter expression and function: 2
+355) the congenital anomaly: 2
+356) incompatibility: 2
+357) group: 2
+358) cyst: 2
+359) anaemia: 2
+360) ducts: 2
+361) disease: 2
+362) obstructive jaundice: 1
+363) a giant aneurysm of the common hepatic artery causing obstructive jaundice: 1
+364) hepatic artery aneurysm an unusual cause of obstructive jaundice mr cholangiography findings: 1
+365) traumatic neuroma of the bile ducts with intrahepatic extension causing obstructive jaundice: 1
+366) a villous adenoma of the common bile duct causing obstructive jaundice: 1
+367) a schwannoma of the bile duct causing obstructive jaundice: 1
+368) the region of the bile duct anastomosis caused obstructive jaundice: 1
+369) peutz - jeghers syndrome causing obstructive jaundice due to polyp in common bile duct: 1
+370) rhabdomyosarcoma of the bile ducts as a cause of obstructive jaundice: 1
+371) cholestatic hepatocellular carcinoma grows into the bile duct and causes obstructive jaundice: 1
+372) secondary bile - duct obstruction causing painless jaundice: 1
+373) the mechanical obstruction of the bile ducts as a cause of jaundice: 1
+374) conditions causing obstructive jaundice such as choledocholithiasis, bile duct stricture or cholangiocarcinoma: 1
+375) multifocal mucus secreting papillary adenocarcinoma of the bile duct causing obstructive jaundice: 1
+376) leiomyoma of the common bile duct causing obstructive jaundice: 1
+377) primary pancreatic lymphoma as a cause of jaundice: 1
+378) primary pancreatic lymphoma causing obstructive jaundice in a 71 year old man: 1
+379) blunt pancreatic head hematoma as an infrequent cause of delayed obstructive jaundice: 1
+380) ascaris infestation causing pancreatitis and obstructive jaundice in a renal transplant patient: 1
+381) pancreatic calculus causing obstructive jaundice: 1
+382) a mass of the pancreatic head causing obstructive jaundice: 1
+383) pancreatic echinococcosis causing obstructive jaundice: 1
+384) isolated pancreatic tuberculosis mimicking malignancy and causing obstructive jaundice: 1
+385) transcatheter chemoembolization causing obstructive jaundice and acute pancreatitis: 1
+386) splenic artery pseudoaneurysm( sap) around the pancreatic head causing obstructive jaundice: 1
+387) castleman 's disease causing obstructive jaundice: 1
+388) malignant disease as a cause of obstructive jaundice in thailand: 1
+389) cat scratch disease as a rare cause of obstructive jaundice: 1
+390) operable conditions causing severe obstructive jaundice: 1
+391) the nonobstructive intrahepatic diseases causing jaundice: 1
+392) a pathogenic factor causes infantile obstructive jaundice diseases: 1
+393) a panbiliary disease causing obstructive jaundice in neonates and infants: 1
+394) cyst causing obstructive jaundice: 1
+395) hepatic cysts causing obstructive jaundice that was treated with single - incision laparoscopic deroofing: 1
+396) a giant hepatic cyst causing obstructive jaundice: 1
+397) primary hydatid cyst of the pancreas causing obstructive jaundice: 1
+398) hydatid cysts have ruptured into the biliary tract causing obstructive jaundice: 1
+399) solitary nonparasitic hepatic cyst causing obstructive jaundice: 1
+400) nonparasitic solitary huge liver cysts causing intracystic hemorrhage or obstructive jaundice: 1
+401) malignant tumours of the biliopancreatic system causing obstructive jaundice: 1
+402) periampullary tumors cause severe obstructive jaundice: 1
+403) a tumor of the hepatic hilus causing obstructive jaundice: 1
+404) portal vein thrombosis mimicking tumour and causing obstructive jaundice: 1
+405) a merkel cell tumor causing obstructive jaundice: 1
+406) the cancers causing obstructive jaundice: 1
+407) major malignancies cause obstructive jaundice: 1
+408) mucin - producing carcinoma of the cystic duct caused obstructive jaundice: 1
+409) the frequent primary cancers causing malignant obstructive jaundice: 1
+410) a large hepatic artery pseudoaneurysm causing obstructive jaundice: 1
+411) pseudoaneurysm of the gastroduodenal artery as a cause of obstructive jaundice: 1
+412) a mass lesion causing obstructive jaundice: 1
+413) uncommon lesions can cause obstructive jaundice: 1
+414) a tumorous lesion as cause of the obstructive jaundice: 1
+415) a primary liver lesion causing obstructive jaundice: 1
+416) primary biliary b - cell lymphoma of the cystic duct causing obstructive jaundice: 1
+417) primary intraabdominal non - hodgkin 's lymphoma causing obstructive jaundice: 1
+418) renal failure complicating obstructive jaundice: 1
+419) pulmonary adenocarcinoma presenting as obstructive jaundice: 1
+420) papillary cystadenocarcinoma of ovary presenting as obstructive jaundice: 1
+421) traumatic neuroma as a cause of obstructive jaundice: 1
+422) portal vein thrombosis a cause of obstructive jaundice: 1
+423) choledocholithiasis causing obstructive jaundice: 1
+424) a macrocystic serous cystadenoma of the pancreas causing obstructive jaundice: 1
+425) primary adenomyomatosis of the choledochus as a rare cause of obstructive jaundice: 1
+426) a somatostatinoma of the pancreas causing obstructive jaundice: 1
+427) granulocytic sarcoma of the porta hepatis causing obstructive jaundice: 1
+428) an impacted detached cholesterol polyp causing obstructive jaundice: 1
+429) myeloid sarcoma presenting as obstructive jaundice without evidence of leukemia: 1
+430) extraosseous plasmacytoma causing obstructive jaundice: 1
+431) iga multiple myeloma presenting as non - obstructive jaundice: 1
+432) huge trichobezoar causing obstructive jaundice: 1
+433) augmented hepatic metastasis in cases of obstructive jaundice: 1
+434) extrapulmonary sarcoidosis presenting as obstructive jaundice: 1
+435) a duodenal malt lymphoma presenting clinically as obstructive jaundice: 1
+436) acute cholangitis accompanied by obstructive jaundice in patients with biliary tract carcinoma: 1
+437) duodenal ulcers causing obstructive jaundice and a mucocele of the gall bladder: 1
+438) noncaseating granulomas confined to the pancreas developed obstructive jaundice and acute abdominal pain: 1
+439) the peripancreatic region causing obstructive jaundice with simultaneous portal vein( pv) invasion: 1
+440) metallic duodenal stents developed secondary malignant obstructive jaundice: 1
+441) duodenal aberrant pancreas uncommon cause of obstructive jaundice: 1
+442) mucinous hamartoma of the biliary dust system causing obstructive jaundice: 1
+443) biliary scar stricture causing obstructive jaundice and biliary cirrhosis: 1
+444) distal cbd mass caused obstructive jaundice: 1
+445) amiodarone hepatotoxicity complicating obstructive jaundice due to ampullary cancer: 1
+446) lymphangioma in the region of the head of the pancreas causing an obstructive jaundice: 1
+447) amyloidosis causing obstructive jaundice: 1
+448) metastatic breast cancer to the common bile duct presenting as obstructive jaundice: 1
+449) prepapillary intradiverticular bezoar as cause of obstructive jaundice: 1
+450) new technique for inducing reversible obstructive jaundice in the rat: 1
+451) churg - strauss vasculitis presenting with mononeuritis multiplex developed obstructive jaundice: 1
+452) necrotic hepatocarcinoma an unusual cause of obstructive jaundice( apropos of 2 cases): 1
+453) ascariasis as a cause of obstructive jaundice in a renal transplant patient: 1
+454) a mass in the head of the pancreas causing obstructive jaundice: 1
+455) aneurysm of the gastroduodenal artery as a cause of obstructive jaundice: 1
+456) late involvement of the pancreas causing obstructive jaundice: 1
+457) giant hydronephrosis causing contralateral hydronephrosis and obstructive jaundice: 1
+458) the extra hepatic biliary tract causing obstructive jaundice: 1
+459) stercoralis infection causing obstructive jaundice and refractory pancreatitis: 1
+460) a major damage of the confluence of all three hepatic ducts causing deep obstructive jaundice: 1
+461) biliary atresia(ba the most common cause of obstructive jaundice in infancy: 1
+462) lung carcinoma presenting as an obstructive jaundice: 1
+463) pregnancy cholestasis: 1
+464) oral contraceptives, pregnancy cholestasis and elevation of transaminases: 1
+465) malignant obstruction of the lower extrahepatic bile duct: 1
+466) inoperable malignant obstruction of the lower extrahepatic bile duct ebd fails: 1
+467) progressive familial intrahepatic cholestasis( pfic): 1
+468) benign recurrent intrahepatic cholestasis: 1
+469) intrahepatic cholestasis and etiopathogenetic considerations: 1
+470) neoplasms causing anicteric intrahepatic cholestasis: 1
+471) extrahepatic cholestasis as a presentation form: 1
+472) intrahepatic metastatic biliary duct obstruction: 1
+473) extrahepatic biliary tract obstruction: 1
+474) inflammation and destruction of extrahepatic and intrahepatic bile ducts with eventual fibrous obliteration: 1
+475) extrahepatic bile duct obstruction caused by biloma: 1
+476) extrahepatic biliary obstruction with parapancreatic lymph node metastasis: 1
+477) choledochus obstruction by a spreading giant cell tumor of the intrahepatic bile ducts: 1
+478) neonatal intrahepatic cholestasis caused by citrin deficiency niccd: 1
+479) malignant stricture of the distal bile duct: 1
+480) malignant stricture of the distal common bile duct: 1
+481) inoperable malignant stricture of the distal common bile duct without previous drainage procedure: 1
+482) malignant strictures of the middle to distal third of the common bile duct: 1
+483) unresectable malignant distal biliary stricture: 1
+484) unresectable biliary stricture: 1
+485) malignant periampullary biliary stenosis: 1
+486) unresectable malignant stenosis of the extrahepatic bile duct: 1
+487) benign and malignant stricture of the bile duct: 1
+488) a malignant behaving common bile duct stricture: 1
+489) stenosis of distal common bile duct, duodenal obstruction and pain: 1
+490) stricture in the pancreatic portion of the common bile duct: 1
+491) a posttraumatic isolated common bile duct stricture without associated liver injury: 1
+492) stricture of the common bile duct caused by compression of enlarged collateral varicose veins: 1
+493) common bile duct stenosis in chronic pancreatitis: 1
+494) lower common bile duct stricture n 2: 1
+495) stenosis of the bile duct in the pancreas: 1
+496) granulomatous stenosis of the extrahepatic bile ducts in sarcoidosis: 1
+497) obstruction of the common duct by portal nodes: 1
+498) acute subleukemic lymphocytic leukemia due to obstruction of the common duct by portal nodes: 1
+499) common bile duct stones( 201), malignant biliary obstruction( 148): 1
+500) ascaris obstruction of the common bile duct in an infant: 1
+501) obstruction of the common bile duct by hydatid elements: 1
+502) common hepatic duct obstruction from an impacted calculus in the cystic duct: 1
+503) obstruction of the common bile duct caused by choledocholithiasis underwent endoscopic retrograde cholangiopancreatography: 1
+504) neoplastic occlusion of the common bile duct: 1
+505) a common hepatic duct obstruction caused by a gallstone impacted in the gallbladder 's infundibulum: 1
+506) compression of the common bile duct by the gastric obstruction: 1
+507) a duodenal ulcer causes obstruction of the common bile duct: 1
+508) complete obstruction of the common bile duct: 1
+509) obstruction of the lower common bile duct: 1
+510) common bile duct obstruction by an unusual internal colonic hernia: 1
+511) extrahepatic biliary atresia( ehba) and choledochal cysts: 1
+512) increased hemolysis in conditions such as erythroblastosis fetalis, septicemia, biliary atresia: 1
+513) syndrome of neonatal hepatitis and atresia of extrahepatic bile ducts: 1
+514) biliary atresia or to α-1 - antitrypsin deficiency( a1atd): 1
+515) malignant bile duct obstruction and low complication rate: 1
+516) malignant biliary obstruction( 148): 1
+517) unresectable distal malignant biliary obstruction: 1
+518) high biliary malignant obstruction: 1
+519) inoperable malignant biliary obstructions with insertion of metal stents: 1
+520) focal malignant obstruction of the major bile ducts: 1
+521) disease processes causing infantile cholestatic jaundice: 1
+522) obstruction of the hepatic hilus: 1
+523) non - neoplastic bile duct obstruction: 1
+524) neoplastic obstruction of the bile ducts with percutaneous placement of endoprostheses: 1
+525) an obstructive bile duct lesion: 1
+526) a pancreatic mass or an obstructive bile duct lesion: 1
+527) advancing centrolobular cholestasis: 1
+528) a toxic affliction of hepatocytes and advancing centrolobular cholestasis: 1
+529) bile duct obstruction by opisthorchiasis/ clonorchiasis: 1
+530) chronic cholestasis, biliary pain with or without cholangitis due to biliary stones: 1
+531) rhesus incompatibility complicated by cholestasis of thick bile fluid: 1
+532) bile duct obstruction with gastrointestinal symptoms: 1
+533) bile duct stones form as a result of stasis: 1
+534) intraluminal bile duct obstruction in infancy: 1
+535) bile duct obstruction by polycystic liver disease: 1
+536) obstruction of the extra - hepatic bile ducts: 1
+537) concretions of vegetable material obstructing the extrahepatic bile ducts: 1
+538) obstruction of the bile duct containing the stent: 1
+539) hydatid daughter cysts obstructing the bile ducts: 1
+540) subhepatic cholestasis: 1
+541) canalicular cholestasis during amiodarone therapy: 1
+542) ductular cholestasis: 1
+543) the distal common bile duct: 1
+544) double ligation and division of the common bile duct( bdl group): 1
+545) a pseudocyst in the head of the pancreas compressed the distal common bile duct: 1
+546) a distal common bile duct stone: 1
+547) malignant compression of the distal common bile duct: 1
+548) lesion of distal part of common bile duct: 1
+549) a tubulovillous adenoma of the distal common bile duct: 1
+550) metastases to the distal common bile duct or the ampulla of vater: 1
+551) recurrent adenocarcinoma of the gallbladder and several common bile duct stones: 1
+552) an impacted stone in the common bile duct: 1
+553) compression of the common bile duct by a stone impacted in the cystic duct: 1
+554) several common bile duct stones: 1
+555) retained common duct stones or benign papillary stenosis: 1
+556) retained common bile duct stones: 1
+557) external compression of the common hepatic duct by an impacted stone in the gallbladder neck: 1
+558) the presence of stones in the common bile duct: 1
+559) acute cholecystitis without common duct stones: 1
+560) a textiloma mimicking a common bile duct stone: 1
+561) concretions in the common bile duct in combination with calculous cholecystitis: 1
+562) extrinsic compression of the intrapancreatic portion of the bile duct: 1
+563) extrinsic compression of the common bile duct: 1
+564) extrinsic compression of the common bile duct by the cavernoma: 1
+565) gs compression of the common bile duct: 1
+566) extrinsic compression by the cyst on the common hepatic duct: 1
+567) compression of the common bile duct by a retroperitoneal tumor: 1
+568) primary lymphoma of common bile duct: 1
+569) primary non - hodgkin 's lymphoma of the common bile duct: 1
+570) the common form of bile duct cancer: 1
+571) a metastasis of a malignant melanoma at the level of the common bile duct: 1
+572) metastatic common bile duct cancer from pulmonary adenocarcinoma: 1
+573) metastasis to common bile duct: 1
+574) metastatic intraductal tumor thrombus of the common bile duct: 1
+575) a adenoma of the common bile duct: 1
+576) a villous adenoma of the common bile duct: 1
+577) villous adenoma of the common hepatic duct: 1
+578) common bile duct thrombus: 1
+579) necrotic tumor and clot in the common bile duct: 1
+580) a blood clot in the common bile duct: 1
+581) a common bile duct neoplasia: 1
+582) migrated tumour fragments in the common bile duct: 1
+583) common bile duct neoplastic thrombosis: 1
+584) non - hodgkin 's lymphoma of the common bile duct: 1
+585) malt lymphoma of the common bile duct and the papilla of vater: 1
+586) peribiliary cyst of common bile duct: 1
+587) common bile duct cyst, choledochal cyst: 1
+588) congenital cyst of common bile duct: 1
+589) neuroma of the common bile duct: 1
+590) neuroma of cystic and common bile ducts: 1
+591) blastomycotic granuloma of the common bile duct: 1
+592) postsurgical granuloma of the common bile duct: 1
+593) a foreign body in the common bile duct: 1
+594) a forgotten foreign body in the common bile duct: 1
+595) inflammatory polyp of common bile duct: 1
+596) grenate fragment in the common bile duct causing jaundice: 1
+597) floating tumor debris in common bile duct: 1
+598) an arterial ring of the proper hepatic artery around the common bile duct: 1
+599) idiopathic dilatation of the common bile duct: 1
+600) common bile duct embolism: 1
+601) blastomycosis of the lymph nodes around the common bile duct: 1
+602) hepatocellular carcinoma rupture into the common bile duct: 1
+603) fibroblastic infiltration of the common bile duct and gallbladder: 1
+604) invasion of the common bile duct: 1
+605) a granular cell myoblastoma of the common bile duct: 1
+606) enlarged tuberculous lymph nodes compressing the common bile duct in the retropancreatic region: 1
+607) the lower portion of the common bile duct caused: 1
+608) worms that were identified in the common bile duct: 1
+609) duodenal diverticulum compressing the common bile duct: 1
+610) the common bile duct by choledochal varices: 1
+611) shell splinter in the common bile duct: 1
+612) a metal clip in the common bile duct following laparoscopic cholecystectomy: 1
+613) a surgical gauze in the common bile duct: 1
+614) clips had migrated into the common bile duct: 1
+615) carcinoma of the common bile duct in seven cases: 1
+616) choledocholithiasis as the common cause of extrahepatic jaundice: 1
+617) choledocholithiasis after pancreaticoduodenectomy for ampullary carcinoma: 1
+618) a periampullary duodenal diverticulum in the absence of choledocholithiasis or a neoplasm: 1
+619) choledocholithiasis in 37 cases: 1
+620) choledocholithiasis after unrelated bone marrow transplantation: 1
+621) choledocholithiasis caused by a migrated endoclip: 1
+622) that choledocholithiasis( 22.0-41.0 percentage) and malignant conditions( 22.0-41.0 percentage): 1
+623) choledocholithiasis effect of plasmapheresis: 1
+624) choledocholithiasis( n = 3): 1
+625) choledocholithiasis diagnosed: 1
+626) cholelithiasis and jaundice caused by cancer of the head of pancreas: 1
+627) a patient biliary stones: 1
+628) malignant disease but patients with jaundice resulting from biliary stones or benign pathology: 1
+629) biliary stones( 32 %): 1
+630) pain( 30.0-32.0 percentage) or biliary stones( 30.0-32.0 percentage): 1
+631) extrahepatic bile duct calculi: 1
+632) biliary stone disease: 1
+633) biliary stones or benign pathology: 1
+634) pancreatic carcinoma with cholelithiasis: 1
+635) several big stones in the main bile duct: 1
+636) biliary strictures and stones: 1
+637) primary biliary duct stones: 1
+638) biliary stone formation around the stent: 1
+639) cholelithiasis accompanied by mechanical jaundice characteristic angiographic features or combinations: 1
+640) a large submucosal gallstone -- endoscopic and ct appearances: 1
+641) the younger age group cholelithiasis: 1
+642) biliary tract stones: 1
+643) ceftriaxone induced cholelithiasis: 1
+644) bile duct stones( group i): 1
+645) a single large gallstone: 1
+646) gall stones 20: 1
+647) gallstones( 103): 1
+648) extrabiliary gallstones: 1
+649) a retained bile duct stone after operation for cholelithiasis: 1
+650) spilled gallstone: 1
+651) gallstone formation: 1
+652) pigment gall stones: 1
+653) gallstones with eculizumab in a patient with paroxysmal nocturnal hemoglobinuria: 1
+654) cholelithiasis and primary biliary cirrhosis: 1
+655) the extrahepatic bile ducts: 1
+656) extrahepatic bile duct tumors or pancreatic head cancer: 1
+657) external compression of the extrahepatic bile duct caused by tumor of non - liver origin: 1
+658) the bile duct tumor thrombus derived from intrahepatic recurrence in segment 1: 1
+659) carcinosarcoma of the extrahepatic bile duct: 1
+660) sarcoma botryoides of the extrahepatic bile ducts: 1
+661) the liver and intrahepatic bile ducts: 1
+662) " premature " accelerated intrahepatic bile duct loss: 1
+663) spontaneous perforation of extrahepatic bile duct: 1
+664) botrioid rhabdomyosarcoma of the extrahepatic bile ducts: 1
+665) intrahepatic bile duct cyst: 1
+666) mucus secretion adenocarcinoma of major intrahepatic bile ducts: 1
+667) a developmental scarcity of intrahepatic bile ducts: 1
+668) multiple intrahepatic bile duct metastases: 1
+669) cystadenoma of the extrahepatic bile ducts: 1
+670) adenocarcinomas of the bifurcation of the hepatic ducts( klatskin tumors): 1
+671) an adenocarcinoma invading the hepatic duct at bifurcation( klatskin tumor): 1
+672) klatskin tumors, hilar cholangiocarcinomas: 1
+673) hilar cholangiocarcinoma and underwent bilateral sems: 1
+674) left - sided hilar cholangiocarcinoma: 1
+675) carcinoid klatskin tumour: 1
+676) advanced hilar cholangiocarcinoma: 1
+677) malt lymphoma of the hilar bile duct and hilar cholangiocarcinoma: 1
+678) right - sided hilar cholangiocarcinoma: 1
+679) advanced and incurable klatskin tumors of bismuth - type iii and iv: 1
+680) obstruction of roux en y limb following hepatectomy for a hilar cholangiocarcinoma: 1
+681) afferent loop obstruction following hepatectomy for a hilar cholangiocarcinoma: 1
+682) metastatic tumor involving the extra - hepatic bile ducts: 1
+683) , bile duct cancer lymph node metastasis: 1
+684) tumor emboli from an intrahepatic polypoid mucinous cholangiocarcinoma: 1
+685) a clot in the biliary duct originating from an intrahepatic cholangiocarcinoma: 1
+686) hepatocellular carcinoma with bile duct tumor: 1
+687) unresectable cholangiocarcinoma, metastatic porta hepatis adenopathy, direct compression from a pancreatic malignancy: 1
+688) unresectable cholangiocarcinoma, underwent photodynamic therapy and biliary stenting with or without chemotherapy: 1
+689) growth within bile ducts of hepatocellular carcinoma: 1
+690) intra - bile duct growth of hepatocellular carcinoma: 1
+691) cholangiocarcinoma and pancreatic carcinoma: 1
+692) cholangiocarcinoma n 6, pancreatic carcinoma = 5): 1
+693) cholangiocarcinoma in 16: 1
+694) cholangiocarcinoma an important health problem in northeastern thailand: 1
+695) proximal bile duct carcinoma: 1
+696) papillary cholangiocarcinoma: 1
+697) cholangiocarcinoma developed acute renal failure: 1
+698) inferior bile duct carcinoma: 1
+699) cholangiocarcinoma needed to receive multiple pbs placements for management of cholangitis: 1
+700) mucus - producing cholangiocarcinoma: 1
+701) polycystic liver disease related to coexisting cholangiocarcinoma: 1
+702) primary carcinoma of the extra - hepatic bile - ducts: 1
+703) bile duct invasion by hepatocellular carcinoma: 1
+704) advanced cholangiocarcinoma who were treated with this procedure after failure to drain by ercp: 1
+705) neoplasms of the bile ducts: 1
+706) tumor and clot in the bile duct: 1
+707) main bile duct neoplasic thrombosis: 1
+708) a lower bile duct tumor: 1
+709) intraluminal growing tumors of the bile duct: 1
+710) non - tumor lesion of the bile ducts: 1
+711) advanced tumour of the distal bile duct: 1
+712) primary neoplasms of the bile ducts: 1
+713) invasive intraductal pancreatic mucinous tumor associated with dilated bile ducts containing copious amounts of mucin: 1
+714) bile duct invasion and distal migration of necrotic tumor fragments: 1
+715) non - operative neoplastic tumor of main biliary ducts: 1
+716) intraductal papillary mucinous neoplasm of the bile duct( ipnb): 1
+717) tumor growth within the bile ducts: 1
+718) compression of the bile duct: 1
+719) pancreatic infiltration or by compression by lymph nodes of the bile ducts: 1
+720) compression of adjacent bile ducts causing jaundice: 1
+721) the compression of the main bile duct by the enlarged lipomatous pancreas: 1
+722) compression of the bile duct in the head of the pancreas: 1
+723) a rupture of echinococcal cysts into the bile ducts: 1
+724) penetration and rupture of echinococcal cysts into the bile ducts: 1
+725) spontaneous rupture of an echinococcus granulosus cyst into the bile duct system: 1
+726) perforation of hydatid cyst into the bile ducts: 1
+727) hydatid cyst rupture in main bile duct: 1
+728) primary choledochal hydatid cyst: 1
+729) pleomorphic rhabdomyosarcoma within a choledochal cyst: 1
+730) enlargement of the pancreatic head or thickening of the lower bile duct wall: 1
+731) the vanishing bile duct syndrome related to hodgkin 's lymphoma: 1
+732) the liver and patent bile ducts: 1
+733) giant cell transformation in the liver and patent bile ducts: 1
+734) a adenoma of the bile duct: 1
+735) nodes around the bile ducts: 1
+736) iatrogenic bile duct injury: 1
+737) radiation - induced bile duct injury: 1
+738) myeloid sarcoma of the bile ducts: 1
+739) polyp of bile duct: 1
+740) bile duct involvement in intra - abdominal non - hodgkin lymphoma: 1
+741) bile duct involvement with hodgkin 's disease: 1
+742) tuberculosis of the bile duct: 1
+743) spontaneous rupture of the bile duct: 1
+744) a damage to bile duct after cholecystectomy: 1
+745) bile duct repair on a lost tube: 1
+746) malignant and/or benign diseases of the bile duct: 1
+747) hamartomatous cystic changes in the bile ducts: 1
+748) biliovascular fistula resulting from hepatic necrosis leading to damage to bile ducts and hepatic veins: 1
+749) lymphangitis carcinomatosa of bile duct wall: 1
+750) bile duct anomalies: 1
+751) the bile duct of male wistar rats: 1
+752) congenital cystic dilatation of the external bile ducts: 1
+753) partial or complete bile duct excision or slippage of clips from the cystic duct: 1
+754) syphilitic gumma of the pancreas involving the bile duct: 1
+755) igg4 - related sclerosing cholangitis in a patient with type 1 autoimmune pancreatitis: 1
+756) primary sclerosing cholangitis developed progressive jaundice and recurrent biliary sepsis: 1
+757) acute cholangitis: 1
+758) uncontrollable cholangitis( n = 18 surgery in icteric patients: 1
+759) the associated complications of hepatolithiasis or bacterial cholangitis: 1
+760) biliary diseases such as cholangitis: 1
+761) cholangitis( 6.85-8.0 percentage) and pancreatitis( 6.85-8.0 percentage): 1
+762) a benign mechanical obstruction of the hepatic duct causes jaundice and cholangitis: 1
+763) dominant biliary strictures may cause symptomatic jaundice, cholangitis, pruritus: 1
+764) lymphoplasmocytic cholangitis: 1
+765) a neutrophilic cholangitis: 1
+766) eosinophilic cholangitis: 1
+767) cholangitis in patients with severe liver trauma: 1
+768) nine cases of biliary obstruction: 1
+769) complete biliary obstruction the cause of jaundice in ten adults and six infants: 1
+770) mucinous biliary obstruction: 1
+771) biliary obstruction and intermittent upper abdominal pain: 1
+772) recurrent biliary obstruction: 1
+773) lower biliary obstruction and duodenal obstruction: 1
+774) biliary obstruction and in the presence of endotoxemia: 1
+775) stent occlusion by biliary sludge: 1
+776) mechanical obstruction of the biliary tract: 1
+777) infiltration of the biliary ducts: 1
+778) primary biliary duct carcinoma: 1
+779) intraluminal biliary obstruction: 1
+780) complex hilar biliary obstruction n 5: 1
+781) biliary obstruction by the tumor: 1
+782) biliary duct obturation in the patients: 1
+783) hepatic infiltration or biliary obstruction: 1
+784) emphysematous cholecystitis: 1
+785) acute cholecystitis and viral hepatitis: 1
+786) acalculous cholecystitis: 1
+787) satellite hepatitis revealing a chronic cholecystitis: 1
+788) hepato - biliary cystadenoma with intraductal extension: 1
+789) an intrahepatic biliary cystadenoma with biliary stricture masquerading as hydatid cyst: 1
+790) a biliary mucinous cystadenoma in a woman: 1
+791) primary biliary cirrhosis: 1
+792) primary biliary cirrhosis due to hyperthyroidism: 1
+793) primary biliary cirrhosis rapidly suffered progressive liver failure and developed jaundice: 1
+794) non - cirrhotic primary biliary cirrhosis: 1
+795) malignant disease using self - expanding metallic biliary endoprostheses placed percutaneously: 1
+796) malignant disease originating from the gallbladder, biliary - tree or pancreas: 1
+797) ingestion of boldo particularly in elderly patients with biliary tract disorders: 1
+798) primary biliary involvement with hodgkin 's disease: 1
+799) biliary colic: 1
+800) inspissated bile syndrome: 1
+801) inspissated bile syndrome, intrahepatic hypoplasia: 1
+802) inspissated bile: 1
+803) inspissated bile following disseminated intravascular coagulation: 1
+804) encrustation of bile sediment in the proximal limb of an indwelling t tube: 1
+805) thick bile: 1
+806) intrahepatic impaired excretion of bile: 1
+807) the possible communication between the bile canaliculus and the space of disse: 1
+808) bile ductopenia: 1
+809) disturbances of intrahepatic bile flow: 1
+810) functional inhibition of bile secretion: 1
+811) bile pigments: 1
+812) bile salt depletion caused by disruption of the enterohepatic circulation: 1
+813) hev infection: 1
+814) simultaneous infection with hepatitis e virus and leptospira: 1
+815) acute hepatitis a and b: 1
+816) the liver or acute ischaemic hepatitis: 1
+817) acute hepatitis accompanied by acute jaundice: 1
+818) different types of viral hepatitis in patients with jaundice: 1
+819) reovirus: 1
+820) direct hepatic infiltration by the disease, drug toxicity or viral hepatitis: 1
+821) virus hepatitis and pathological conditions: 1
+822) viral hepatitis and pregnancy: 1
+823) viral hepatitis in algeria: 1
+824) virus hepatitis, papillitis, pancreatic secretion insufficiency: 1
+825) hcv: 1
+826) viral hepatitis, malaria and sickle - cell anaemia: 1
+827) worldwide viral hepatitis: 1
+828) hepatitis e: 1
+829) infectious hepatitis in the newborn and the infant: 1
+830) severe cholestatic hepatitis related to a dress syndrome: 1
+831) chronic hepatitis( cirrhosis of the liver): 1
+832) chronic active hepatitis in a dog: 1
+833) malignancy and alcoholic hepatitis: 1
+834) epidemic hepatitis: 1
+835) prolonged epidemic hepatitis: 1
+836) cholestatic hepatitis: 1
+837) hepatitis b: 1
+838) halothane - associated hepatitis: 1
+839) active hepatitis, hemolysis: 1
+840) lyme disease presenting as hepatitis and jaundice in a child: 1
+841) salmonella hepatitis: 1
+842) toxoplasma hepatitis: 1
+843) congenital failures in infants causing jaundice and hepatitis in infant: 1
+844) lamivudine withdrawal hepatitis accompanied by jaundice and incipient liver failure: 1
+845) inoculation hepatitis: 1
+846) typhoid hepatitis: 1
+847) tularemic hepatitis: 1
+848) infantile acrodermatitis papulosa accompanied by hepatitis and jaundice: 1
+849) autoimmune hepatitis 2: 1
+850) hepatic vasoocclusive crises and hepatitis in children with sickle cell disease: 1
+851) primary tubercular granulomatous hepatitis: 1
+852) hepatitis and serum transaminases: 1
+853) hepatitis( thölen 's method): 1
+854) interstitial pneumonia and hepatitis: 1
+855) ingrowth of hepatocellular carcinoma: 1
+856) unresectable hepatocellular carcinoma, percutaneous transhepatic biliary drainage: 1
+857) intraductal tumour thrombus in recurrent hepatocellular carcinoma: 1
+858) hepatic hepatoma: 1
+859) central hepatic hepatoma: 1
+860) small hcc( < 2 cm diameter): 1
+861) intraluminal growth of hepatoma: 1
+862) biliary involvement of hepatocellular carcinomas: 1
+863) hepatoma fragments: 1
+864) extra - hepatic hepatocellular carcinoma: 1
+865) hepatocellular carcinoma presenting as jaundice, hemobilia, acute pancreatitis: 1
+866) recurrent hcc: 1
+867) hepatic lymph - node metastasis from liver metastases of rectal cancer: 1
+868) advanced hcc: 1
+869) malignancy and alcoholic liver disease: 1
+870) tumor emboli from hepatocellular carcinoma: 1
+871) hcc tumors which were located within biliary tracts: 1
+872) hepatocellular carcinoma underwent: 1
+873) multiple liver metastasis of recurrent breast cancer: 1
+874) fibrolamellar hepatocellular carcinoma: 1
+875) a central hepatocellular carcinoma: 1
+876) hydatid cyst of the liver inducing compression jaundice: 1
+877) the common and serious complication of hydatid cyst of the liver: 1
+878) the evolutionary complications of hepatic echinococcosis: 1
+879) hepatic hydatidosis in iran: 1
+880) non - parasitic hepatic cysts: 1
+881) benign non - parasitic hepatic cyst: 1
+882) a giant non - parasitic hepatic cyst: 1
+883) benign nonparasitic hepatic cysts: 1
+884) a solitary centrally located benign hepatic cyst: 1
+885) solitary cyst of the liver: 1
+886) peribiliary cysts: 1
+887) multiple peribiliary cysts: 1
+888) hepatic multiple peribiliary cysts accompanying hepatolithiasis: 1
+889) a huge liver cyst: 1
+890) multiple liver cysts in a patient with pld complicated by pkd and polycystic lung: 1
+891) rupture of an echinococcal cyst of the liver: 1
+892) a centrally located giant liver cyst: 1
+893) biliary cast syndrome followed by orthotopic liver transplantation: 1
+894) a simple liver cyst with traumatic intracystic hemorrhage: 1
+895) hepatic cysts of periductal gland origin: 1
+896) a hepatic cyst as seen in this case: 1
+897) a 26 cm echinococcal hepatic cyst: 1
+898) obstruction of the hepatic ducts by periductal cysts: 1
+899) liver cysts possessing features: 1
+900) conjugated hyperbilirubinemia extending beyond the second week of life: 1
+901) isolated unconjugated hyperbilirubinemia: 1
+902) indirect bilirubinemia in the newborn: 1
+903) unconjugated hyperbilirubinemia in muslim subjects: 1
+904) chronic unconjugated hyperbilirubinemia: 1
+905) increased levels of bilirubin in the blood of the newborn: 1
+906) neonatal hyperbilirubinemia causing jaundice: 1
+907) kernicterus: 1
+908) g6pd deficiency causing kernicterus in a female newborn: 1
+909) an increase in bilirubin production or a defect in bilirubin elimination: 1
+910) an agent causing bilirubinemia and jaundice in raccoons: 1
+911) hyperbilirubinaemia presenting as jaundice: 1
+912) bilirubinemia in a two months old infant: 1
+913) hemolysis and for prolonged hyperbilirubinemia: 1
+914) the increase of total bilirubin to 89 mg%: 1
+915) an increase in indirect bilirubin: 1
+916) multiple liver and peritoneal metastases: 1
+917) hepatic hilar lymph node metastasis: 1
+918) liver metastases in 20: 1
+919) progressive liver or lymph node metastases: 1
+920) hepatic metastases survived beyond 8 months: 1
+921) liver metastases of solid tumors: 1
+922) metastases to the liver or lymph nodes adjacent to the porta hepatis: 1
+923) obturation of intrahepatic bilious duct with colorectal liver metastasis: 1
+924) mucus plug produced by metastatic liver tumor: 1
+925) liver metastases by quadruple chemotherapy: 1
+926) recurrence of the liver metastases developed after a 6 months hiatus in chemotherapy: 1
+927) compensated liver cirrhosis developed severe jaundice after glecaprevir/ pibrentasvir medication: 1
+928) severe and sometimes life - threatening cirrhosis and liver diseases: 1
+929) severe cirrhosis accompanied by jaundice: 1
+930) extensive parenchymal damage from progressive cirrhosis: 1
+931) a genetic defect in the bvr - a gene in conjunction with decompensated liver cirrhosis: 1
+932) morgagni - läennec liver cirrhosis: 1
+933) hepatic injury: 1
+934) medication - induced liver injury: 1
+935) sepsis or altered hemodynamic state resulting in presumed ischemic liver injury: 1
+936) chronic liver injuries: 1
+937) liver injury on halothane mac: 1
+938) 64 years after a grenade splinter injury of the liver: 1
+939) ketoconazole - induced hepatic injury: 1
+940) hepatic parenchymal insufficiency( hepatocellular type): 1
+941) polycystic liver disease accompanied by jaundice: 1
+942) acute liver disease as a result of nonalcoholic etiologies: 1
+943) the suspected gallbladder carcinoma: 1
+944) terminal gall bladder carcinoma: 1
+945) liver or acute: 1
+946) acute diffuse liver diseases: 1
+947) amyloidosis of the liver causing jaundice: 1
+948) generalized amyloidosis with liver invastion associated with atypical myeloma: 1
+949) hepatic amyloidosis in a patient with multiple myeloma: 1
+950) downregulation of the function of transporters located at the canalicular side of hepatocytes: 1
+951) destruction of the hepatocyte junction by intercellular invasion of leptospira: 1
+952) enzyme deficiency of the hepatocytes: 1
+953) rarely by hepatocytes damage: 1
+954) diverse conditions ranging from opportunistic infections to drug - related hepatotoxicity: 1
+955) suspected statin hepatotoxicity: 1
+956) hepatotoxicity induced by tiamazol: 1
+957) art - related hepatotoxicity: 1
+958) liver and intrahepatic: 1
+959) that deficiency in the conjugating ability of the liver not hemolysis: 1
+960) liver enzymes: 1
+961) increase in liver enzymes: 1
+962) biochemical disturbances in liver enzymes: 1
+963) extrahepatic portal hypertension: 1
+964) chronic diffuse liver disease: 1
+965) chronic diffuse parenchymatous liver disease in 24: 1
+966) liver involvement: 1
+967) familial defect of bilirubin excretion without liver involvement: 1
+968) the inherited liver diseases cause neonatal conjugated jaundice: 1
+969) inherited or acquired liver diseases or a manifestation of diseases involving red blood cell metabolism: 1
+970) a liver lesion: 1
+971) liver and lung: 1
+972) many acquired liver disorders: 1
+973) chronic liver disease in six children with protracted jaundice: 1
+974) mild disturbance of liver function: 1
+975) hepatosplenomegaly: 1
+976) alveococcosis of the liver: 1
+977) a disturbance in the liver 's excretory system: 1
+978) the biliary drainage causing painless jaundice and deranged liver function with cholestatic pattern: 1
+979) liver enlargement accompanied by jaundice: 1
+980) adult hepatic fibropolycystic disease: 1
+981) advanced liver disease: 1
+982) severe hepatopathy accompanied by jaundice used to be considered a rare complication: 1
+983) excessive bilirubin in the body of patient with liver dysfunction or metabolic obstruction: 1
+984) hematochezia: 1
+985) hydatid disease of the liver: 1
+986) various end - stage liver diseases: 1
+987) lymphangiosis carcinomatosa of the liver: 1
+988) an inflammatory myofibroblastic tumor centered on the hepatic hilum and extending into the liver: 1
+989) simple giant of the liver: 1
+990) decomposition and flux of the cancerous tissue of the liver: 1
+991) liver infiltration by chl: 1
+992) preferential infiltration of leukemic cells into liver sinusoids: 1
+993) trabecular dislocation of the liver: 1
+994) some diseases affect the liver: 1
+995) toxic damage of the liver: 1
+996) intraorganic liver angiomas: 1
+997) a giant liver hemangioma: 1
+998) the presence of liver fluke: 1
+999) the abnormal liver configuration: 1
+1000) invasive amebiasis of the liver: 1
+1001) the compression of the biliary system at the liver hilum by the omental mass: 1
+1002) multiple liver plasmacytomas and pelvic masses: 1
+1003) alterations in liver tests: 1
+1004) liver disease of insufficient severity to cause jaundice: 1
+1005) suppressed liver function: 1
+1006) fatal liver insufficiency: 1
+1007) myeloid sarcoma of liver: 1
+1008) metabolic hepatic disorder: 1
+1009) pancreatic neoplasms obtained two fine - needle liver biopsies: 1
+1010) hilar lymph node metastases: 1
+1011) lymph node metastasis by gastric cancer a case report: 1
+1012) duodenal amyloidosis presenting as a bulbar pseudotumor( amyloidoma): 1
+1013) duodenal amyloidosis succesfully treated with surgery: 1
+1014) congo red negative amyloidosis: 1
+1015) renal failure caused by primary amyloidosis( al type) developed jaundice: 1
+1016) pancreatic head metastasis of malignant amelanotic melanoma: 1
+1017) multifocal pancreatic metastases from rcc: 1
+1018) metastatic pancreatic cancer underwent an elective ercp for biliary stent placement: 1
+1019) pancreatic metastases of a soft - tissue sarcoma: 1
+1020) pancreatic metastasis from lung scc: 1
+1021) pancreatic metastasis of a meningeal hemangiopericytoma: 1
+1022) biliary, pancreatic, ampullary metastatic tumors: 1
+1023) pancreatic metastasis from non - small cell lung cancer: 1
+1024) locally advanced or metastatic pancreatic lesion not eligible for surgery: 1
+1025) metastatic pancreatic plasmacytoma: 1
+1026) metastases of tumors such as pancreatic or gastric cancer: 1
+1027) a metastatic tumor of the pancreas from breast cancer: 1
+1028) a metastatic breast carcinoma to the major duodenal papilla: 1
+1029) metastatic triple - negative breast cancer: 1
+1030) the intraluminal biliary metastasis of a breast carcinoma: 1
+1031) metastatic breast cancer causing jaundice by a unique mechanism: 1
+1032) extrahepatic biliary metastases: 1
+1033) extrahepatic biliary metastases from gastric carcinoma: 1
+1034) rarely biliary metastasis arising from organs like colon, breast: 1
+1035) duodenal metastasis from lung cancer: 1
+1036) secondary pancreatic tumor: 1
+1037) a secondary pancreatic tumor from malignant solitary fibrous tumor of the pleura: 1
+1038) ampullary metastasis of renal cell carcinoma: 1
+1039) metastatic squamous cell carcinoma of the lung: 1
+1040) an intraductal metastasis: 1
+1041) an intraductal melanoma metastasis: 1
+1042) metastatic colorectal cancer: 1
+1043) isolated porta hepatis metastasis in colorectal cancer: 1
+1044) metastatic colorectal cancer and implications for management: 1
+1045) secondary syphilis treated with penicillin and bismuth: 1
+1046) metastases to the porta hepatis: 1
+1047) secondary sclerosing cholangitis as cause of persistent jaundice in patients with severe covid-19: 1
+1048) the primary or secondary malignant disease: 1
+1049) primary pancreaticobiliary malignancies and metastatic disease: 1
+1050) metastatic prostate cancer: 1
+1051) metastatic prostate cancer with prostate - specific antigen of 9996: 1
+1052) peritoneal metastasis: 1
+1053) metastatic foci: 1
+1054) sudden anemia caused by bone metastasis: 1
+1055) ampullary metastases of an endometrioid adenocarcinoma: 1
+1056) metastatic endometrial carcinoma: 1
+1057) metastatic disease from a rapidly progressive carcinoma: 1
+1058) underlying metastatic neoplasms: 1
+1059) pancreatobiliary or metastatic disease not amenable to surgery: 1
+1060) remote metastases: 1
+1061) primary choroidal malignant melanoma metastasis: 1
+1062) primary or metastatic tumors: 1
+1063) several primary and secondary cancers: 1
+1064) metastatic cutaneous squamous carcinoma: 1
+1065) metastatic obstructive lesions: 1
+1066) cas secondary to mm different from the general raynaud 's phenomenon: 1
+1067) chronic pancreatitis and one patient with this picture secondary to a periduodenal fibrosis: 1
+1068) intrapancreatic diverticulum of the second portion of the duodenum: 1
+1069) metastatic carcinoma of the prostate secondary to lymph node obstruction: 1
+1070) a large metastatic lymph node: 1
+1071) a small cancer of the pancreatic head: 1
+1072) unresectable pancreatic head cancer: 1
+1073) stage iii pancreatic head cancer: 1
+1074) pancreatic head cancer underwent index endoscopic: 1
+1075) cancer of the head of the pancreas associated with mirizzi syndrome: 1
+1076) cancer of the head of the pancreas during the treatment of ovarian cancer: 1
+1077) a carcinoma of the head of the pancreas relieved with dibutyryl cyclic amp: 1
+1078) carcinoma of ampulla of vater and head of pancreas causing jaundice: 1
+1079) tumors arising from the head of the pancreas and biliary tree: 1
+1080) tumors & disorders of vater 's ampulla & pancreas head: 1
+1081) tumor of the pancreas head and vater papilla activation of the coagulating system: 1
+1082) a 6 - cm tumor of the pancreas head: 1
+1083) malignant pancreatic head tumors on postoperative morbidity and mortality: 1
+1084) a tumor in the pancreatic head area: 1
+1085) an ampullary tumour pancreato - duodenectomy was carried: 1
+1086) tumors of the pancreato - duodenal zone: 1
+1087) a round - cell tumor involving the pancreas: 1
+1088) small pancreatic neoplasms: 1
+1089) pancreatic tumor of mesenchymal origin: 1
+1090) locally advanced pancreatic cancer: 1
+1091) pancreato - biliary cancers: 1
+1092) inoperable pancreato - biliary cancers: 1
+1093) malignancy of the biliary - pancreatic region: 1
+1094) inoperable pancreatic cancer: 1
+1095) an ipmn - associated pancreatobiliary fistula: 1
+1096) ipmn fistulising: 1
+1097) carcinoma of the pancreas or extrahepatic biliary tree: 1
+1098) pancreatic cancer in 13: 1
+1099) pancreatic carcinoma( 14 patients): 1
+1100) pancreatic cancer scheduled to undergo pbd before surgery: 1
+1101) pancreatic head adenocarcinoma: 1
+1102) pancreatic carcinoma in childhood: 1
+1103) pancreatic cancer stent or surgery: 1
+1104) pancreatic adenocarcinoma are receiving neoadjuvant chemotherapy: 1
+1105) inoperable carcinoma of pancreas: 1
+1106) pancreatic head carcinoma and periampullary carcinoma: 1
+1107) pancreatic cancer 41: 1
+1108) inoperable pancreatic carcinoma: 1
+1109) renal cell carcinoma: 1
+1110) a carcinoid tumor of the hepatocholedochal duct: 1
+1111) recurrent stomach cancer and biliary tract infection by klebsiella: 1
+1112) carcinoma of the extrahepatic biliary system: 1
+1113) biliary hilar malignancies: 1
+1114) biliary tract cancer registered at shikoku cancer center hospital or ehime university hospital: 1
+1115) malignant lesions treated by percutaneous transhepatic biliary drainage: 1
+1116) malignancies of the biliary tree, gall bladder: 1
+1117) recurrence after gastric cancer surgery responding remarkably to flp combination therapy: 1
+1118) the extrahepatic recurrence of gastric cancer: 1
+1119) advanced colorectal and gastric cancers: 1
+1120) poorly differentiated gastric adenocarcinoma: 1
+1121) advanced gastric cancer: 1
+1122) recurrence of gastric carcinoma: 1
+1123) primary carcinoma of the lung: 1
+1124) peri - ampullary carcinoma: 1
+1125) the paraneoplastic syndrome associated with prostate cancer: 1
+1126) the common periampullary carcinomas: 1
+1127) hepatobiliary carcinoma: 1
+1128) carcinomas of 3 cm or less: 1
+1129) papillary carcinoma of thyroid: 1
+1130) nasopharyngeal carcinoma: 1
+1131) carcinoma of the papilla of vater: 1
+1132) biliary bladder carcinoma: 1
+1133) neuroendocrine carcinoma: 1
+1134) the recurrence of cancer: 1
+1135) unresectable periampullary cancer: 1
+1136) an unresectable hilar malignancy: 1
+1137) unresectable infrahilar malignancy: 1
+1138) advanced gastrointestinal cancer: 1
+1139) colon cancer: 1
+1140) colorectal cancer: 1
+1141) treated colon cancer and leukemia: 1
+1142) transverse colon cancer: 1
+1143) benign and malignant diseases: 1
+1144) cystadenocarcinoma: 1
+1145) hepatobiliary cystadenoma or cystadenocarcinoma: 1
+1146) malignancy of gastrointestinal tract and hepatobiliary tract: 1
+1147) duodenal cancer: 1
+1148) duodenal papillary cancer: 1
+1149) malignancy and gall: 1
+1150) malignant hepatobiliary tumors and benign strictures: 1
+1151) inoperable malignant hepatobiliary tumors and benign strictures: 1
+1152) malignant lymphoma and ampullary lesions: 1
+1153) malignant disease which could not be relieved by conventional means: 1
+1154) malignant adenopathy from widespread poorly differentiated neuroendocrine tumor: 1
+1155) inoperable malignant disease: 1
+1156) terminal cancer: 1
+1157) cephalopancreatic cancer: 1
+1158) periampullary cancer treated between july 2007 and july 2015: 1
+1159) cancer of the pancreatoduodenal area: 1
+1160) malignancy fna was performed at the time of percutaneous transhepatic cholangiogram: 1
+1161) uterine cancer: 1
+1162) malignant neoplasms treated in the 2(nd: 1
+1163) malignant diseases( leukemias, malignant granulomatoses, cancer): 1
+1164) extrahepatic localised malignancy: 1
+1165) symptomatic biliary stricture: 1
+1166) a stricture of the biliary - enteric anastomosis: 1
+1167) pancreatic head mass and biliary tract stricture: 1
+1168) a rare cause of biliary stricture: 1
+1169) benign biliary stricture: 1
+1170) the compression of hc to the hilar biliary tract: 1
+1171) that tuberculosis of the biliary papilla: 1
+1172) biliary tb and an early ampullary tumour: 1
+1173) tumors of the terminal part of the biliary tract: 1
+1174) a biliary tract tumor a hopeless case: 1
+1175) a benign tumor of the biliary tract: 1
+1176) the biliary drainage: 1
+1177) abdominal pain simulates biliary lithiasis: 1
+1178) biliary tumor thrombi( group a): 1
+1179) biliary tract infection: 1
+1180) hilar invasion biliary diversion from segment 3 or 5: 1
+1181) inflammatory secretion almost filled the biliary tree: 1
+1182) migration of the worm to the biliary tree: 1
+1183) a juxtapapillary duodenal ulcer treated by temporary biliary stenting and medical anti - ulcer treatment: 1
+1184) gct of the extrahepatic biliary tree: 1
+1185) the biliary injury: 1
+1186) papillary adenoma of the extrahepatic biliary tract: 1
+1187) biliary varices: 1
+1188) sterile biliary ascites: 1
+1189) echinococcosis of the biliary tract: 1
+1190) an embryonal rhabdomyosarcoma of the biliary tree: 1
+1191) impaired biliary excretion of bilirubin glucuronides: 1
+1192) traumatic neuroma of the biliary tract: 1
+1193) paraganglionoma of extrahepatic biliary tract: 1
+1194) biliary tree invasion: 1
+1195) lymphomatous involvement of the extrahepatic biliary system: 1
+1196) the emigration of the ascari to the biliary tract: 1
+1197) the gall bladder, biliary tree and pancreas: 1
+1198) acute biliary pancreatitis: 1
+1199) a biliary fistula causing jaundice and sepsis: 1
+1200) histologically confirmed amyloid - like deposits in the biliary system: 1
+1201) a marked biliary dilatation in one case of jaundice: 1
+1202) fluorography of the biliary tree: 1
+1203) isolated involvement of the extrahepatic biliary tree by mycosis fungoides: 1
+1204) biliary tract schwannoma: 1
+1205) fibrosing chronic pancreatitis: 1
+1206) chronic pancreatitis in children: 1
+1207) an aneurysm of the gastroduodenal artery in a patient with chronic pancreatitis: 1
+1208) a pancreaticoduodenal pseudoaneurysm probably related to a chronic pancreatitis: 1
+1209) autoimmune pancreatitis( 92 %): 1
+1210) dm coincidental with aip: 1
+1211) acute pancreatitis in 1 20 %: 1
+1212) juxtapapillary intraduodenal lipoma as a rare cause of jaundice and acute pancreatitis: 1
+1213) pancreatitis( 6.85-92.0 percentage): 1
+1214) the afferent loop syndrome complicating indurative pancreatitis and mechanical jaundice: 1
+1215) proximal pancreatitis: 1
+1216) eosinophilic pancreatitis: 1
+1217) alcoholic pancreatitis: 1
+1218) head of pancreas: 1
+1219) solid pancreatic head masses: 1
+1220) a large mass of the head of the pancreas: 1
+1221) a mass of the head of the pancreas diagnosed by ultrasound: 1
+1222) head of pancreas causing jaundice: 1
+1223) vater 's ampulla & pancreas head: 1
+1224) chronic inflammation of the head of the pancreas: 1
+1225) compression by a cyst within the head of the pancreas: 1
+1226) retroperitoneal fibrosis involving the head of the pancreas: 1
+1227) ca head of pancreas( 65.1 %): 1
+1228) tuberculous lymphadenitis around the pancreatic head: 1
+1229) compression causing jaundice in an adult with cystic fibrosis: 1
+1230) hydatid cyst of the pancreas: 1
+1231) involvement of the pancreas: 1
+1232) eosinophilic gastroenteritis of the pancreas: 1
+1233) pancreatic disease can cause jaundice: 1
+1234) an annular pancreas constricting coledochus: 1
+1235) chronic pancreatic disease: 1
+1236) granulomatous inflammation of the pancreas causing jaundice: 1
+1237) an intraductal oncocytic papillary neoplasm of the pancreas: 1
+1238) macrocystic sca of the pancreas: 1
+1239) stricture and stone in cystic duct: 1
+1240) gallbladder and cystic duct calculi: 1
+1241) pancreatic duct stone: 1
+1242) stone in the left hepatic duct causing jaundice: 1
+1243) portal vein: 1
+1244) portal thrombosis: 1
+1245) hepatic duct obstruction: 1
+1246) right hepatic duct obstruction: 1
+1247) unilateral hepatic duct obstruction with relief after hepatic lobectomy: 1
+1248) hepatic artery occlusion: 1
+1249) hepatic parenchymal destruction by this tumor: 1
+1250) extrahepatic portal vein obstruction: 1
+1251) calcified portal venous thrombosis: 1
+1252) cavernous transformation of the portal vein post neonatal omphalitis: 1
+1253) the portal vein post neonatal omphalitis: 1
+1254) portal vein( group b): 1
+1255) the compression of hilar structures by the huge portal vein: 1
+1256) portal vein leiomyosarcoma an unusual cause of jaundice: 1
+1257) hodgkin 's lymphoma: 1
+1258) intermediate - grade non - hodgkin lymphoma: 1
+1259) non - hodgkin lymphoma in children: 1
+1260) extraintestinal non - hodgkin 's lymphoma: 1
+1261) primary lymphoma: 1
+1262) primary duodenal lymphoma: 1
+1263) a clinically undetectable primary duodenal t - cell lymphoma: 1
+1264) primary duodenal lymphoma with cmv duodenitis: 1
+1265) large b - cell lymphoma: 1
+1266) diffuse large b - cell lymphoma: 1
+1267) a clinically undetectable t - cell lymphoma: 1
+1268) enteropathy - associated t - cell lymphoma: 1
+1269) pancreaticobiliary lymphomas: 1
+1270) periampullary lymphoma: 1
+1271) gallbladder lymphoma: 1
+1272) abdominal lymphogranulomatosis: 1
+1273) hepatic sarcoidosis in a child: 1
+1274) hepato splenic sarcoidosis: 1
+1275) hemolytic anemia: 1
+1276) congenital hemolytic anemia: 1
+1277) red cell glucose-6 - phosphate dehydrogenase g-6 - pd deficiency: 1
+1278) glucose-6 - phosphate dehydrogenase deficiency developed jaundice during the course of lobar pneumonia: 1
+1279) the coexistence of dubin - johnson and glucose-6 - phosphate dehydrogenase deficiency: 1
+1280) glucose 6 phosphatase dehydrogenase g-6 - pd) deficiency( 12.1 %): 1
+1281) hemolysis in neonatal jaundice associated with glucose-6 phosphate dehydrogenase deficiency: 1
+1282) glucose 6 - phosphate dehydrogenase( g6pd) deficiency: 1
+1283) g6pd deficiency, abo incompatibility low birth weight and sepsis: 1
+1284) bacterial infection and g6pd deficiency: 1
+1285) hemolysis in a g-6pd - deficient patient: 1
+1286) hereditary spherocytosis: 1
+1287) a new mutation( sph): 1
+1288) hereditary spherocytosis and gilbert 's syndrome: 1
+1289) coexistence of dubin - johnson syndrome and hereditary spherocytosis: 1
+1290) erythrocyte pyruvate kinase deficiency: 1
+1291) thalassemia: 1
+1292) homozygous beta thalassemia: 1
+1293) elliptocytosis: 1
+1294) elliptocytosis treated by splenectomy: 1
+1295) nonspherocytic hemolytic anemia: 1
+1296) hereditary stomatocytosis: 1
+1297) increased hemolysis, absorption of hematoma, effects of drugs, on: 1
+1298) drug - induced hemolytic anemias: 1
+1299) the former two gene mutations cause acute hemolytic anemia and jaundice: 1
+1300) isoimmunization in the abo system: 1
+1301) hemolytic disease of the newborn due to blood group incompatibility: 1
+1302) alloimmune haemolytic disease of the fetus and newborn: 1
+1303) haemolytic disease of the newborn treated with magnesium sulphate: 1
+1304) isoimmune hemolytic disease: 1
+1305) hemolytic disease after intravenous gammaglobulin treatment for 2 days: 1
+1306) not to autoimmune haemolysis a situation that led to diagnostic delay: 1
+1307) hemolysis resulting from identifiable triggers: 1
+1308) microangiopathic hemolysis associated to septicemia in the newborn: 1
+1309) hemolysis caused by a lack of the g6pd enzyme: 1
+1310) haemolysis attributed to paravalvular mitral regurgitation: 1
+1311) the reduction in hemolysis: 1
+1312) isoimmune haemolysis( both rh and abo incompatibility): 1
+1313) immunological hemolysis: 1
+1314) toluylenediamin or hemolytic: 1
+1315) hemolysis of hemorrhagic content: 1
+1316) prevalently hemolytic factors: 1
+1317) blood incompatibility: 1
+1318) rh n 91 and abo incompatibility: 1
+1319) rh and abo incompatibility and compare results with the group of unspecific jaundice: 1
+1320) abo incompatibility, septicemia, rh incompatibility, intracranial hemorrhage: 1
+1321) abo incompatibility( 5.4-11.3 percentage) and rh incompatibility( 5.4-11.3 percentage): 1
+1322) abo incompatibility in sri lankan: 1
+1323) abo factor incompatibility in pregnancy: 1
+1324) rh incompatibility( 5.4 %): 1
+1325) minor blood incompatibilities: 1
+1326) extra- or intrahepatic obstruction: 1
+1327) anti - rhesus immunization with directly conjugated bilirubin: 1
+1328) compression of the hepatic duct: 1
+1329) extrinsic compression of the hepatic duct: 1
+1330) tumour compression of the choledochal duct: 1
+1331) inflammatory stenosis of the hepatic duct: 1
+1332) congenital stricture of the common hepatic duct does not cause jaundice: 1
+1333) inadvertent ligation of the common duct or postsurgical stricture: 1
+1334) periportal tuberculous adenitis: 1
+1335) periportal tuberculous adenitis managed by two different approaches: 1
+1336) tuberculous adenopathy of the hilus hepatis: 1
+1337) peripancreatic tuberculous adenitis: 1
+1338) hepatic tuberculosis: 1
+1339) lymph node tuberculosis of the hepatic pedicle: 1
+1340) tuberculous lymph node compression of the hepatic pedicle: 1
+1341) tuberculous hepatic lymph glands: 1
+1342) atypical hepatic tuberculosis: 1
+1343) pulmonary tuberculosis: 1
+1344) tuberculosis treated with isonicotinic acid hydrazide: 1
+1345) tuberculosis of distal cbd and periampullary region mimickcholangiocarcinoma: 1
+1346) pancreatobiliary and peripancreatobiliary tuberculosis: 1
+1347) bacteremia: 1
+1348) bacteremia( 22 %): 1
+1349) pseudomonas aeruginosa bacteremia: 1
+1350) anaerobic bacteremia: 1
+1351) infections with gram - negative bacilli in newborn and other infants: 1
+1352) bacterial and viral infections, metabolic disorders: 1
+1353) bacterial infections in adults: 1
+1354) e. coli infection: 1
+1355) bacterial infection after major hepatectomy: 1
+1356) urinary tract infection with bacteriemia and jaundice: 1
+1357) urinary infection in pregnancy: 1
+1358) urinary tract infection in infancy: 1
+1359) urinary tract infection presenting as jaundice in neonates: 1
+1360) neonatal infection: 1
+1361) jaundice and infections: 1
+1362) infection, postoperative jaundice: 1
+1363) heart failure, drug - induced jaundice, jaundice resulting from infection, postoperative jaundice: 1
+1364) congenital cytomegalovirus infection as an important cause of infantile cholestatic jaundice: 1
+1365) severe infection: 1
+1366) acute and severe infections in the african: 1
+1367) an acute infection caused by those viruses: 1
+1368) clonorchiasis - associated duodenal papillitis: 1
+1369) opportunistic infections or neoplasms: 1
+1370) opportunistic infection, aids - related neoplasia, infection with hiv alone: 1
+1371) drugs or infections: 1
+1372) epstein - barr virus infection: 1
+1373) epstein - barr virus infection in the elderly: 1
+1374) infection in pregnancy: 1
+1375) bacilli infections: 1
+1376) due to congenital toxoplasma gondii infection: 1
+1377) infection with eperythrozoon ovis: 1
+1378) nonhepatic staphylococcus aureus infection: 1
+1379) specific infections: 1
+1380) the chronic phase of this zoonotic infection: 1
+1381) strongyloides stercoralis infection: 1
+1382) systemic infection commonly seen in papua new guinea: 1
+1383) extensive echinococcus cysticus infection of the right hepatic lobe: 1
+1384) usually during infection: 1
+1385) infections( 28 %): 1
+1386) neonatal septicemia( 25.9 %): 1
+1387) prematurity( 25.9-33.3 percentage) and neonatal septicemia( 25.9-33.3 percentage): 1
+1388) neonatal sepsis with jaundice: 1
+1389) neonatal( umbilical) sepsis with jaundice: 1
+1390) septicemia( 25.9 %): 1
+1391) low birth weight and sepsis: 1
+1392) severe bacterial sepsis: 1
+1393) clostridial myelonecrosis, severe bacterial sepsis: 1
+1394) e. coli sepsis: 1
+1395) septicemia urinary onset: 1
+1396) urban leptospirosis: 1
+1397) acute leptospirosis: 1
+1398) five ten percent of leptospirosis: 1
+1399) borreliosis: 1
+1400) relapsing fever( borreliosis): 1
+1401) progressive disseminated histoplasmosis associated with aids: 1
+1402) shock: 1
+1403) scrub typhus: 1
+1404) galactosemia an unusual cause of neonatal jaundice: 1
+1405) enzyme deficiency in newborns: 1
+1406) lymph node recurrence: 1
+1407) lymph node compression in a child: 1
+1408) echinococcosis: 1
+1409) intrabiliary rupture of hydatid cysts: 1
+1410) an intrapancreatic hydatid cyst: 1
+1411) an intrapancreatic hydatid cyst in a 17 - year - old black girl: 1
+1412) hydatid cyst in a rare location: 1
+1413) weil 's disease as a cause of jaundice: 1
+1414) weil 's disease causing jaundice, hemorrhage, renal failure, even death: 1
+1415) the disease has caused jaundice in 62.1 % of the patients: 1
+1416) the leading extrahepatic diseases causing jaundice: 1
+1417) disease cause pruritus and jaundice: 1
+1418) interactions at the level of bilirubin glucuronidation: 1
+1419) metabolic disorders: 1
+1420) diabetes mellitus: 1
+1421) renal malformation or diabetes mellitus: 1
+1422) gestational diabetes: 1
+1423) type 2 diabetes: 1
+1424) disseminated langerhans cell histiocytosis: 1
+1425) congenital metabolic disorders: 1
+1426) partial extrahepatic atresia: 1
+1427) common hepatic artery aneurysm: 1
+1428) mycotic aneurysm of the hepatic artery: 1
+1429) multiple hepatic artery aneurysms: 1
+1430) hepatic artery aneurysm demonstration: 1
+1431) idiopathic hepatic artery aneurysm: 1
+1432) childhood acute lymphoblastic leukaemia presenting as jaundice: 1
+1433) childhood b - precursor acute lymphoblastic leukemia presenting severe jaundice: 1
+1434) congenital acute lymphoblastic leukemia: 1
+1435) precursor b - cell acute lymphoblastic leukemia: 1
+1436) acute myelomonocytic leukemia: 1
+1437) tumor - forming acute myeloblastic leukemia: 1
+1438) solid pancreatic mass lesions underwent eus - fna 5 years: 1
+1439) pancreatic mass to fever of unknown origin: 1
+1440) a pancreatic mass at radiological imaging: 1
+1441) cbd mass: 1
+1442) associated mass in cyst( p = 0.004: 1
+1443) the hilar mass: 1
+1444) giant hydronephrosis in horseshoe kidney presenting right upper quadrant mass and jaundice: 1
+1445) abdominal pain in 25 or a palpable mass: 1
+1446) gall bladder mass or the involved adjacent peritoneal structures: 1
+1447) large pedunculated lump: 1
+1448) pressure from a gallbladder mass: 1
+1449) pseudoaneurysm mass effect: 1
+1450) mirizzi syndrome type ii: 1
+1451) a periampullary duodenal diverticulum: 1
+1452) a large diverticular enterolith at the peripapillary portion of the duodenum: 1
+1453) peripapillary diverticula of the duodenum as a cause of mechanical jaundice: 1
+1454) compression of a periampular duodenal diverticulum: 1
+1455) a periampullary duodenal diverticulum associated with hepatic abscess: 1
+1456) large duodenal diverticulum: 1
+1457) duodenal diverticulum( lemmel 's syndrome): 1
+1458) the presence of a duodenal diverticulum: 1
+1459) malignant stenosis: 1
+1460) amoxicillin - clavulanic acid in 4 patients: 1
+1461) a hypersensitivity reaction to clavulanic acid: 1
+1462) niflumic acid: 1
+1463) nicotinic acid widely used to lower serum cholesterol levels: 1
+1464) phenylcinchoninic acid( atophan, cinchophen)-preventive measures ]: 1
+1465) isonicotinic acid hydrazine in a phenylketonuric boy: 1
+1466) pharmacological dose ascorbic acid: 1
+1467) nicotinic acid therapy: 1
+1468) oral steroid contraceptive: 1
+1469) contraceptive steroids and relation to intrahepatic cholestatic jaundice of pregnancy: 1
+1470) anabolic steroids: 1
+1471) endogenous maternal steroids( breast milk jaundice): 1
+1472) progesterones: 1
+1473) psychotropic drugs: 1
+1474) amineptine: 1
+1475) a tricyclic antidepressant amineptine: 1
+1476) drug toxicity: 1
+1477) effects of drugs: 1
+1478) hepatotoxic drugs: 1
+1479) contrast agent: 1
+1480) fluorescein: 1
+1481) an estro - progestative drug preceding cholestatic jaundice of pregnancy: 1
+1482) infectious agents cause febrile jaundice in the car: 1
+1483) other drugs taken by the patient: 1
+1484) otc muscle building agent superdrol: 1
+1485) benzodiazepine - type drugs: 1
+1486) induction of labour or by the agents used: 1
+1487) estro - progestinic agents: 1
+1488) antiovulatory drugs: 1
+1489) statin drugs: 1
+1490) perforation of a duodenal ulcer: 1
+1491) duodenal ulcer complicated by perforation: 1
+1492) complicated duodenal ulcer causes jaundice and review the literature: 1
+1493) ulcerative duodenal stenosis: 1
+1494) indirect bilirubin and hypertrophic pyloric stenosis: 1
+1495) free bilirubin and hypertrophic stenosis of the pylorus: 1
+1496) pyloric stenosis and neonatal small - bowel obstructions: 1
+1497) congenital hypertrophic pyloric stenosis( author 's transl): 1
+1498) hypertrophic pyloric stenosis accompanied by jaundice: 1
+1499) congenital stenosis of the ampulla of vater: 1
+1500) cyst causing jaundice: 1
+1501) extraskeletal spread of multiple myeloma: 1
+1502) iga lambda multiple myeloma: 1
+1503) multiple myeloma causing jaundice and duodenal ulceration: 1
+1504) infectious disease or breast - milk feeding: 1
+1505) insufficient intake of breast milk and prolonged jaundice: 1
+1506) a chlorinated hydrocarbon in breast milk: 1
+1507) maintenance on mother 's milk: 1
+1508) human milk: 1
+1509) human milk corresponding: 1
+1510) ampullary adenocarcinoma: 1
+1511) the use of chlorpromazine: 1
+1512) aminazine: 1
+1513) chlorpromazine( thorazine): 1
+1514) a benign disease in 71 of them: 1
+1515) a neoplastic lesion in 61 and by a benign disease in 71 of them: 1
+1516) a benign disease in 86 patients( 69.4 %): 1
+1517) many disease processes ranging from benign to life threatening: 1
+1518) a wide variety of benign or life - threatening disorders: 1
+1519) renal failure: 1
+1520) acute renal failure: 1
+1521) acute renal failure complicating jaundice: 1
+1522) 1 arf accompanied by jaundice: 1
+1523) severe burns( author 's transl): 1
+1524) gestagens revisited author 's transl: 1
+1525) tumour( author 's transl): 1
+1526) choledochal obstruction: 1
+1527) choledochal varices: 1
+1528) choledochal clots: 1
+1529) residual and/or recurrent choledochal lithiasis: 1
+1530) a endo - choledochal clip: 1
+1531) congenital choledochal malformations: 1
+1532) choledochal neuroma: 1
+1533) choledochal ligation: 1
+1534) one choledochal concrements: 1
+1535) erythromycin: 1
+1536) ilosone: 1
+1537) due to propionyl erythromycin ester lauryl sulphate( " ilosone "): 1
+1538) ceftriaxone: 1
+1539) ciprofloxacin: 1
+1540) ciprofloxacin therapy: 1
+1541) nitrofurantoin: 1
+1542) cephalexin: 1
+1543) flucloxacillin: 1
+1544) mezlocillin: 1
+1545) josamycin: 1
+1546) triacetyloleandomycin: 1
+1547) trimethoprim: 1
+1548) cloxacillin: 1
+1549) an endobiliary tumor thrombus: 1
+1550) uncomplicated hyperthyroidism treated with methimazole: 1
+1551) graves ' hyperthyroidism: 1
+1552) propylthiouracil treatment for thyrotoxicosis: 1
+1553) sequential carbimazole and propylthiouracil treatment for thyrotoxicosis: 1
+1554) thyrotoxicosis and differential: 1
+1555) thyrotoxicosis and viral: 1
+1556) hypothyroidism: 1
+1557) newborn & congenital myxedema: 1
+1558) a rupture of echinococcal cysts: 1
+1559) intrabiliary rupture of the cyst: 1
+1560) ampullary carcinoid and jejunal stromal tumour associated with von recklinghausen 's disease: 1
+1561) ampullary neuroendocrine tumors: 1
+1562) granulocytic sarcoma of the porta hepatis: 1
+1563) an autopsy case report: 1
+1564) report of a case and analogies with respiratory malformations: 1
+1565) the incarceration of pancreatic stones: 1
+1566) the incarceration of pancreatic stones in the ampulla of papilla vater: 1
+1567) an impacted pancreatic stone in the papilla: 1
+1568) neoplastic lymphangitis in patients undergoing d2/3 lymphadenectomy for gastric neoplasms: 1
+1569) a pedunculated submucosal gastric neurinoma: 1
+1570) gastric ulcer penetration: 1
+1571) gastric trichobezoar: 1
+1572) pancreatic pseudocyst in a pediatric patient: 1
+1573) pancreatic pseudocyst as a cause of jaundice: 1
+1574) pancreatic cysts: 1
+1575) the numerous pathologic conditions causing jaundice: 1
+1576) a rare cause: 1
+1577) a rare case of iga myeloma: 1
+1578) insufficiency of glucose-6 - phosphate dehydrogenase in erythrocytes: 1
+1579) benign strictures: 1
+1580) dominant strictures are causing jaundice: 1
+1581) heart disease: 1
+1582) heart failure: 1
+1583) heart failure related to mitral stenosis: 1
+1584) cardiac failure without infarction: 1
+1585) cardiac failure causing jaundice in a child: 1
+1586) congenital heart disease: 1
+1587) neonatal small - bowel obstructions: 1
+1588) neonatal hypoglycemia: 1
+1589) severe and prolonged neonatal hypoglycemia: 1
+1590) neonatal adrenal hemorrhage: 1
+1591) operated meconium peritonitis in neonates: 1
+1592) a role in causing severe neonatal jaundice in the local context: 1
+1593) free bilirubin in the neonatal period: 1
+1594) phenergan given during labor not a cause of neonatal jaundice: 1
+1595) neoplastic pancreaticobiliary obstruction and 17 control patients with the corresponding condition without jaundice: 1
+1596) the porta hepatis: 1
+1597) an inflammatory hepatic pseudotumor in the porta hepatis: 1
+1598) tumour fragments: 1
+1599) distal migration of necrotic tumor fragments: 1
+1600) defects of bilirubin secretion: 1
+1601) congenital defects of bilirubin secretion: 1
+1602) free bilirubin: 1
+1603) mutations to the gene encoding bilirubin: 1
+1604) bilirubin deposition in the skin: 1
+1605) the absence of hepatic bilirubin udp - glucuronyltransferase enzyme protein: 1
+1606) large endogenous production of bilirubin because of rapid breakdown of transfused and extravasated blood: 1
+1607) immaturity of the hepatic parenchymal cell bilirubin excretory pathway: 1
+1608) severe falciparum malaria: 1
+1609) falciparum malaria changing trends in clinical presentation: 1
+1610) primary malaria: 1
+1611) congenital malaria: 1
+1612) aneurysm of the gastroduodenal artery: 1
+1613) gigantic morgagni - larrey hernia: 1
+1614) morgagni hernia in an adult: 1
+1615) morgagni hernia ultimately underwent laparoscopic repair: 1
+1616) internal hernia or volvulus: 1
+1617) the foramen of winslow hernia with multiple anomalies: 1
+1618) herniation of the small bowel: 1
+1619) a right - sided foramen of bochdalek 's diaphragmatic hernia: 1
+1620) a bochdalek hernia of the right hemidiaphragm: 1
+1621) pancreatic lesion of unknown nature causing jaundice: 1
+1622) g-6 - pd deficiency and in jaundice of unknown etiology: 1
+1623) bdl group: 1
+1624) extensive adenopathy: 1
+1625) the tumors localized in the periampullary and inframpullary region: 1
+1626) a rare periampullary tumor: 1
+1627) any disease causing: 1
+1628) a hepatic artery pseudoaneurysm: 1
+1629) intrahepatic cholestatic disease in pregnancy: 1
+1630) nonbiliary extrahepatic inflammatory disease: 1
+1631) functional asplenia and cerebrovascular accidents: 1
+1632) known malignant melanoma: 1
+1633) afferent loop syndrome presenting as an obstructing jaundice: 1
+1634) pyruvate deficiency: 1
+1635) hemorrhage: 1
+1636) neoplastic hemobilia: 1
+1637) hematoma: 1
+1638) duodenal hematoma: 1
+1639) traumatic intramural hematoma of the duodenum: 1
+1640) splenic hematoma: 1
+1641) intracholedochal hematomas: 1
+1642) adrenal hemorrhage: 1
+1643) infectious mononucleosis presenting as jaundice and bleeding: 1
+1644) unexplained gastrointestinal bleeding: 1
+1645) pancytopenia causing bleeding, sideropenic anemia and mild jaundice: 1
+1646) coagulopathy: 1
+1647) severe coagulopathy( inr > 10): 1
+1648) splenomegaly: 1
+1649) hematuria: 1
+1650) piroxicam: 1
+1651) sulindac: 1
+1652) stent occlusion: 1
+1653) repeated metal stent occlusion: 1
+1654) serous cystadenoma: 1
+1655) pancreatic serous cystoadenoma: 1
+1656) giant pancreatic serous cystoadenoma: 1
+1657) a chronic afferent loop obstruction: 1
+1658) intraductal mucin: 1
+1659) intraductal invasion: 1
+1660) intraductal tumour growth: 1
+1661) a compromising aaa: 1
+1662) hepatic fascioliasis in italy: 1
+1663) fascioliasis a cause of mechanical jaundice: 1
+1664) distal obstruction: 1
+1665) lithiasis or malignant: 1
+1666) distal cbd lithiasis: 1
+1667) lithiasis or inflammation: 1
+1668) fasciola hepatica who were diagnosed and managed with endoscopic retrograde cholangiopancreatography: 1
+1669) dominant strictures: 1
+1670) dominant strictures( ds): 1
+1671) non - neoplastic diseases in middle - aged and elderly patients: 1
+1672) graves ' disease developed cholestatic jaundice after carbimazole therapy for four months: 1
+1673) abdominal pain: 1
+1674) recurrent hyperemesis gravidarum: 1
+1675) blockage of the stents causing recurrent jaundice: 1
+1676) methimazole treatment: 1
+1677) thiouracil: 1
+1678) spherocytosis: 1
+1679) the upper gastrointestinal tract: 1
+1680) a shell splinter in the choledochus as a cause of jaundice: 1
+1681) pancreatobiliary fistula: 1
+1682) pancreatobiliary maljunction: 1
+1683) pancreatobiliary duct anomalies: 1
+1684) obstruction of the cystic duct: 1
+1685) pruritus and jaundice: 1
+1686) generalized pruritus receded by the age of 2 years: 1
+1687) chills, pruritus and blood eosinophilia: 1
+1688) an impacted 1.7 cm size stone in distal cbd: 1
+1689) stricture of the intrapancreatic cbd: 1
+1690) cbd compression by the diverticulum: 1
+1691) ligation of the cbd: 1
+1692) cbd obstruction: 1
+1693) poisoning: 1
+1694) eperythrozoon ovis and copper poisoning as causes of jaundice in lamb carcases: 1
+1695) favism: 1
+1696) lantana poisoning in cattle, sheep, buffalo guinea pigs: 1
+1697) acute naphthalene poisoning: 1
+1698) heroin addiction: 1
+1699) ackee fruit poisoning: 1
+1700) yellow oleander poisoning: 1
+1701) lead poisoning: 1
+1702) chloroform poisoning: 1
+1703) anit poisoning: 1
+1704) mushroom poisoning: 1
+1705) hepatobiliary cystadenoma: 1
+1706) an unusual case of a hepatobiliary cystadenoma: 1
+1707) retroperitoneal fibrosis: 1
+1708) ormond 's disease( primary retroperitoneal fibrosis): 1
+1709) porta node: 1
+1710) febrile: 1
+1711) infectious mononucleosis: 1
+1712) high fever, headache: 1
+1713) the pathogens can cause febrile jaundice for better management of patients: 1
+1714) streptokinase: 1
+1715) mutation: 1
+1716) new mutation causing jaundice in mice: 1
+1717) primary intrabilliary tumors: 1
+1718) primary extragonadal germ - cell tumor: 1
+1719) risky esophageal varices: 1
+1720) compression of the hepatic pedicle: 1
+1721) polyarteritis nodosa: 1
+1722) the neck of the gallbladder: 1
+1723) a relatively small tumor in the gallbladder neck: 1
+1724) stenosis of the terminal choledochus: 1
+1725) inflammatory stenosis of the choledochus: 1
+1726) stenosis of papilla: 1
+1727) cicatricial - ulcerative stenosis of vater 's papilla: 1
+1728) rheumatoid arthritis: 1
+1729) rheumatoid arthritis developed jaundice during the course of chrysotherapy: 1
+1730) a history of rheumatoid arthritis treated with methotrexate: 1
+1731) therapy: 1
+1732) chemotherapy: 1
+1733) incrustation of the prosthesis: 1
+1734) prosthesis occlusion: 1
+1735) warfarin therapy: 1
+1736) streptomycin therapy: 1
+1737) norethandrolone therapy: 1
+1738) antibiotic therapy: 1
+1739) polypoid inflammatory granuloma: 1
+1740) inflammatory pseudotumor - like granuloma: 1
+1741) extensive hepatic involvement: 1
+1742) hepatic involvement by this tumor: 1
+1743) sulpiride: 1
+1744) advanced pylephlebitis: 1
+1745) systemic tumors: 1
+1746) bullet in hepatic duct: 1
+1747) bullet in the common hepatic duct: 1
+1748) primary obstructive megaureter: 1
+1749) primary obstructive megaureter in an adult: 1
+1750) pustular psoriasis: 1
+1751) generalized pustular psoriasis: 1
+1752) a mucous plug wedged in the phimotic papilla: 1
+1753) many diseases: 1
+1754) invasive tumor: 1
+1755) atypical pneumonia: 1
+1756) syphilis treated with arsenobenzene: 1
+1757) syphilis and treatment: 1
+1758) ormond 's disease and the third: 1
+1759) adult - onset type ii citrullinemia: 1
+1760) adult - onset type ii citrullinemia developed transient hypoproteinemia and jaundice in early infancy: 1
+1761) materno - fetal isoimmunization: 1
+1762) rhesus and ab isoimmunization and frequency of these antigens: 1
+1763) isoimmunization and without access to phototherapy or exchange transfusion in 1955: 1
+1764) an oxyphenisatin laxative: 1
+1765) aids: 1
+1766) aids - related neoplasia: 1
+1767) clip migration: 1
+1768) the endoscopic clip migration: 1
+1769) histiocytosis x.: 1
+1770) lacrymal sicca syndrome: 1
+1771) pulmonary fibrosis and salivary and lacrymal sicca syndrome: 1
+1772) even small tumors: 1
+1773) neurofibroma of the choledochus: 1
+1774) carcinoid of the ductus choledochus: 1
+1775) a stone in the ductus choledochus: 1
+1776) castleman 's disease: 1
+1777) intrabiliary lot: 1
+1778) retained intrabiliary blood clot: 1
+1779) eosinophilic gastroenteritis: 1
+1780) sickle cell crisis: 1
+1781) right hydronephrosis: 1
+1782) an ampullary lesion: 1
+1783) fluid retention: 1
+1784) neuroma: 1
+1785) poorly differentiated neuroendocrine tumor: 1
+1786) hepatic immaturity: 1
+1787) congenital hepatic: 1
+1788) postsurgical stricture: 1
+1789) immunization with negative direct coombs ' test: 1
+1790) serum transaminases: 1
+1791) pancreatic hamartoma: 1
+1792) sickle - cell anaemia: 1
+1793) blood eosinophilia: 1
+1794) obstructive choledocitis: 1
+1795) ethinylestradiol: 1
+1796) mestranol: 1
+1797) norethindrone and mestranol: 1
+1798) diseases accompanied by jaundice: 1
+1799) hepatocellular type: 1
+1800) methyltestosterone: 1
+1801) pancreatic secretion insufficiency: 1
+1802) azathioprine: 1
+1803) fluorouracil: 1
+1804) thiabendazole: 1
+1805) albendazole: 1
+1806) congenital cysts: 1
+1807) large extravasations of blood: 1
+1808) leptospira icterohaemorrhagiae: 1
+1809) pathogenic leptospira: 1
+1810) alcohol: 1
+1811) alcohol abuse: 1
+1812) prolonged heavy alcohol intake: 1
+1813) breakdown of transfused-: 1
+1814) hilum: 1
+1815) cholecystectomy: 1
+1816) tonsillectomy: 1
+1817) eclampsia: 1
+1818) severe forms of eclampsia: 1
+1819) various diseases: 1
+1820) cattle: 1
+1821) beef cattle: 1
+1822) starvation: 1
+1823) inadequate calorie intake or starvation: 1
+1824) dili: 1
+1825) idiosyncratic dili: 1
+1826) rejection: 1
+1827) transient rejection: 1
+1828) peribiliary chloroma: 1
+1829) sbd: 1
+1830) mpd and sbd: 1
+1831) papillitis: 1
+1832) stenosing papillitis: 1
+1833) atresia of hering 's passages: 1
+1834) reoperated duodenal atresia: 1
+1835) atophan cinchophen)-preventive measures: 1
+1836) von recklinghausen 's neurofibromatosis: 1
+1837) visceral neurofibromatosis: 1
+1838) injection of phenylhydrazine: 1
+1839) ligation of the choledoid and injection of phenylhydrazine in dogs: 1
+1840) lymphangioma: 1
+1841) lymphangioma of vater 's ampulla: 1
+1842) alveococcosis: 1
+1843) burns: 1
+1844) a mucinous adenocarcinoma of the appendix in a patient with intestinal malrotation: 1
+1845) early stent dysfunction( five patients): 1
+1846) ductopenia: 1
+1847) antibiotic: 1
+1848) galactosuria: 1
+1849) papillomatosis: 1
+1850) dysplastic mucinous papillomatosis: 1
+1851) ileus: 1
+1852) endoclip: 1
+1853) the migration of endoclip and silk suture material: 1
+1854) bcs: 1
+1855) acute bcs: 1
+1856) hypersensitivity: 1
+1857) stanozolol hypersensitivity: 1
+1858) a1atd: 1
+1859) spectrin: 1
+1860) a novel α - spectrin pathogenic variant in trans: 1
+1861) acute encephalopathy, apnea and cerebral edema: 1
+1862) edematous pancreatopathy: 1
+1863) bilateral lower extremity edema: 1
+1864) tumor edema: 1
+1865) derivatives of oxacillin: 1
+1866) osteomyelitis developed reversible cholestatic jaundice during treatment with oxacillin derivatives: 1
+1867) parasitosis: 1
+1868) hepatobiliary parasitosis: 1
+1869) polymorphism: 1
+1870) factors might cause pathologic and prolonged jaundice with coexisting polymorphism: 1
+1871) mm: 1
+1872) ascaris lumbricoides: 1
+1873) peritoneal dissemination: 1
+1874) imidazole derivates: 1
+1875) terbinafine: 1
+1876) the underlying process: 1
+1877) month: 1
+1878) prematurity: 1
+1879) varix: 1
+1880) car: 1
+1881) maternal anti - fya sensitization: 1
+1882) erythrocytic enzymopathy: 1
+1883) leuco - erythroblastic anaemia: 1
+1884) a blood clot after ercp: 1
+1885) a neurofibroma in the common hepatic duct: 1
+1886) chorioamnionitis as a cause of jaundice during pregnancy: 1
+1887) a surgical cause referred to the authors ' institution from january 1992 to december 1999: 1
+1888) serological conflict and jaundice: 1
+1889) congenital malrotation of the intestine: 1
+1890) congenital dyserythropoiesis: 1
+1891) endothelial cell injury resulting from the toxicity of the conditioning regimen: 1
+1892) chronic opisthorchiasis: 1
+1893) percutaneous endoscopic gastrostomy tube migration: 1
+1894) multiple hormone deficiencies: 1
+1895) deficient ugt1a1 activity: 1
+1896) atb: 1
+1897) pylorostenosis: 1
+1898) another aggressive tumor developed: 1
+1899) ercp treatment: 1
+1900) taeniasis: 1
+1901) an abundant pigment causes jaundice: 1
+1902) allogeneic hematopoietic stem cell transplantation: 1
+1903) ht for short: 1
+1904) shortening of the life span of the red blood cells: 1
+1905) macroglobulinemia: 1
+1906) neoplasm of the bifurcation of the cystic and hepatic ducts: 1
+1907) tolazamide: 1
+1908) an intussuscepting duodenal villous adenoma: 1
+1909) ampullar localization of an inflammatory duodenal polyp: 1
+1910) pyelonephritis of right kidney: 1
+1911) inflaryl: 1
+1912) inhibition of glycuronyl transferase: 1
+1913) virus pneumonia: 1
+1914) fowl adenovirus: 1
+1915) different surgical conditions: 1
+1916) severe vomiting: 1
+1917) adenomyoma: 1
+1918) node enlargement in the transverse fissure: 1
+1919) prolonged hyperalimentation: 1
+1920) anaerobic bacteria arising from an abdominal abscess: 1
+1921) the succeeding stones: 1
+1922) cbds: 1
+1923) a radiolucent stone: 1
+1924) a large size kidney stone: 1
+1925) mucobilia: 1
+1926) malignant masquerade: 1
+1927) sheehan 's syndrome or acute: 1
+1928) stenosis of the sphincter of oddi as a cause of jaundice: 1
+1929) arc of buhler aneurysm: 1
+1930) idiopathic hypereosinophilic syndrome: 1
+1931) tacrolimus and cyclosporine and cholestatic jaundice: 1
+1932) prostate neoplasm: 1
+1933) pas: 1
+1934) thiopurine: 1
+1935) plasma: 1
+1936) mucus obstruction: 1
+1937) ampullary obstruction: 1
+1938) igg kappa type: 1
+1939) obesity: 1
+1940) bdss underwent u: 1
+1941) nc: 1
+1942) pancreatic involvement: 1
+1943) preeclampsia - related disorders: 1
+1944) rheumatic diseases correlated with enzyme, hormone and vitamin activities: 1
+1945) trimoxazole: 1
+1946) allergic disease: 1
+1947) systemic disease: 1
+1948) extramedullary disease: 1
+1949) oral administration of oda mixed in feed to rats: 1
+1950) duloxetine: 1
+1951) bismuth mapharsen - mercury treatment: 1
+1952) paradoxical reaction: 1
+1953) furadantin treatment: 1
+1954) achromobacter xylosoxidans: 1
+1955) embs: 1
+1956) afferent loop volvulus: 1
+1957) treatment with pregabalin: 1
+1958) diffuse carcinomatosis of the hepatic duct: 1
+1959) low - dose amiodarone: 1
+1960) placenta praevia: 1
+1961) early toxemias of pregnancy: 1
+1962) parasitoses: 1
+1963) nephrotoxicity: 1
+1964) lympholeukosis: 1
+1965) the use of 1.0-5.0 gram or 1.0-5.0 gram plant resin/ kg: 1
+1966) a malpositioned gastrostomy tube: 1
+1967) cytokine levels: 1
+1968) cbde: 1
+1969) fetal - maternal blood group differences: 1
+1970) hemoglobinosis c: 1
+1971) free floating debris: 1
+1972) croupous pneumonia: 1
+1973) aneurysmal dilation of the abdominal aorta: 1
+1974) abdominal distention accompanied by early jaundice: 1
+1975) portal varicosis: 1
+1976) arc syndrome: 1
+1977) an extremely rare condition that has been reported on 3 previous occasions: 1
+1978) tyrosinemia progressed to fatal hepatic encephalopathy: 1
+1979) a sclerotic vascular ring formed by the right hepatic artery and branch: 1
+1980) inh: 1
+1981) isolated ligation of 1 or more branches of the hepatic duct: 1
+1982) a relative low caloric intake: 1
+1983) iris: 1
+1984) ec: 1
+1985) developmental abnormalities and neoplasms: 1
+1986) chloramphenicol: 1
+1987) factors causing oxidative stress: 1
+1988) dengue and chikungunya viruses: 1
+1989) a cholesterol polyp of the gallbladder: 1
+1990) ruptures that can not be diagnosed: 1
+1991) a ruptured retrocecal subhepatic appendix: 1
+1992) brieyi saponosides: 1
+1993) bacterial insult: 1
+1994) an embryonal rhabdomyosarcoma of the ampulla of vater: 1
+1995) jk(b: 1
+1996) arteriovenous fistula: 1
+1997) sod: 1
+1998) spbd: 1
+1999) fadv: 1
+2000) hypopituitarism: 1
+2001) hemophilia: 1
+2002) autoimmune cholangiopathy: 1
+2003) farber: 1
+2004) purpura: 1
+2005) gallbladder papilloma: 1
+2006) gallbladder and intrahepatic: 1
+2007) the human d antigen mothers who have been jaundiced: 1
+2008) hemocholecyst: 1
+2009) pill: 1
+2010) hereditary or acquired defects of these transporters: 1
+2011) glucuronidase: 1
+2012) organ failure: 1
+2013) ectylurea: 1
+2014) mhbo: 1
+2015) a lesson learned from a case study: 1
+2016) bodybuilding hds: 1
+2017) infantile pyknocytosis: 1
+2018) ifp: 1
+2019) the balloon of a foley catheter: 1
+2020) thick mucus: 1
+2021) ahc: 1
+2022) erosion of angiographically placed embolisation coils: 1
+2023) coccidioides immitis: 1
+2024) tumoral ductal migration: 1
+2025) eba: 1
+2026) ampullary growth: 1
+2027) phenazopyridine hydrochloride: 1
+2028) para - aminobenzyl caffeine hydrochloride: 1
+2029) intracystic materials: 1
+2030) corrosive injury to the duodenum: 1
+2031) alagille syndrome: 1
+2032) hepaticojejunostomy causing jaundice: 1
+2033) decreased conjugation: 1
+2034) pericholedochal non - neoplastic adenopthy: 1
+2035) prolapse of foley catheter gastrostomy tube: 1
+2036) early discharge: 1
+2037) abnormalities of the pancreaticobile duct system: 1
+2038) lymph stasis: 1
+2039) neuropsychiatric syndrome: 1
+2040) coledocholithiasis: 1
+2041) jaundice of perinatal period: 1
+2042) chongqing infective factors: 1
+2043) a solitary myofibroma: 1
+2044) irregular blood subgroups: 1
+2045) anemia accompanied by thrombocytopenia and jaundice: 1
+2046) severe anemia on admission: 1
+2047) the deepening anemia: 1
+2048) infectious haemolytic anaemia: 1
+2049) ab0 incompatibility: 1
+2050) congenital toxoplasmosis from india: 1
+2051) congenital panhypopituitarism: 1
+2052) chronic midgut volvulus: 1
+2053) chronic lymphocytic leukemia: 1
+2054) hpe: 1
+2055) alpha-1 - antitrypsin deficiency: 1
+2056) glycuronyltransferase deficiency: 1
+2057) birth injury: 1
+2058) a cystic tumor of the hepatic pedicle: 1
+2059) increased red cell breakdown: 1
+2060) red blood cell alloimmunization: 1
+2061) the physiological destruction of red blood cells in the infant: 1
+2062) cdc: 1
+2063) endoscopy: 1
+2064) duodenal somatostatinoma: 1
+2065) the duodenum non - neoplastic etiology: 1
+2066) acute relapsing biliopancreatitis: 1
+2067) stasis and in acute ccl 4 intoxication in rats: 1
+2068) multiple hepatic abscesses: 1
+2069) an increase in carbon dioxide production: 1
+2070) stents covering the papilla of vater: 1
+2071) hepatic cell damage: 1
+2072) von hippel lindau syndrome: 1
+2073) stones and diagnostic procedures: 1
+2074) intrabiliary mucin: 1
+2075) masses and stones: 1
+2076) malignant change: 1
+2077) ileal stenosis: 1
+2078) hepatopancreatobiliary tumors: 1
+2079) duodenal duplication cysts: 1
+2080) passenger lymphocyte syndrome: 1
+2081) subcutaneous and mediastinal emphysema: 1
+2082) obstruction and diabetes: 1
+2083) br: 1
+2084) hiv positive haemophiliac: 1
+2085) pancreatic contusions cause jaundice: 1
+2086) icp: 1
+2087) von hippel - lindau disease: 1
+2088) typhoid - paratyphoid diseases: 1
+2089) disease uniquely associated with the pregnant state or disease totally unrelated to the pregnancy: 1
+2090) a cholelithic disease: 1
+2091) a blunt abdominal injury: 1
+2092) extra - osseous ewing 's sarcoma: 1
+2093) intrahepatic deposit of light chains: 1
+2094) myriad causes makes the role of imaging in this setting particularly challenging: 1
+2095) porphyria cutanea tarda: 1
+2096) angiocholitis and stasis: 1
+2097) hepatic intra - arterial 5 - fluorodeoxyuridine fudr: 1
+2098) rc: 1
+2099) renal allotransplantation: 1
+2100) heart, eye and kidney development: 1
+2101) ovulation inhibitors: 1
+2102) an rrv - tuch rotavirus reassortant: 1
+2103) e.g. extracorporeal membrane oxygenation: 1
+2104) mumps: 1
+2105) cellulitis caused by insect bite: 1
+2106) a ruptured pda associated with cas: 1
+2107) polysplenia syndrome: 1
+2108) phc: 1
+2109) dic: 1
+2110) carcinoid tumor of the papilla of vater: 1
+2111) tumor of the papilla 1: 1
+2112) rarity: 1
+2113) adenocarcinoma of the common hepatic duct: 1
+2114) ahdfn: 1
+2115) bilhaemia: 1
+2116) nhs: 1
+2117) unusual somatostatin - rich carcinoids in the ampulla of vater: 1
+2118) macrocarpa: 1
+2119) berberine: 1
+2120) il-2: 1
+2121) ccm: 1
+2122) hypercatabolism: 1
+2123) tumors with various localization: 1
+2124) penicillamine: 1
+2125) bdtt: 1
+2126) ibs: 1
+2127) upshaw - schulman syndrome: 1
+2128) septo - optic dysplasia: 1
+2129) tumoral hepatopathies: 1
+2130) forced expression of murine il-17e: 1
+2131) hepatomegaly and elevation of the alkaline phosphatase: 1
+2132) intermediate - grade nhl: 1
+2133) the haemolytic - uraemic syndrome: 1
+2134) toxin: 1
+2135) clogging of the endoprostheses: 1
+2136) light chain myeloma: 1
+2137) intestinal tissue injury and precirrhotic changes: 1
+2138) maternal ingestion of veniwelgata: 1
+2139) placement of a nasoenteric feeding tube: 1
+2140) associated systemic autoimmune: 1
+2141) unresectable lesions: 1
+2142) sle: 1
+2143) progressive systemic sclerosis: 1
+2144) fm: 1
+2145) functional obstruction: 1
+2146) a nontumoral obstruction: 1
+2147) traumatic pancreatic granuloma: 1
+2148) light chain deposition disease: 1
+2149) igg4 - related disease: 1
+2150) border disease in lambs: 1
+2151) bouillaud disease: 1
+2152) a histopathology - proven somatostatinoma tumour: 1
+2153) hyperargininemia: 1
+2154) hemolysin: 1
+2155) mucinous neoplasm treated with cholangioscopy - guided radiofrequency ablation: 1
+2156) hepatic, gallbladder, pancreatic lesions: 1
+2157) atorvastatin: 1
+2158) low lecithin - cholesterol acyltransferase activity: 1
+2159) inversus: 1
+2160) antibody: 1
+2161) combat - related injuries: 1
+2162) he: 1
+2163) grenade splinter migration: 1
+2164) clozapine: 1
+2165) a rare hematopoietic neoplasm: 1
+2166) 4,560 r.p.( ampliactil): 1
+2167) metstatic testicular teratoma: 1
+2168) non - resectable neoplasms causing: 1
+2169) head tumors( p<0.0001): 1
+2170) ethambutol: 1
+2171) azar: 1
+2172) the estolate which had previously been suspected of a frequent cause of jaundice: 1
+2173) this entity: 1
+2174) di(a: 1
+2175) cinchophen: 1
+2176) nonresectable perihilar tumors: 1
+2177) a defect in glucuronide formation: 1
+2178) obstruction of the common duct by aberrant artery: 1
+2179) compound: 1
+2180) myocardial infarction: 1
+2181) ajmaline: 1
+2182) the gp 's role: 1
+2183) mbo: 1
+2184) physiologic ones: 1
+2185) paratyphoid b bacilli: 1
+2186) distention of the gallbladder caused by cystic duct syndrome: 1
+2187) the hellp syndrome: 1
+2188) flurazepam hydrochloride: 1
+2189) an impacted shrapnel splinter: 1
+2190) pericholangitis: 1
+2191) movable kidney: 1
+2192) quiz hq 43: 1
+2193) the levorotatory form of furaltadone: 1
+2194) hemoglobinuria: 1
+2195) fluid: 1
+2196) analogy: 1
+2197) concrement: 1
+2198) ab: 1
+2199) gs: 1
+2200) laxative: 1
+2201) growth: 1
+2202) hds: 1
+2203) feeding: 1
+2204) bullet: 1
+2205) change: 1
+2206) literature: 1
+2207) surgery: 1
+2208) pathogen: 1
+2209) administration: 1
+2210) papilla: 1
+2211) condition: 1
+2212) injury: 1
+2213) case: 1
+2214) pseudocyst: 1
+2215) ulcerative: 1
+2216) metabolism: 1
+2217) duodenal: 1
+2218) etiology: 1
+2219) aneurysm: 1
+2220) syndrome: 1
+2221) serum: 1
+2222) inflammation: 1
