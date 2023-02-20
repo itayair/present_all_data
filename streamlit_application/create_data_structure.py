@@ -1,7 +1,7 @@
 import spacy
 from expansions_legacy import valid_deps, utils as ut
 from streamlit_application import sentence_representation
-import parse_medical_data
+from src.expansions import parse_medical_data
 
 # import json
 # import jsonpickle
